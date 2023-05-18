@@ -3,11 +3,11 @@ print("Importing disnake")
 from disnake.ext import commands
 from commands.ping import Ping
 print("Importing RVDS")
-#from RVDS.MDS import MDS
+from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
 
-#from AHS import AISupport#, Reminder
+from AHS import AISupport#, Reminder
 
 print("Completed!")
 from commands import owo,notify
@@ -59,7 +59,8 @@ hostOn = "Online :green_circle:"
 
 command_sync_flags = commands.CommandSyncFlags.default()
 command_sync_flags.sync_commands_debug = True
-
+activity = disnake.Activity(name='for troublemakers', type=disnake.ActivityType.watching)
+client = disnake.Client(activity=activity)
 bot = commands.Bot(
     command_prefix='!',
     command_sync_flags=command_sync_flags,
@@ -130,8 +131,8 @@ except:
     hostOn = "Offline :red_circle:"
 @bot.slash_command(description="WACA-Guard Information")
 async def about(inter):
-    botVer = "2.2.3"
-    depDate = "April 11th, 2023"
+    botVer = "3.0 Beta 1"
+    depDate = "May 17th, 2023"
     embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
 Deployed on: **{depDate}**
@@ -172,10 +173,12 @@ Easter Egg Listeners: **{insanityOn}**
 
 **Notable Changes:**
 
-- Increased MDS training data
-- Increased AI Support Data
-- Fixed an error with the owoify command
-- Fixed an error with the ticketing system
+- Fixed and updated vericheck
+- Fixed and updated backend organization
+- Made logging commands cross-server
+- Made acceptance commands cross-server
+- Added Network language
+- Added playing statuses
 
 """, color = disnake.Colour.brand_green())
     await inter.response.send_message(embed=embed)
