@@ -13,10 +13,11 @@ class Log(Cog):
 
     @slash_command(description="Log a moderation action") #The actual command
     async def log(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, reason: str, notes: str = "N/A", punishment: str = Param(choices=["Verbal Warning", "1 Hour Ban", "3 Hour Ban", "6 Hour Ban","1 Day Ban", "3 Day Ban", "5 Day Ban", "7 Day Ban", "14 Day Ban", "Permanent Ban", "Permanent Ban Without Appeal"])):
+        server = inter.guild.name
         inChannelMsg = f'''
     **Dear {user},**
 
-    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated SMPWACA Community Guidelines (The Rules).
+    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated {server} Community Guidelines (The Rules).
 
     Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
 
@@ -28,12 +29,12 @@ class Log(Cog):
     We hope this will be a learning experience for you.
 
     **Regards,**
-    **SMPWACA Management**
+    **{server} Management Team**
     '''
         inDMMessage= f'''
     **Dear {user},**
 
-    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated SMPWACA Community Guidelines (The Rules).
+    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated {server} Community Guidelines (The Rules).
 
     Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
 
@@ -45,7 +46,7 @@ class Log(Cog):
     We hope this will be a learning experience for you.
 
     **Regards,**
-    **SMPWACA Management**
+    **{server} Management Team**
     '''
 
         bot = self.bot
@@ -134,7 +135,34 @@ class Log(Cog):
         embed.add_field(name="Moderator Notes: ", value=notes, inline = True)
 
         await channel.send(embed=log)
+        try:
+            log = disnake.Embed(
+            title=f"{user} has been DMed their notice!", # Smart or smoothbrain?????
+            color=5639085, # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
+            timestamp=datetime.now(), #Get the datetime... now...
+        )
         
+            log.set_author( # Narcissism
+            name="SMPWACA Moderation",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+        )
+
+            log.set_footer( # Show the moderator
+            text=f"Logged by {inter.author.name}",
+            icon_url=inter.author.display_avatar,
+        )
+
+            log.set_thumbnail(inter.author.display_avatar)
+
+            log.add_field(name="Notice Reason: ", value=reason, inline=False)
+            
+            channel = disnake.utils.get(inter.guild.channels, name = "📂dms")
+            await channel.send(embed=log)
+        except Exception as e:
+            channel = disnake.utils.get(inter.guild.channels, name = "📂dms")
+            await channel.send(f"Error getting DM from {user}! {e}")
+        else:
+            return
 
         try:
             
@@ -174,10 +202,10 @@ class Log(Cog):
 
                 log.add_field(name="DM Reason: ", value=reason, inline=False)
                 
-                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
+                channel = disnake.utils.get(inter.guild.channels, name = "📂dms")
                 await channel.send(embed=log)
             except Exception as e:
-                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
+                channel = disnake.utils.get(inter.guild.channels, name = "📂dms")
                 await channel.send(f"Error getting DM from {message.author}! {e}")
             else:
                 return

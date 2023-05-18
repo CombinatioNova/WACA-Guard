@@ -32,7 +32,7 @@ class Close(Cog):
             )
 
             
-            channel = disnake.utils.get(user.guild.channels, name = "📂transcripts")
+            channel = disnake.utils.get(inter.guild.channels, name = "📂transcripts")
                 
             
             

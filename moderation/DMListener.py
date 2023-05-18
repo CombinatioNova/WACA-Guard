@@ -35,11 +35,20 @@ class DMListener(Cog):
 
                 log.add_field(name="Message: ", value=message.content, inline=False)
                 
-                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
-                await channel.send(embed=log)
+                # Get all guilds where the bot is in the "📂dms" channel
+                guilds = [
+                    guild
+                    for guild in bot.guilds
+                    if disnake.utils.get(guild.channels, name="📂dms") is not None
+                ]
+
+                # Send the message to all of the guilds
+                for guild in guilds:
+                    channel = disnake.utils.get(guild.channels, name="📂dms")
+                    if channel is not None:
+                        await channel.send(embed=log)
             except Exception as e:
-                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
-                await channel.send(f"Error getting DM from {message.author}! {e}")
+                print(f"Error getting DM from {message.author}! {e}")
             else:
                 return
 def setup(bot: Bot) -> None:
