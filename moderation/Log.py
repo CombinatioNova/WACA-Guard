@@ -13,6 +13,41 @@ class Log(Cog):
 
     @slash_command(description="Log a moderation action") #The actual command
     async def log(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, reason: str, notes: str = "N/A", punishment: str = Param(choices=["Verbal Warning", "1 Hour Ban", "3 Hour Ban", "6 Hour Ban","1 Day Ban", "3 Day Ban", "5 Day Ban", "7 Day Ban", "14 Day Ban", "Permanent Ban", "Permanent Ban Without Appeal"])):
+        inChannelMsg = f'''
+    **Dear {user},**
+
+    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated SMPWACA Community Guidelines (The Rules).
+
+    Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
+
+    You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
+    https://forms.gle/Rar6La3p7D56szUe9
+
+    You also have the right to your evidence. Below should be the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
+
+    We hope this will be a learning experience for you.
+
+    **Regards,**
+    **SMPWACA Management**
+    '''
+        inDMMessage= f'''
+    **Dear {user},**
+
+    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated SMPWACA Community Guidelines (The Rules).
+
+    Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
+
+    You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
+    https://forms.gle/Rar6La3p7D56szUe9
+
+    You also have the right to your evidence. You are able to request the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
+
+    We hope this will be a learning experience for you.
+
+    **Regards,**
+    **SMPWACA Management**
+    '''
+
         bot = self.bot
         global name
         name = user.display_name
@@ -40,11 +75,11 @@ class Log(Cog):
         log.add_field(name="Moderator Notes: ", value=notes, inline = False)
 
         
-        channel = bot.get_channel(1046919714665922680)#Audit Log
+        channel = disnake.utils.get(user.guild.channels, name = "waca-guard-audit")#Audit Log
         await channel.send(embed=log)
         #buttons
         edit = Button(label="Edit", custom_id=f"editLog",style=disnake.ButtonStyle.primary)
-        channel = bot.get_channel(916707865073422376)#Actual Log Channel
+        channel = disnake.utils.get(user.guild.channels, name = "📂moderation")
         await channel.send(embed=log,components=[edit])
         
         
@@ -63,23 +98,7 @@ class Log(Cog):
         log = disnake.Embed(
             title=f"NOTICE FOR: {user.display_name}", # Smart or smoothbrain?????
             color=disnake.Colour.brand_red(), # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
-            description=f'''
-    **Dear {user},**
-
-    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated SMPWACA Community Guidelines (The Rules).
-
-    Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
-
-    You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
-    https://forms.gle/Rar6La3p7D56szUe9
-
-    You also have the right to your evidence. Below should be the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
-
-    We hope this will be a learning experience for you.
-
-    **Regards,**
-    **SMPWACA Management**
-    ''',
+            description=inChannelMsg,
             timestamp=datetime.now(), #Get the datetime... now...
         )
         log.set_author( # Narcissism
@@ -98,23 +117,7 @@ class Log(Cog):
         embed = disnake.Embed(
             title=f"NOTICE FOR: {user.display_name}", # Smart or smoothbrain?????
             color=disnake.Colour.brand_red(), # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
-            description=f'''
-    **Dear {user},**
-
-    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated SMPWACA Community Guidelines (The Rules).
-
-    Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
-
-    You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
-    https://forms.gle/Rar6La3p7D56szUe9
-
-    You also have the right to your evidence. You are able to request the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
-
-    We hope this will be a learning experience for you.
-
-    **Regards,**
-    **SMPWACA Management**8
-    ''',
+            description=inDMMessage,
             timestamp=datetime.now(), #Get the datetime... now...
         )
         embed.set_author( # Narcissism
@@ -150,7 +153,37 @@ class Log(Cog):
             log.add_field(name="Error Message", value=error, inline=False)
             log.add_field(name="Likely Cause:", value="User does not have DM's enabled!", inline=True)
             log.add_field(name="Remedy:", value="Convince the user to turn on DMs or manually DM them by sending a friend request.", inline=True)
+            try:
+                log = disnake.Embed(
+                title=f"{user} has been sent sent a dm!", # Smart or smoothbrain?????
+                color=5639085, # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
+                timestamp=datetime.now(), #Get the datetime... now...
+            )
+            
+                log.set_author( # Narcissism
+                name="SMPWACA Moderation",
+                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+            )
+
+                log.set_footer( # Show the moderator
+                text=f"Sent by {message.author.name}",
+                icon_url=message.author.display_avatar,
+            )
+
+                log.set_thumbnail(message.author.display_avatar)
+
+                log.add_field(name="DM Reason: ", value=reason, inline=False)
+                
+                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
+                await channel.send(embed=log)
+            except Exception as e:
+                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
+                await channel.send(f"Error getting DM from {message.author}! {e}")
+            else:
+                return
+            
             await inter.response.send_message(embed=log, ephemeral = True)
+            
             pass
         except Exception as error:
             log = disnake.Embed(
@@ -225,6 +258,7 @@ class MyModal(disnake.ui.Modal):
         
         super().__init__(title="Edit Log",custom_id="editLogModal",components=components)
     async def callback(self, inter: disnake.ApplicationCommandInteraction):
+        
         bot = self.bot
         global ava
         print(inter.text_values.items())
@@ -252,15 +286,11 @@ class MyModal(disnake.ui.Modal):
         log.add_field(name="Reason: ", value=reason, inline=False)
         log.add_field(name="Moderator Notes: ", value=notes, inline = False)
 
-        channel = bot.get_channel(916707865073422376)
-        
-        
-        channel = bot.get_channel(1046919714665922680)
+        channel = disnake.utils.get(inter.user.guild.channels, name = "waca-guard-audit")
     
         await channel.send(embed=log)
         print("Sending embed")
         edit = Button(label="Edit", custom_id=f"editLog", style=disnake.ButtonStyle.primary)
-        channel = bot.get_channel(916707865073422376)
         print("Editing message")
         await inter.response.edit_message(embed=log, components=[edit])
         

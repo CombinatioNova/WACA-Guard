@@ -1883,7 +1883,7 @@ class MDS(Cog):
                         log.set_footer(text="Poly, RBF, and Linear Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif polyPrediction == 1 and linPrediction == 1:
                         
@@ -1893,7 +1893,7 @@ class MDS(Cog):
                         log.set_footer(text="Polynomial and Linear Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif linPrediction == 1 and prediction == 1:
                         
@@ -1903,7 +1903,7 @@ class MDS(Cog):
                         log.set_footer(text="Linear and RBF Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif polyPrediction == 1 and prediction == 1:
                         
@@ -1913,7 +1913,7 @@ class MDS(Cog):
                         log.set_footer(text="Polynomial and RBF Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif polyPrediction == 1:
                         embed.set_footer(text="Polynomial Flag")
@@ -1921,7 +1921,7 @@ class MDS(Cog):
                         log.set_footer(text="Polynomial Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif prediction == 1:
                         embed.set_footer(text="RBF Flag")
@@ -1929,7 +1929,7 @@ class MDS(Cog):
                         log.add_field(name="User",value=message.author,inline=True)
                         log.set_footer(text="RBF Flag")
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
         ##              
                     # Send the embed message
@@ -1954,42 +1954,43 @@ class MDS(Cog):
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0x00ff00)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
+                        
                         await channel.send(embed=log)
                     elif polyPrediction == 1 and linPrediction == 1:
                         embed.set_footer(text="Powynomiaw and Winear Fwag")
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif linPrediction == 1 and prediction == 1:
                         embed.set_footer(text="Winear and AwBF Fwag")
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif polyPrediction == 1 and prediction == 1:
                         embed.set_footer(text="Powynomial and AwBF Fwag")
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif polyPrediction == 1:
                         embed.set_footer(text="Powynomial Fwag")
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})", color=0xff0000)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
                     elif prediction == 1:
                         embed.set_footer(text="AwBF Fwag")
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})", color=0xff0000)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
-                        channel = self.bot.get_channel(937857318383652934)
+                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
                         await channel.send(embed=log)
         ##              
                     # Send the embed message

@@ -33,13 +33,12 @@ class DMListener(Cog):
 
                 log.set_thumbnail(message.author.display_avatar)
 
-                log.add_field(name="Message: ", value=message.content, inline=False) 
-                channel = bot.get_channel(970782773050740877)
-            
-                channel = bot.get_channel(970782773050740877)
+                log.add_field(name="Message: ", value=message.content, inline=False)
+                
+                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
                 await channel.send(embed=log)
             except Exception as e:
-                channel = bot.get_channel(970782773050740877)
+                channel = disnake.utils.get(user.guild.channels, name = "📂dms")
                 await channel.send(f"Error getting DM from {message.author}! {e}")
             else:
                 return

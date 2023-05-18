@@ -32,7 +32,8 @@ class Close(Cog):
             )
 
             
-            channel = bot.get_channel(913238399366885396)
+            channel = disnake.utils.get(user.guild.channels, name = "📂transcripts")
+                
             
             
             log = disnake.Embed(

@@ -1,13 +1,13 @@
 import disnake
 print("Importing disnake")
-from disnake.ext.commands import Bot
+from disnake.ext import commands
 from commands.ping import Ping
 print("Importing RVDS")
-from RVDS.MDS import MDS
+#from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
 
-from AHS import AISupport#, Reminder
+#from AHS import AISupport#, Reminder
 
 print("Completed!")
 from commands import owo,notify
@@ -20,6 +20,7 @@ from eastereggs import Mitochondria
 from eastereggs import bless
 from moderation import Close
 from commands import hostinfo
+from ServerStats import Status
 import os
 global testingMode
 global pingOn
@@ -56,13 +57,20 @@ DMListen = "Online :green_circle:"
 blessOn = "Online :green_circle:"
 hostOn = "Online :green_circle:"
 
-bot = Bot("!",sync_commands_debug=True,
-          intents=disnake.Intents.all(),
-          test_guilds=[912725322166829116])
+command_sync_flags = commands.CommandSyncFlags.default()
+command_sync_flags.sync_commands_debug = True
+
+bot = commands.Bot(
+    command_prefix='!',
+    command_sync_flags=command_sync_flags,
+    intents=disnake.Intents.all(),
+    )
+
 
 
 
 ## ADD COGS
+bot.add_cog(Status.Status(bot))
 bot.add_cog(Close.Close(bot))
 try:
     bot.add_cog(DMListener.DMListener(bot))
@@ -176,8 +184,8 @@ Easter Egg Listeners: **{insanityOn}**
 
 
     
-token = "OTIxMTAwMzUyMzAzMDMwMzU3.Gse5_e.qJz0DDAcw-2wEN-v7wWdvz-1NeiTPt9ggIN-Iw"
-testToken = "MTAzOTE2NjMyODAzODIyODEyMA.GdnGsq.9pcFZAul1zW7Gf0_a6cvBM5aCrUgqTj__DENDM"
+token = ""
+testToken = ""
 
 if testingMode:
     bot.run(testToken)
