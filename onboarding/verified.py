@@ -62,7 +62,7 @@ Check out {joinChan.mention} for information on how to join the minecraft server
         embed.add_field(name="Members checked: ", value=checked_members, inline=False)
         embed.add_field(name="Members changed: ", value=changed_members, inline=False)
         
-        channel = disnake.utils.get(inter.guild.channels, name = "📁waca-guard-audit")
+        channel = disnake.utils.get(inter.guild.channels, name = "waca-guard-audit")
         await channel.send(embed=embed)
         await inter.edit_original_response(f"Done! Verified {checked_members} members.")
 
