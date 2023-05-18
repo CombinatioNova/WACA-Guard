@@ -3,11 +3,11 @@ print("Importing disnake")
 from disnake.ext import commands
 from commands.ping import Ping
 print("Importing RVDS")
-from RVDS.MDS import MDS
+#from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
 
-from AHS import AISupport#, Reminder
+#from AHS import AISupport#, Reminder
 
 print("Completed!")
 from commands import owo,notify
@@ -21,6 +21,7 @@ from eastereggs import bless
 from moderation import Close
 from commands import hostinfo
 from ServerStats import Status
+from onboarding import ServerSetup
 import os
 global testingMode
 global pingOn
@@ -71,6 +72,7 @@ bot = commands.Bot(
 
 
 ## ADD COGS
+bot.add_cog(ServerSetup.SetupCommand(bot))
 bot.add_cog(Status.Status(bot))
 bot.add_cog(Close.Close(bot))
 try:
