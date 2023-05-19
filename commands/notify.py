@@ -12,7 +12,7 @@ class notify(Cog):
         await inter.response.defer(with_message = True,ephemeral=False)
         bot=self.bot
         embed = disnake.Embed(
-            title=f"Important Notification",
+            title=f"Notification",
             color=5639085,
             description = notification)
         embed.set_author(
@@ -27,10 +27,19 @@ class notify(Cog):
         
         acknowledge = Button(label="Acknowledge", custom_id=f"a",style=disnake.ButtonStyle.success)
         try:
-            await user.send(embed=embed,components=[acknowledge])
-            channel = bot.get_channel(970782773050740877)
-        
-            await channel.send(f"Sent a notification message to {user}")
+            await user.send(embed=embed)
+            guilds = [
+                guild
+                for guild in bot.guilds
+                if disnake.utils.get(guild.channels, name="📂dms") is not None
+            ]
+
+            # Send the message to all of the guilds
+            for guild in guilds:
+                channel = disnake.utils.get(guild.channels, name="📂dms")
+                if channel is not None:
+                    await channel.send(f"Sent a notification message to {user}")
+                
             embed2 = disnake.Embed(
                 title=f"Notification Log",
                 color=5639085,
@@ -43,8 +52,18 @@ class notify(Cog):
                 text=f"Sent to {user}",
                 icon_url=user.display_avatar
                 )
-        
-            await channel.send(embed=embed2)
+            guilds = [
+                guild
+                for guild in bot.guilds
+                if disnake.utils.get(guild.channels, name="📂dms") is not None
+            ]
+
+            # Send the message to all of the guilds
+            for guild in guilds:
+                channel = disnake.utils.get(guild.channels, name="📂dms")
+                if channel is not None:
+                    await channel.send(embed=embed2)
+            
             await inter.edit_original_message(content = f"Sent a notification message to {user.display_name} and logged the message!")
         except disnake.Forbidden as error:
             log = disnake.Embed(
@@ -80,7 +99,7 @@ class notify(Cog):
         bot=self.bot
         if inter.component.custom_id.startswith(f"a"):
             
-            channel = bot.get_channel(970782773050740877)
+            
             embed = disnake.Embed(title="Notice Acknowledged",color=5639085,)
             embed.set_author(
                 name="WACA-Guard Notice Log",
@@ -90,7 +109,17 @@ class notify(Cog):
                 text=f"Sent to {inter.user.display_name}",
                 icon_url=inter.user.display_avatar
                 )
-            await channel.send(embed=embed)
+            guilds = [
+                guild
+                for guild in bot.guilds
+                if disnake.utils.get(guild.channels, name="📂dms") is not None
+            ]
+
+            # Send the message to all of the guilds
+            for guild in guilds:
+                channel = disnake.utils.get(guild.channels, name="📂dms")
+                if channel is not None:
+                    await channel.send(embed=embed)
             await inter.send("Notification has been sent to the staff team. Thank you for notifying us that you've recieved this message.")
 def setup(bot: Bot) -> None:
     bot.add_cog(Ping(bot))            

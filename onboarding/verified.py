@@ -17,10 +17,13 @@ class on_verification(Cog):
         bot = self.bot
         
         if "Wick Verified" in [r.name for r in after.roles] and "Wick Verified" not in [r.name for r in before.roles]:
-            channel = bot.get_channel(913207064136925254)# replace channel_id with the actual ID of the channel you want to send the message in
-            joinChan = bot.get_channel(912727464768307240)
-            role = disnake.utils.get(after.guild.roles, name="Greeter")
-            await channel.send(f"""{role.mention} Please welcome {after.mention} to SMPWACA!
+            role = disnake.utils.get(after.guild.channels, name="🏠│general")# replace channel_id with the actual ID of the channel you want to send the message in
+            joinChan = disnake.utils.get(after.guild.channels, name="✅│how-to-join")
+            if after.guild.id == 912725322166829116:
+                role = disnake.utils.get(after.guild.roles, name="Welcomers")
+            else:
+                role = disnake.utils.get(after.guild.roles, name="Greeter")
+            await channel.send(f"""{role.mention} Please welcome {after.mention} to {after.guild.name}!
             
 
 Check out {joinChan.mention} for information on how to join the minecraft server! If you have trouble joining, feel free to reach out!""")

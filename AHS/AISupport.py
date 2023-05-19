@@ -435,6 +435,11 @@ Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
 
                
                ])
+
+smpwacaID = 912725322166829116
+tortopiaID = 826107409906008085
+parabellumID = 1069398385758580757
+
 iris = load_iris()
 
 #vectorizing dataset
@@ -552,7 +557,7 @@ class Support(Cog):
                     channel = self.bot.get_channel(913208895017717810)
                     yes1 = Button(label="Yes",custom_id=f"yes1",style=disnake.ButtonStyle.success)
                     no1 = Button(label="No",custom_id=f"no1",style=disnake.ButtonStyle.danger)
-                    embed = disnake.Embed(title='Do you need help?', description=f'Use the {channel.mention} channel  to open a support ticket to get help! \nWould you like me to open a ticket for you now?', color=0xffa500)
+                    embed = disnake.Embed(title='Do you need help?', description=f'Use the get-support channel  to open a support ticket to get help! \nWould you like me to open a ticket for you now?', color=0xffa500)
 
                     # Send the embed to the channel
                     await message.channel.send(embed=embed, components = [yes1, no1])
@@ -567,14 +572,22 @@ class Support(Cog):
                 print(f"POLY {polyPrediction2}")
                 if polyPrediction2 == 1:
                 # Create the embed
-                    embed = disnake.Embed(title='Join the server!', description='Join through play.smpwaca.com! The server is in 1.19.3. Make sure to send the code to the Server Information bot!', color=0x00ff00)
-
+                    if message.guild.id == smpwacaID:
+                        embed = disnake.Embed(title='Join the server!', description='Join through play.smpwaca.com! The server is in 1.19.3. Make sure to send the code to the Server Information bot!', color=0x00ff00)
+                    elif message.guild.id == tortopiaID:
+                        embed = disnake.Embed(title='Join the server!', description='Join through tortopiabeta.falix.gg! The server is in 1.19.2. ', color=0x00ff00)
+                    elif message.guild.id == parabellumID:
+                        embed = disnake.Embed(title='Join the server!', description='Join through parabellum.smpwaca.com! The server is in 1.19.3. Make sure to send the code to the Server Information bot!', color=0x00ff00)
+                    else:
+                        embed = disnake.Embed(title='Join the server!', description='Check the top of the server for more information!', color=0x00ff00)
                 # Send the embed to the channel
                     await message.channel.send(embed=embed)
     @Cog.listener()
     async def on_button_click(self, inter):
-        
-        role = disnake.utils.get(inter.user.guild.roles, name="Staff")
+        if inter.guild.id == 826107409906008085:
+            role = disnake.utils.get(inter.user.guild.roles, name="Moderation Team")
+        else:
+            role = disnake.utils.get(inter.user.guild.roles, name="Staff")
         if inter.component.custom_id.startswith("yesCrash"):
             yesCrash = Button(label="Yes",custom_id=f"yesCrash",style=disnake.ButtonStyle.success)
             noCrash = Button(label="No",custom_id=f"noCrash",style=disnake.ButtonStyle.danger)
