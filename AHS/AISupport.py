@@ -9,13 +9,15 @@ import re
 import numpy as np
 
 from disnake.ext.commands import Bot, Cog,Param,slash_command
+from disnake.ext import tasks
 from disnake.ui import Button
 from disnake.utils import get
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 from sklearn.model_selection import cross_val_score
-from datetime import datetime
+from datetime import datetime, time
 from sklearn.feature_extraction.text import CountVectorizer
+import socket
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -276,7 +278,9 @@ https://forms.gle/Jc1M93P1i1EhbHkQ9
 
 @General Pings @Community Pings @Events Pings""",
 "how do i join the server",
-              
+              "i only know TWO things staff wise",
+              "hello, i'm here about the stolen netherite chestplate",
+              "where was the chest tht it was stolen from",
               
              
               
@@ -413,7 +417,167 @@ Your answers will be carefully considered for future decisions in the SMP. Thank
 https://forms.gle/Jc1M93P1i1EhbHkQ9
 
 @General Pings @Community Pings @Events Pings""",
+               "A server updated forum Whaaaatttgreenarrowi080976452595499i52 You heard me right We are using a forum alongside many other servers including SMPWACA to keep you up to date on the server updates Not only can you discuss the update in a designated area but you can quickly search for them and navigate across the channels using the search tab and our tags We also added i09002926i07656202 into our onboarding so be sure to check it outbbulletpoint9e0898977i49e08949 Significantly less voice channelsgreenarrowi080976452595499i52 We can all admit thay we get a bit confused when we look at a list of 500 million voice channels its just easier when theres 4 Thats it for today everybody Before we go id just like to say a HUGE thank you to 45802e820i299927i6 for doing pretty much everything in this cleanup Thanks a bunchStay Safe Tortopians Tortoise8e9i485e7589006e77",
+               "Everything has changedServer Cleanup Part 7 is LIVE and heres what you missedWere gonna jump straight into this announcement as we have a lot to share since our integration into the Network Without a Cool Acronym NWACA has been running full steam ahead for the past few days bbulletpoint9e0898977i49e08949 Channel Makeovergreenarrowi080976452595499i52 You will have definitely noticed that our channels have received a huge makeover which is an attempt to standardise server design crossnetwork to make servers as userfriendly as possible This means that you will be able to quickly switch between Tortopia and any server on the Network without thinking twice It also looks REALLY nicebbulletpoint9e0898977i49e08949 The end of small announcementsgreenarrowi080976452595499i52 No Small announcements was a place where we could share random stuff with you guys without summoning the entire server Its not gone but it has a new home 826i0995662766i02 will be home to small announcements polls and more fun stuff Youll just have to wait and seebbulletpoint9e0898977i49e08949 WTF is WACAGuardgreenarrowi080976452595499i52 WACAGuard is here to help us keep the server clean and help you find your way around It can help you answer questions you have by responding to the most common ones across the serverbbulletpoint9e0898977i49e08949 We ditched MEE6greenarrowi080976452595499i52 If you look over the scamming e million dollars and the relentless paywalls MEE6 is still a pretty terrible bot So we ditched it MEE6 wasnt the only bot we got rid of though We said goodbye to Airhorn and Talking Ben bot too",
+               "This is a quick hotfix for small tweaks made to the server Adjusted some emojiss such as i08822578i450ie770 9722e9455484260e82 and i007046e68478646282 to make a little more sense and fit in more Moved suggestions to the Whats new in WACA tab ",
+               "how to join server",
+               "whats the ip",
+               "uh whats the ip and stuff and Im assuming this server is vanilla",
+               "what is the ip",
+               "how much do you need again",
+
+               "Hey what's the server IP?",
+               "What's the server IP?",
+               "what is the server IP",
+               "I don't know why people keep asking what the  server ip is...",
+               "GOD WHAT IS THE SERVER IP FOR FUCKS SAKE",
+               "Yeah no I know what the ip is dw",
+               "What is your IP",
+               "What is my ip",
+               "What is the IP of the mc server",
+               "What are you like",
+               "What are your favorite things to do",
+               "What might the server IP be good sir",
+               "Why isn't the server IP cooler",
                
+               "im starting the mc server if anyone wants to hop on",
+               "@mika shpeka Welcome to the server! Please check ⁠📜│rules to verify and gain access to the server. You can find information on how to join the minecraft server in ⁠🧭│information.",
+#BARD BELOW
+               "What is the best Minecraft server?", #There are 9 here
+"Where can I find a list of Minecraft servers?",
+"How do I create a Minecraft server?",
+"What are the different types of Minecraft servers?",
+"What are some popular Minecraft servers?",
+"How do I connect to a different Minecraft server?",
+"What are the server settings for Minecraft?",
+"What are the different Minecraft server commands?",
+"How do I troubleshoot Minecraft server issues?",
+
+               "What is the Minecraft server IP?",#There are 10 here
+  "What is this server IP?",
+  "How do I find the Minecraft server IP?",
+  "Where can I find the Minecraft server IP?",
+  "Can you tell me the Minecraft server IP?",
+  "please tell me the Minecraft server IP?",
+  "What is the IP address of the Minecraft server?",
+  "what is the IP for this Minecraft server?",
+  "What is the address of the server?",
+  "what is the hostname of the Minecraft server?",
+
+#CHATGPT BELOW
+               "What is the server IP?", #There are 20 here
+    "Can someone tell me the IP address of the server?",
+    "How can I connect to the server? What's the IP?",
+    "I'm new here. Could you please share the server IP?",
+    "What's the IP I should use to join the server?",
+    "Is there a specific IP address I need to connect to the server?",
+    "Can anyone provide me with the server's IP?",
+    "I'm having trouble finding the server. What's the IP?",
+    "Could you kindly share the server IP with me?",
+    "I can't seem to connect. What's the IP I should use?",
+    "Where can I find the server IP for joining?",
+    "Does anyone know the server IP?",
+    "I'd like to join the server. What IP do I need?",
+    "Could someone help me with the server's IP?",
+    "What's the IP address I should enter to join the server?",
+    "Can you please let me know the server IP?",
+    "I'm unable to locate the server. What's the IP?",
+    "How do I connect to the server? What's the IP address?",
+    "Can you give me the server IP, please?",
+    "Where can I find the IP to join the server?",
+
+               "What version of Minecraft does the server run?", #1 here
+               
+    "How many players are currently online?", #18 Here
+    "Is the server in survival or creative mode?",
+    "Are there any specific rules I need to follow on this server?",
+    "Can I use mods or plugins on the server?",
+    "What are the server's gameplay settings?",
+    "Is PvP (Player vs. Player) enabled on the server?",
+    "Are there any banned items or blocks on the server?",
+    "Do you have a Discord server or any other community platforms?",
+    "Is the server whitelist-only or open to everyone?",
+    "Are there any specific plugins or modifications on the server?",
+    "Is there a server shop or economy system in place?",
+    "What are the server's voting rewards or benefits?",
+    "Do you have any specific server events or activities?",
+    "Are there any restrictions on building or claiming land?",
+    "What are the server's grief protection measures?",
+    "Is there a server website or forums for additional information?",
+    "Are there any limitations on mob spawning or farms?",
+    "Can I join the server from a different Minecraft edition or platform?",
+
+               "The server IP is easy to remember.", #20 here
+    "I like how the server IP is short and simple.",
+    "The server IP is hard to memorize.",
+    "The IP address of the server is unique.",
+    "The server IP is long but memorable.",
+    "I find the server IP easy to share with friends.",
+    "The IP of the server is difficult to type correctly.",
+    "I appreciate that the server IP is easy to pronounce.",
+    "The server IP is catchy and stands out.",
+    "I struggle to remember the server IP.",
+    "The IP address of the server is hard to misspell.",
+    "I like that the server IP reflects the server's theme.",
+    "The server IP is straightforward and uncomplicated.",
+    "I have no trouble remembering the server IP.",
+    "The IP of the server is too generic.",
+    "I think the server IP is unique and interesting.",
+    "The server IP is hard to share verbally.",
+    "I wish the server IP was shorter.",
+    "The IP address of the server is difficult to pronounce.",
+    "I find the server IP memorable and easy to recognize.",
+
+               "I like the name of the server ip", #Personal Changes
+               "YKnow, this IP is kinda nice",
+               "I like the server IP",
+
+               "How did the server obtain its IP address?", #20 here
+    "Is the server IP dynamic or static?",
+    "What factors influenced the choice of the server's IP?",
+    "Are there any plans to change the server IP in the future?",
+    "Does the server IP have any significance or meaning?",
+    "Has the server IP ever been changed in the past?",
+    "What criteria were considered when assigning the server IP?",
+    "Are there any restrictions or limitations associated with the server IP?",
+    "Has the server IP ever been associated with a different server or network?",
+    "Are there any alternate IPs or domains that can be used to connect to the server?",
+    "Is the server IP shared with any other game servers or services?",
+    "How does the server IP impact the server's performance or connectivity?",
+    "Are there any plans to expand the server's IP range or address space?",
+    "Does the server IP have any geographic significance or location-based association?",
+    "Has the server IP ever been blacklisted or banned in the past?",
+    "What measures are in place to protect the server IP from malicious attacks?",
+    "Are there any protocols or security measures related to the server IP?",
+    "Is the server IP managed internally or provided by a hosting service?",
+    "Has the server IP ever experienced connectivity issues or downtime?",
+    "Are there any backup IPs or failover mechanisms in case of IP-related problems?",
+
+               "I hope you all can find the server IP fine", #me again
+               "I like the server IP",
+               "I like your choice of IP",
+               "I AM GOING TO CRY ABOUT THIS IP",
+               
+               "What does IP stand for?", #20
+    "How can I find my IP address?",
+    "What is the purpose of an IP address?",
+    "Can I change my IP address?",
+    "What is a server?",
+    "How does a server work?",
+    "What are the different types of servers?",
+    "What is a server administrator?",
+    "How do I connect to a server?",
+    "What is the difference between a local server and a remote server?",
+    "How do I set up a server?",
+    "What is server maintenance?",
+    "What is an IP whitelist?",
+    "How do I secure my server?",
+    "What is an IP ban?",
+    "How can I check if a server is online?",
+    "What is a server restart?",
+    "What is a dedicated IP?",
+    "How do I troubleshoot server connection issues?",
+    "What is a server log?",
                ])
 Y = np.array([0,1,1,1,1,0,1,0,1,
 0,1,0,0,1,
@@ -427,12 +591,23 @@ Y = np.array([0,1,1,1,1,0,1,0,1,
 1,1,1,1,1,1,1,1,1,0,1,0,0,0,1,0,0,1,0,0,0,1,1,1,1,1,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 ,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-               1,1,1,0,1,1,1,1,1,1,1,0,0,1
+               1,1,1,0,1,1,1,1,1,1,1,0,0,1,0,0,0
               ])
 Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
               0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,0,0,0,0,0,1,0,0
-
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,
+               0,0,0,1,1,1,1,0,
+               1,1,1,0,1,0,0,0,1,0,0,1,0,0,0,
+               0,0,0,0,0,0,0,0,0,
+               1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+               1,
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+               0,0,0,
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+               
                
                ])
 
@@ -448,9 +623,9 @@ vectorizer2 = TfidfVectorizer()
 #instantiate SVM classifier
 
 polyGrid ={
-    'C': [0.1,0.01,0.04,1,5,10,18,15,20],
+    'C': [0.1,0.01,0.04,1,.5,.8,2,5,10,18,15,20],
     'kernel': ['poly'],
-    'degree': [2,4,6,7,8],
+    'degree': [2,4,5,6,7,8],
     'coef0': [0, 1,2 ,5, 10,15]}
 optionPoly = GridSearchCV(SVC(), polyGrid, n_jobs = -1)
 # Train the classifier
@@ -487,7 +662,22 @@ IP_WORDS = ['ip','server','how']
 class Support(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
+        self.servers = {
+            "smpwaca": {
+                "domain": "play.smpwaca.com",
+                "discord_id": 912725322166829116  # Replace with your SMPWACA Discord server ID
+            },
+            "tortopia": {
+                "domain": "tortopiabeta.falix.gg",
+                "discord_id": 826107409906008085  # Replace with your Tortopia Discord server ID
+            },
+            "parabellum": {
+                "domain": "play.smpwaca.com",
+                "discord_id": 1069398385758580757  # Replace with your Parabellum Discord server ID
+            }
+        }
         
+        self.check_server.start()
     
     @Cog.listener()
     async def on_ready(self):
@@ -518,12 +708,82 @@ class Support(Cog):
         await channel.send(embed=embed)
 
     
+    @tasks.loop(minutes=10)
+    async def check_server(self):
+        current_time = datetime.now().time()
+        if not self.is_within_scheduled_time(current_time):
+            for server_name, server_info in self.servers.items():
+                server_domain = server_info["domain"]
+                server_ip = await self.get_server_ip(server_domain)
+                discord_id = server_info["discord_id"]
+                guild = self.bot.get_guild(discord_id)
+                if guild:
+                    channel = disnake.utils.get(guild.channels, name="🐛│bug-reports")
+                    if not channel:
+                        channel = disnake.utils.get(guild.channels, name="🎮│mc-chat")
+                    if channel:
+                        try:
+                            async with aiohttp.ClientSession() as session:
+                                url = f"https://mcapi.us/server/status?ip={server_ip}"
+                                async with session.get(url) as response:
+                                    data = await response.json()
+                                    if 'online' in data and not data['online']:
+                                        embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is unresponsive.", color=disnake.Color.red())
+                                        await channel.send(embed=embed)
+                                    else:
+                                        channel = disnake.utils.get(guild.channels, name="waca-gaurd-audit")
+                                        embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional.", color=disnake.Color.green())
+                        except Exception as e:
+                            print(f"An error occurred while checking the server {server_name}: {str(e)}")
+                            error_channel = disnake.utils.get(guild.channels, name="🤖│bot-commands")
+                            if error_channel:
+                                await error_channel.send(f"An error occurred while checking the server {server_name}: {str(e)}")
+
+    @staticmethod
+    def is_within_scheduled_time(current_time):
+        start_time = time(19, 30)  # 7:30 PM EST
+        end_time = time(20, 30)  # 8:30 PM EST
+        return not start_time <= current_time <= end_time
+
+    async def get_server_ip(self, server_domain):
+        try:
+            ip = socket.gethostbyname(server_domain)
+            return ip
+        except socket.gaierror:
+            print(f"Failed to resolve the domain name: {server_domain}")
+            
+    @slash_command()
+    async def crashcheck(self, inter: disnake.ApplicationCommandInteraction):
+        server_id = inter.guild.id
+
+        for server_info in self.servers.values():
+            if server_info.get("discord_id") == server_id:
+                server_domain = server_info["domain"]
+                server_ip = await self.get_server_ip(server_domain)
+
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        url = f"https://mcapi.us/server/status?ip={server_ip}"
+                        async with session.get(url) as response:
+                            data = await response.json()
+                            if 'online' in data:
+                                if data['online']:
+                                    embed = disnake.Embed(title="Server Status", description=f"The server **{inter.guild.name}** is online.", color=disnake.Color.green())
+                                else:
+                                    embed = disnake.Embed(title="Server Status", description=f"The server **{inter.guild.name}** is offline.", color=disnake.Color.red())
+                                await inter.response.send_message(embed=embed)
+                except Exception as e:
+                    embed = disnake.Embed(title="Server Status", description=f"An error occurred while checking the server status: {str(e)}", color=disnake.Color.red())
+                    await inter.response.send_message(embed=embed)
+                break
+        else:
+            embed = disnake.Embed(title="Server Status", description=f"No server information found for **{inter.guild.name}**.", color=disnake.Color.orange())
+            await inter.response.send_message(embed=embed)    
 
     @Cog.listener()
     async def on_message(self, message):
         crashed_patterns = [
-        "server crashed","the server room is on fire","did the server crash","i think the server crashed","idk about you but the server clearly crashed","the server just crashed", "it just crashed"
-            ]
+        "server crashed","the server room is on fire","did the server crash","i think the server crashed","idk about you but the server clearly crashed","the server just crashed", "it just crashed"]
         if message.author == self.bot.user:
             return
         with open("users.txt", "r") as file:
@@ -535,15 +795,15 @@ class Support(Cog):
         if message.author == self.bot.user:
             return
         
-        crashed_response = process.extractOne(message.content, crashed_patterns, scorer=fuzzywuzzy.fuzz.token_sort_ratio, score_cutoff=70)
-        if crashed_response:
-            yesCrash = Button(label="Yes",custom_id=f"yesCrash",style=disnake.ButtonStyle.success)
-            noCrash = Button(label="No",custom_id=f"noCrash",style=disnake.ButtonStyle.danger)
-            embed = disnake.Embed(title='Did the server crash?', description=f'I heard some people talking about a crash. Is this true? Please use the buttons below to answer.', color=0xffa500)
-
-            # Send the embed to the channel
-            await message.channel.send(embed=embed, components = [yesCrash, noCrash])
-            # Check if the user ID is already in the list
+##        crashed_response = process.extractOne(message.content, crashed_patterns, scorer=fuzzywuzzy.fuzz.token_sort_ratio, score_cutoff=70)
+##        if crashed_response:
+##            yesCrash = Button(label="Yes",custom_id=f"yesCrash",style=disnake.ButtonStyle.success)
+##            noCrash = Button(label="No",custom_id=f"noCrash",style=disnake.ButtonStyle.danger)
+##            embed = disnake.Embed(title='Did the server crash?', description=f'I heard some people talking about a crash. Is this true? Please use the buttons below to answer.', color=0xffa500)
+##
+##            # Send the embed to the channel
+##            await message.channel.send(embed=embed, components = [yesCrash, noCrash])
+##            # Check if the user ID is already in the list
         if message.author.id not in users:
             # Apply pre-processing to the message
             message_content = await preprocess_text(self,message.content)

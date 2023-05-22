@@ -1,39 +1,49 @@
 import disnake
-from disnake.ext.commands import Bot, Cog
+from disnake.ext.commands import Bot, Cog, slash_command
 from disnake.utils import get
-import asyncio
+from disnake.ext import tasks
+from datetime import datetime, time
 
 class BumpPings(Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
-
-    @Cog.listener()
-    async def on_ready(self):
         # Set the ID and name of the first server
         tortopia_id = 912725322166829116
-        tortopia_name = "Tortopia"
         tortoGuild = disnake.utils.get(self.bot.guilds, id=tortopia_id)
-        # Set the ID and name of the second server
-        smpwaca_id = 826107409906008085
-        smpwaca_name = "SMPWACA"
-        smpwacaGuild = disnake.utils.get(self.bot.guilds, id=smpwaca_id)
-        # Get the "Bump Pings" role in the first server
-        tortopia_bump_pings_role = disnake.utils.get(tortoGuild.roles, name="Bump Pings")
+        # Set the ID and name of the second server     
+  
+    @tasks.loop(minutes=120)
+    async def tortoRemind(self):
+        tortopia_id = 826107409906008085
+        tortoGuild = disnake.utils.get(bot.guilds, id=tortopia_id)
+        role = disnake.utils.get(tortoGuild.roles, name="Bump Pings")
+        channel = disnake.utils.get(tortoGuild.channels, name="🤖│bot-commands")
+        await channel.send(f"Remember to bump the server! {role.mention}")
 
-        # Get the "Bump Pings" role in the second server
-        smpwaca_bump_pings_role = disnake.utils.get(smpwacaGuild.roles, name="Bump Pings")
+    @tasks.loop(minutes=720)
+    async def wacaRemind(self):
+        smpwaca_id = 912725322166829116
+        smpwacaGuild = disnake.utils.get(bot.guilds, id=smpwaca_id)
+        role = disnake.utils.get(smpwacaGuild.roles, name="Bump Pings")
+        channel = disnake.utils.get(smpwacaGuild.channels, name="🤜│bump")
+        await channel.send(f"Remember to bump the server! {role.mention}")
 
-        # Create a task to ping the role every 12 hours in Tortopia
-        tortopia_ping_task = self.bot.loop.create_task(self.ping_role(tortopia_bump_pings_role, 12,"🤜│bump"))
+    @slash_command(description="Remind all servers to bump!")
+    async def bumpremind(self, inter: disnake.ApplicationCommandInteraction):
+        bot = self.bot
+        
+        smpwaca_id = 912725322166829116
+        smpwacaGuild = disnake.utils.get(bot.guilds, id=smpwaca_id)
+        role = disnake.utils.get(smpwacaGuild.roles, name="Bump Pings")
+        channel = disnake.utils.get(smpwacaGuild.channels, name="🤜│bump")
+        await channel.send(f"Remember to bump the server! {role.mention}")
 
-        # Create a task to ping the role every 2 hours in SMPWACA
-        smpwaca_ping_task = self.bot.loop.create_task(self.ping_role(smpwaca_bump_pings_role, 2,"🤖│bot-commands"))
-
-    async def ping_role(self, role, interval, channel):
-        while True:
-            await asyncio.sleep(interval * 3600)
-            await role.mention()
-
-
+        tortopia_id = 826107409906008085
+        tortoGuild = disnake.utils.get(bot.guilds, id=tortopia_id)
+        role = disnake.utils.get(tortoGuild.roles, name="Bump Pings")
+        channel = disnake.utils.get(tortoGuild.channels, name="🤖│bot-commands")
+        await channel.send(f"Remember to bump the server! {role.mention}")
+        
+        await inter.response.send_message("Done!", ephemeral = True)
 def setup(bot: Bot):
     bot.add_cog(BumpPings(bot))
