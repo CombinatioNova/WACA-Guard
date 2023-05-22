@@ -727,12 +727,12 @@ class Support(Cog):
                                 url = f"https://mcapi.us/server/status?ip={server_ip}"
                                 async with session.get(url) as response:
                                     data = await response.json()
-                                    if 'online' in data and not data['online']:
+                                    if data['online'] == False:
                                         embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is unresponsive.", color=disnake.Color.red())
                                         await channel.send(embed=embed)
                                     else:
                                         channel = disnake.utils.get(guild.channels, name="waca-gaurd-audit")
-                                        embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional.", color=disnake.Color.green())
+                                        embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional. \n \n {data['players']['online']} player(s) are online right now!", color=disnake.Color.green())
                         except Exception as e:
                             print(f"An error occurred while checking the server {server_name}: {str(e)}")
                             error_channel = disnake.utils.get(guild.channels, name="🤖│bot-commands")
@@ -763,12 +763,12 @@ class Support(Cog):
 
                 try:
                     async with aiohttp.ClientSession() as session:
-                        url = f"https://mcapi.us/server/status?ip={server_ip}"
+                        url = f"https://api.mcsrvstat.us/2/{server_ip}"
                         async with session.get(url) as response:
                             data = await response.json()
                             if 'online' in data:
-                                if data['online']:
-                                    embed = disnake.Embed(title="Server Status", description=f"The server **{inter.guild.name}** is online.", color=disnake.Color.green())
+                                if data['online'] == True:
+                                    embed = disnake.Embed(title="Server Status", description=f"The server **{inter.guild.name}** is online. \n \n {data['players']['online']} player(s) are online right now!", color=disnake.Color.green())
                                 else:
                                     embed = disnake.Embed(title="Server Status", description=f"The server **{inter.guild.name}** is offline.", color=disnake.Color.red())
                                 await inter.response.send_message(embed=embed)
