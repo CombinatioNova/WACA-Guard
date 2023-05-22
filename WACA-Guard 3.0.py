@@ -7,7 +7,7 @@ print("Importing RVDS")
 print("Completed!")
 print("Importing AI Support")
 
-#from AHS import AISupport#, Reminder
+from AHS import AISupport#, Reminder
 
 print("Completed!")
 from commands import owo,notify
@@ -21,7 +21,7 @@ from eastereggs import bless
 from moderation import Close
 from commands import hostinfo
 from ServerStats import Status
-from onboarding import ServerSetup
+from onboarding import ServerSetup, BumpReminder
 import os
 global testingMode
 global pingOn
@@ -66,12 +66,14 @@ bot = commands.Bot(
     command_prefix='!',
     command_sync_flags=command_sync_flags,
     intents=disnake.Intents.all(),
+    activity=activity
     )
 
 
 
 
 ## ADD COGS
+bot.add_cog(BumpReminder.BumpPings(bot))
 bot.add_cog(ServerSetup.SetupCommand(bot))
 bot.add_cog(Status.Status(bot))
 bot.add_cog(Close.Close(bot))
