@@ -23,6 +23,7 @@ class on_verification(Cog):
                 role = disnake.utils.get(after.guild.roles, name="Welcomers")
             else:
                 role = disnake.utils.get(after.guild.roles, name="Greeter")
+            channel = disnake.utils.get(after.guild.channels, name="🏠│general")
             await channel.send(f"""{role.mention} Please welcome {after.mention} to {after.guild.name}!
             
 

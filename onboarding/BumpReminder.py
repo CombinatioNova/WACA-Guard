@@ -28,6 +28,7 @@ class BumpPings(Cog):
         channel = disnake.utils.get(smpwacaGuild.channels, name="🤜│bump")
         await channel.send(f"Remember to bump the server! {role.mention}")
 
+        
     @slash_command(description="Remind all servers to bump!")
     async def bumpremind(self, inter: disnake.ApplicationCommandInteraction):
         bot = self.bot
@@ -45,5 +46,9 @@ class BumpPings(Cog):
         await channel.send(f"Remember to bump the server! {role.mention}")
         
         await inter.response.send_message("Done!", ephemeral = True)
+
+    async def on_ready():
+        tortoRemind.start()
+        wacaRemind.start()
 def setup(bot: Bot):
     bot.add_cog(BumpPings(bot))
