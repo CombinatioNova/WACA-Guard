@@ -578,6 +578,26 @@ https://forms.gle/Jc1M93P1i1EhbHkQ9
     "What is a dedicated IP?",
     "How do I troubleshoot server connection issues?",
     "What is a server log?",
+
+    """:wacanotice:  **PSA** :wacanotice:
+
+**Hello, Tortopians!** 
+
+For those of you who don't know me (yet!) my name is Cova and I'm the Network Overseer for The Network Without A Cool Acronym!
+
+I've been helping out @Harry#4880 and @Vixo_#5536 with some setup for the launch of Tortopia's MC server, and part of that is...
+
+**MAKE SURE THE SERVER GROWS!**
+
+In order to properly helpp the server grow, what we first need to do is start launching proper bump campaigns. 
+
+:greenarrow: **Check out <id:browse> and sign up for bump reminders!**
+
+The @WACA-Guard#2455 will remind everyone to bump every 2 hours. I'm going to make it a LITTLE more useful by trying to detect exactly when the server is bumped, but it's what we have for now.
+
+*Help us get Tortopia where it deserves to be! Let's boost this server TOGETHER!*
+
+@Announcements""",
                ])
 Y = np.array([0,1,1,1,1,0,1,0,1,
 0,1,0,0,1,
@@ -606,7 +626,7 @@ Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
                0,0,0,
                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,
-               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                
                
                ])
@@ -676,7 +696,7 @@ class Support(Cog):
                 "discord_id": 1069398385758580757  # Replace with your Parabellum Discord server ID
             }
         }
-        self.check_server.start()
+        
         
     
     @Cog.listener()
@@ -707,50 +727,49 @@ class Support(Cog):
     """, color=0x00ff00,timestamp=datetime.now())
         embed.set_footer(text=f"Bot ready in {delta.total_seconds()} seconds")
         await channel.send(embed=embed)
-
+        self.check_server.start()
     
     @tasks.loop(minutes=10)
     async def check_server(self):
         print("Started Loop Thing")
-        current_time = datetime.now().time()
-        if not self.is_within_scheduled_time(current_time):
-            for server_name, server_info in self.servers.items():
-                server_domain = server_info["domain"]
-                server_ip = await self.get_server_ip(server_domain)
-                discord_id = server_info["discord_id"]
-                guild = self.bot.get_guild(discord_id)
-                if guild:
-                    channel = disnake.utils.get(guild.channels, name="🐛│bug-reports")
+    
+        for server_name, server_info in self.servers.items():
+            server_domain = server_info["domain"]
+            print(server_domain)
+            server_ip = server_domain
+            discord_id = server_info["discord_id"]
+            guild = self.bot.get_guild(discord_id)
+            if guild:
+                print(guild)
+                channel = disnake.utils.get(guild.channels, name="🐛│bug-reports")
+                if not channel:
+                    print("Channel no exist")
+                    channel = disnake.utils.get(guild.channels, name="🎮│mc-chat")
                     if not channel:
-                        channel = disnake.utils.get(guild.channels, name="🎮│mc-chat")
-                        if not channel:
-                            channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
-                    if channel:
-                        try:
-                            async with aiohttp.ClientSession() as session:
-                                url = f"https://api.mcsrvstat.us/2/{server_ip}"
-                                async with session.get(url) as response:
-                                    data = await response.json()
-                                    if data['online'] == False:
-                                        embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is unresponsive.", color=disnake.Color.red())
-                                        await channel.send(embed=embed)
-                                    else:
-                                        channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
-                                        embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional. \n \n {data['players']['online']} player(s) are online right now!", color=disnake.Color.green())
-                        except Exception as e:
-                            print(f"An error occurred while checking the server {server_name}: {str(e)}")
-                            error_channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
-                            if error_channel:
+                        print("Channel also no exist")
+                        channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
+                if channel:
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            url = f"https://api.mcsrvstat.us/2/{server_ip}"
+                            async with session.get(url) as response:
+                                data = await response.json()
+                                if data['online'] == False:
+                                    embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is unresponsive.", color=disnake.Color.red())
+                                    await channel.send(embed=embed)
+                                else:
+                                    channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
+                                    print("Sent Message!")
+                                    embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional. \n \n {data['players']['online']} player(s) are online right now!", color=disnake.Color.green())
+                                    await channel.send(embed=embed)
+                    except Exception as e:
+                        print(f"An error occurred while checking the server {server_name}: {str(e)}")
+                        error_channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
+                        if error_channel:
                                 await error_channel.send(f"An error occurred while checking the server {server_name}: {str(e)}")
+            print("ended loop")
 
-            else:
-                print("it's in the time")
-
-    @staticmethod
-    def is_within_scheduled_time(current_time):
-        start_time = time(19, 50)  # 7:50 PM EST
-        end_time = time(20, 10)  # 8:10 PM EST
-        return not start_time <= current_time <= end_time
+    
 
     async def get_server_ip(self, server_domain):
         try:
