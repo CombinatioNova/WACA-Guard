@@ -7,7 +7,7 @@ import aiohttp
 import json
 import re
 import numpy as np
-
+import random
 from disnake.ext.commands import Bot, Cog,Param,slash_command
 from disnake.utils import get
 from fuzzywuzzy import process
@@ -1860,6 +1860,7 @@ class MDS(Cog):
 
             # Check if the user ID is already in the list
         if message.author.id not in users:
+            user = message.author
             # Apply pre-processing to the message
             message_content = await preprocess_text(self,message.content)
             if any(word in message_content.lower() for word in MEAN_WORDS) or any(fuzz.token_set_ratio(word, message_content) > 80 for word in MEAN_WORDS) or bool(re.search(r'\b(' + '|'.join(MEAN_WORDS) + r')\b', message_content.lower())):
@@ -1874,12 +1875,16 @@ class MDS(Cog):
                 print(f"POLY {polyPrediction}")
                 if polyPrediction == 1 or prediction == 1:
                     # Create the embed message
-                    embed = disnake.Embed(title='Make sure you\'re being nice!', description='This message was flagged as a potential violation of Rule 1: "Show other players respect." Make sure you\'re being kind to all players!', color=0xff0000, timestamp=datetime.now())
+                    titles = ['Make sure you\'re being nice!',"Are you being a meanie bo beanie?", "Careful! Follow the rules!", "Let's take a breather"]
+                    randTitle = random.choice(titles)
+                    
+                    embed = disnake.Embed(title=randTitle, description='This message was flagged as a potential violation of Rule 1: "Show other players respect." Make sure you\'re being kind to all players!', color=0xff0000, timestamp=datetime.now())
+                    log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0x00ff00)
+
                     if polyPrediction == 1 and linPrediction == 1 and prediction == 1:
                         
                         embed.set_footer(text="Poly, RBF, and Linear Flag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0x00ff00)
-
+                        
                         log.set_footer(text="Poly, RBF, and Linear Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
@@ -1888,8 +1893,7 @@ class MDS(Cog):
                     elif polyPrediction == 1 and linPrediction == 1:
                         
                         embed.set_footer(text="Polynomial and Linear Flag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
-
+                       
                         log.set_footer(text="Polynomial and Linear Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
@@ -1898,8 +1902,7 @@ class MDS(Cog):
                     elif linPrediction == 1 and prediction == 1:
                         
                         embed.set_footer(text="Linear and RBF Flag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
-
+                       
                         log.set_footer(text="Linear and RBF Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
@@ -1908,8 +1911,7 @@ class MDS(Cog):
                     elif polyPrediction == 1 and prediction == 1:
                         
                         embed.set_footer(text="Polynomial and RBF Flag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
-
+                        
                         log.set_footer(text="Polynomial and RBF Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
@@ -1917,7 +1919,6 @@ class MDS(Cog):
                         await channel.send(embed=log)
                     elif polyPrediction == 1:
                         embed.set_footer(text="Polynomial Flag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})", color=0xff0000)
                         log.set_footer(text="Polynomial Flag")
                         log.add_field(name="User",value=message.author,inline=True)
                         log.add_field(name="Message",value=message.content,inline=True)
@@ -1925,7 +1926,6 @@ class MDS(Cog):
                         await channel.send(embed=log)
                     elif prediction == 1:
                         embed.set_footer(text="RBF Flag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})", color=0xff0000)
                         log.add_field(name="User",value=message.author,inline=True)
                         log.set_footer(text="RBF Flag")
                         log.add_field(name="Message",value=message.content,inline=True)

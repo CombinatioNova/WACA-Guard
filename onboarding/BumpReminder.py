@@ -14,6 +14,7 @@ class BumpPings(Cog):
   
     @tasks.loop(minutes=120)
     async def tortoRemind(self):
+        bot = self.bot
         tortopia_id = 826107409906008085
         tortoGuild = disnake.utils.get(bot.guilds, id=tortopia_id)
         role = disnake.utils.get(tortoGuild.roles, name="Bump Pings")
@@ -22,6 +23,7 @@ class BumpPings(Cog):
 
     @tasks.loop(minutes=720)
     async def wacaRemind(self):
+        bot = self.bot
         smpwaca_id = 912725322166829116
         smpwacaGuild = disnake.utils.get(bot.guilds, id=smpwaca_id)
         role = disnake.utils.get(smpwacaGuild.roles, name="Bump Pings")
@@ -47,8 +49,10 @@ class BumpPings(Cog):
         
         await inter.response.send_message("Done!", ephemeral = True)
 
-    async def on_ready():
-        tortoRemind.start()
-        wacaRemind.start()
+    @Cog.listener()
+    async def on_ready(self):
+        self.tortoRemind.start()
+        self.wacaRemind.start()
+        return
 def setup(bot: Bot):
     bot.add_cog(BumpPings(bot))

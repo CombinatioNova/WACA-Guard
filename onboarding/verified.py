@@ -19,7 +19,7 @@ class on_verification(Cog):
         if "Wick Verified" in [r.name for r in after.roles] and "Wick Verified" not in [r.name for r in before.roles]:
             role = disnake.utils.get(after.guild.channels, name="🏠│general")# replace channel_id with the actual ID of the channel you want to send the message in
             joinChan = disnake.utils.get(after.guild.channels, name="✅│how-to-join")
-            if after.guild.id == 912725322166829116:
+            if after.guild.id == 826107409906008085:
                 role = disnake.utils.get(after.guild.roles, name="Welcomers")
             else:
                 role = disnake.utils.get(after.guild.roles, name="Greeter")
