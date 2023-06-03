@@ -1732,9 +1732,12 @@ the google child""",
     "im going to kill a child",
     "i killed a child",
 
-    
-
-    
+    "you are now fiery fingers",
+    "Does any bot auto assign roles aside from wick @[Owner] Harry",
+    "cuz i somehow dies when server was oddline",
+    "shit i got banned off of that server tho",
+    "he should’ve read them before being a dumbass",
+    '"oh! got your bitches! notice how there\'s nothing in my hand? you lonely fuck." -some random tiktok i just watchedc',
     
     ])
 y = np.array(
@@ -1743,7 +1746,8 @@ y = np.array(
  0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
  1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
  ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
- 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,1,1
  ])
 
 MEAN_WORDS = ["slag","whore","short","slut","ugly","willy","schlong","dong","fanny","suicide","pussy","penis","stfu","dicks","annoying","fing","shit","fuck ","slit","gay","twat",

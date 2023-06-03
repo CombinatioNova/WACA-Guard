@@ -281,7 +281,8 @@ https://forms.gle/Jc1M93P1i1EhbHkQ9
               "i only know TWO things staff wise",
               "hello, i'm here about the stolen netherite chestplate",
               "where was the chest tht it was stolen from",
-              
+              "stealthy boyo is still trial mod",
+              'Hi there @YourLocalAgent ! Thank you for the report, the person has been banned as you might already know. Is there anything else you might need help with?',
              
               
               ])
@@ -598,6 +599,7 @@ The @WACA-Guard#2455 will remind everyone to bump every 2 hours. I'm going to ma
 *Help us get Tortopia where it deserves to be! Let's boost this server TOGETHER!*
 
 @Announcements""",
+               "Does anyone know how to get lichblade",
                ])
 Y = np.array([0,1,1,1,1,0,1,0,1,
 0,1,0,0,1,
@@ -611,7 +613,7 @@ Y = np.array([0,1,1,1,1,0,1,0,1,
 1,1,1,1,1,1,1,1,1,0,1,0,0,0,1,0,0,1,0,0,0,1,1,1,1,1,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 ,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-               1,1,1,0,1,1,1,1,1,1,1,0,0,1,0,0,0
+               1,1,1,0,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0
               ])
 Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
               0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -626,7 +628,7 @@ Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
                0,0,0,
                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,
-               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                
                
                ])
@@ -667,7 +669,7 @@ accuracyPoly="%0.2f (+/- %0.2f)" % (polyScore2.mean(), polyScore2.std() * 2)
 ##polyScore2= cross_val_score(optionPoly2, X2_train, Y, cv=5)
 ##print("Accuracy of IP analysis crossed with Help Dataset: %0.2f (+/- %0.2f)" % (polyScore2.mean(), polyScore2.std() * 2))
 ##accuracyPoly="%0.2f (+/- %0.2f)" % (polyScore2.mean(), polyScore2.std() * 2)
-
+server_status = {}
 async def preprocess_text(self, text):
     text = re.sub(r"[^A-Za-z0-9 ]+", "", text)
     text = re.sub(r" +", " ", text)
@@ -688,7 +690,7 @@ class Support(Cog):
                 "discord_id": 912725322166829116  # Replace with your SMPWACA Discord server ID
             },
             "tortopia": {
-                "domain": "tortopiabeta.falix.gg",
+                "domain": "tortopia.netwaca.com",
                 "discord_id": 826107409906008085  # Replace with your Tortopia Discord server ID
             },
             "parabellum": {
@@ -708,7 +710,9 @@ class Support(Cog):
         end_time = datetime.now()
         delta = end_time - start_time
         print(f"Bot took {delta.total_seconds()} seconds to start.")
-        channel = bot.get_channel(1062470547327426682)
+        
+        
+        
         embed = disnake.Embed(title='Automated Help Analysis', description=f"""
 
     
@@ -726,13 +730,31 @@ class Support(Cog):
     **Points of Help Data: {len(Y)}**
     """, color=0x00ff00,timestamp=datetime.now())
         embed.set_footer(text=f"Bot ready in {delta.total_seconds()} seconds")
-        await channel.send(embed=embed)
+        guilds = [
+                    guild
+                    for guild in bot.guilds
+                    if disnake.utils.get(guild.channels, name="waca-guard-audit") is not None
+                ]
+        
+        for guild in guilds:
+            
+            try:
+                channel = bot.get_channel(1062470547327426682)
+                betterChannel = disnake.utils.get(guild.channels, name="waca-guard-audit")
+                await channel.send(embed=embed)
+                await betterChannel.send(embed=embed)
+            except:
+                betterChannel = disnake.utils.get(guild.channels, name="waca-guard-audit")
+                await betterChannel.send(embed=embed)
         self.check_server.start()
     
+    # Dictionary to keep track of server status and last message time
+    
+
     @tasks.loop(minutes=10)
     async def check_server(self):
         print("Started Loop Thing")
-    
+        global server_status  # Add this line to access the global variable
         for server_name, server_info in self.servers.items():
             server_domain = server_info["domain"]
             print(server_domain)
@@ -755,19 +777,39 @@ class Support(Cog):
                             async with session.get(url) as response:
                                 data = await response.json()
                                 if data['online'] == False:
-                                    embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is unresponsive.", color=disnake.Color.red())
-                                    await channel.send(embed=embed)
+                                    # Check if the server was previously responsive
+                                    if server_status.get(server_name) == True:
+                                        embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is unresponsive.", color=disnake.Color.red())
+                                        await channel.send(embed=embed)
+                                        server_status[server_name] = False  # Update server status to unresponsive
+                                        server_status[f"{server_name}_last_sent"] = datetime.datetime.now()  # Update last message time
+                                    else:
+                                        # Check if an hour has passed since the last message was sent
+                                        last_sent = server_status.get(f"{server_name}_last_sent")
+                                        if last_sent and datetime.datetime.now() - last_sent >= datetime.timedelta(hours=1):
+                                            embed = disnake.Embed(title="Server Unresponsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still unresponsive.", color=disnake.Color.red())
+                                            await channel.send(embed=embed)
+                                            server_status[f"{server_name}_last_sent"] = datetime.datetime.now()  # Update last message time
                                 else:
-                                    channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
-                                    print("Sent Message!")
-                                    embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional. \n \n {data['players']['online']} player(s) are online right now!", color=disnake.Color.green())
-                                    await channel.send(embed=embed)
+                                    # Check if the server was previously unresponsive
+                                    if server_status.get(server_name) == False:
+                                        embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is now responsive.", color=disnake.Color.green())
+                                        await channel.send(embed=embed)
+                                        server_status[server_name] = True  # Update server status to responsive
+                                        server_status.pop(f"{server_name}_last_sent", None)  # Remove last message time
+                                    else:
+                                        # Check if an hour has passed since the last message was sent
+                                        last_sent = server_status.get(f"{server_name}_last_sent")
+                                        if last_sent and datetime.datetime.now() - last_sent >= datetime.timedelta(hours=1):
+                                            embed = disnake.Embed(title="Server Responsive", description=f"The {server_name.capitalize()} server at `{server_domain}` ({server_ip}) is still functional. \n \n {data['players']['online']} player(s) are online right now!", color=disnake.Color.green())
+                                            await channel.send(embed=embed)
+                                            server_status[f"{server_name}_last_sent"] = datetime.datetime.now()  # Update last message time
                     except Exception as e:
                         print(f"An error occurred while checking the server {server_name}: {str(e)}")
                         error_channel = disnake.utils.get(guild.channels, name="waca-guard-audit")
                         if error_channel:
-                                await error_channel.send(f"An error occurred while checking the server {server_name}: {str(e)}")
-            print("ended loop")
+                            await error_channel.send(f"An error occurred while checking the server {server_name}: {str(e)}")
+        print("ended loop")
 
     
 
@@ -778,6 +820,7 @@ class Support(Cog):
         except socket.gaierror:
             print(f"Failed to resolve the domain name: {server_domain}")
             
+    
     @slash_command()
     async def crashcheck(self, inter: disnake.ApplicationCommandInteraction):
         server_id = inter.guild.id
@@ -861,7 +904,7 @@ class Support(Cog):
                     if message.guild.id == smpwacaID:
                         embed = disnake.Embed(title='Join the server!', description='Join through play.smpwaca.com! The server is in 1.19.3. Make sure to send the code to the Server Information bot!', color=0x00ff00)
                     elif message.guild.id == tortopiaID:
-                        embed = disnake.Embed(title='Join the server!', description='Join through tortopiabeta.falix.gg! The server is in 1.19.2. ', color=0x00ff00)
+                        embed = disnake.Embed(title='Join the server!', description='Join through tortopia.netwaca.com:25096! The server is in 1.19.2. ', color=0x00ff00)
                     elif message.guild.id == parabellumID:
                         embed = disnake.Embed(title='Join the server!', description='Join through parabellum.smpwaca.com! The server is in 1.19.3. Make sure to send the code to the Server Information bot!', color=0x00ff00)
                     else:

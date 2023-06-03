@@ -7,7 +7,7 @@ class Ping(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    @slash_command(name="ping", description="A simple ping command.", guild_ids=[912725322166829116])
+    @slash_command(name="ping", description="A simple ping command.")
     async def ping(self, inter: disnake.ApplicationCommandInteraction) -> None:
                 # Open the text file
         with open("users.txt", "r") as file:
