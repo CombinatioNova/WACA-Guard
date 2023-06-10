@@ -11,6 +11,44 @@ class Log(Cog):
     def __init__(self,bot: Bot) -> None:
         self.bot = bot
 
+    @slash_command(description="Log an offline moderation action") #The actual command
+    async def logoffline(self, inter: disnake.ApplicationCommandInteraction, user: str, reason: str, notes: str = "N/A", punishment: str = Param(choices=["Verbal Warning", "1 Hour Ban", "3 Hour Ban", "6 Hour Ban","1 Day Ban", "3 Day Ban", "5 Day Ban", "7 Day Ban", "14 Day Ban", "Permanent Ban", "Permanent Ban Without Appeal"])):
+        server = inter.guild.name
+        bot = self.bot
+        global name
+        name = user
+        
+        av="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
+        log = disnake.Embed(
+            title=f"{user}: {punishment}", # Smart or smoothbrain?????
+            color=4143049, # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
+            timestamp=datetime.now(), #Get the datetime... now...
+        )
+        
+        log.set_author( # Narcissism
+            name="SMPWACA Moderation",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+        )
+
+        log.set_footer( # Show the moderator
+            text=f"Logged by {inter.author.name}",
+            icon_url=inter.author.display_avatar,
+        )
+
+    
+        log.set_thumbnail(av)
+
+        log.add_field(name="Reason: ", value=reason, inline=False)
+        log.add_field(name="Moderator Notes: ", value=notes, inline = False)
+        log.add_field(name="DISCLAIMER: ", value="This log is an OFFLINE log, and is subject to potential typos and errors. This user might not show up on searches due to a potential mistype in the name.", inline = False)
+        
+        channel = disnake.utils.get(inter.guild.channels, name = "waca-guard-audit")#Audit Log
+        await channel.send(embed=log)
+        #buttons
+        edit = Button(label="Edit", custom_id=f"editLog",style=disnake.ButtonStyle.primary)
+        channel = disnake.utils.get(inter.guild.channels, name = "📂moderation")
+        await channel.send(embed=log,components=[edit])
+        await inter.response.send_message(content = f"Moderation case for **{user}** logged!", ephemeral = True)
     @slash_command(description="Log a moderation action") #The actual command
     async def log(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, reason: str, notes: str = "N/A", punishment: str = Param(choices=["Verbal Warning", "1 Hour Ban", "3 Hour Ban", "6 Hour Ban","1 Day Ban", "3 Day Ban", "5 Day Ban", "7 Day Ban", "14 Day Ban", "Permanent Ban", "Permanent Ban Without Appeal"])):
         server = inter.guild.name
@@ -113,7 +151,7 @@ class Log(Cog):
         log.set_thumbnail("https://cdn.discordapp.com/attachments/1003324050950586488/1037813968502259833/Information_Type1.png")
         log.add_field(name="Reason: ", value=reason, inline=True)
         log.add_field(name="Your Moderator: ", value=inter.author.name, inline=True)
-        log.add_field(name="Moderator Notes: ", value=notes, inline = True)
+        log.add_field(name="Moderator Notes: ", value=notes, inline = False)
         
         embed = disnake.Embed(
             title=f"NOTICE FOR: {user.display_name}", # Smart or smoothbrain?????
@@ -132,7 +170,7 @@ class Log(Cog):
         embed.set_thumbnail("https://cdn.discordapp.com/attachments/1003324050950586488/1037813968502259833/Information_Type1.png")
         embed.add_field(name="Reason: ", value=reason, inline=True)
         embed.add_field(name="Your Moderator: ", value=inter.author.name, inline=True)
-        embed.add_field(name="Moderator Notes: ", value=notes, inline = True)
+        embed.add_field(name="Moderator Notes: ", value=notes, inline = False)
 
         await channel.send(embed=log)
         try:

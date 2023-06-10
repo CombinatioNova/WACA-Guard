@@ -7,7 +7,7 @@ print("Importing RVDS")
 print("Completed!")
 print("Importing AI Support")
 
-from AHS import AISupport#, Reminder
+#from AHS import AISupport#, Reminder
 
 print("Completed!")
 from commands import owo,notify
@@ -19,9 +19,9 @@ from eastereggs import insanity
 from eastereggs import Mitochondria
 from eastereggs import bless
 from moderation import Close
-from commands import hostinfo
+#from commands import hostinfo
 from ServerStats import Status
-from onboarding import ServerSetup, BumpReminder
+from onboarding import ServerSetup, BumpReminder, tickets
 import os
 global testingMode
 global pingOn
@@ -41,7 +41,9 @@ global DMListen
 global blessOn
 
 print("Setting variables")
-testingMode = False
+
+testingMode = True
+
 pingOn = "Online :green_circle:"
 veriOn = "Online :green_circle:"
 owoOn = "Online :green_circle:"
@@ -73,6 +75,7 @@ bot = commands.Bot(
 
 
 ## ADD COGS
+bot.add_cog(tickets.Ticket(bot))
 bot.add_cog(BumpReminder.BumpPings(bot))
 bot.add_cog(ServerSetup.SetupCommand(bot))
 bot.add_cog(Status.Status(bot))
@@ -135,8 +138,8 @@ except:
     hostOn = "Offline :red_circle:"
 @bot.slash_command(description="WACA-Guard Information")
 async def about(inter):
-    botVer = "3.0 Beta 1"
-    depDate = "May 17th, 2023"
+    botVer = "3.0 Beta 3"
+    depDate = "May 22nd, 2023"
     embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
 Deployed on: **{depDate}**
@@ -191,8 +194,6 @@ Easter Egg Listeners: **{insanityOn}**
 
 
     
-token = ""
-testToken = ""
 
 if testingMode:
     bot.run(testToken)

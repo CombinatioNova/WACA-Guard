@@ -283,7 +283,23 @@ https://forms.gle/Jc1M93P1i1EhbHkQ9
               "where was the chest tht it was stolen from",
               "stealthy boyo is still trial mod",
               'Hi there @YourLocalAgent ! Thank you for the report, the person has been banned as you might already know. Is there anything else you might need help with?',
-             
+
+             "Also stop pinging staff unecessarily",
+              "@James6578 I've had a headache all day but I looked and no not a valid appeal",
+              "+ not all YouTube smps allow stealing",
+              "i don't rly know this guy but from what i've been hearing he seems pretty sus",
+              "someone stole from us T-T",
+              "stealthy boyo is still trial mod",
+              "you killed me so much i have no levels",
+              "hello",
+              "@VixotheAxo_ imma need ur help w the grave tho",
+              "need help?",
+              "lmao i killed 6 before getting any",
+              "I'm gonna quickly download a mod to help smooth this lag down",
+              "need help?",
+              "Isn't stealing allowed on Tortopia?",
+              "stole",
+              
               
               ])
 X2 = np.array(['what is the server ip',
@@ -600,6 +616,8 @@ The @WACA-Guard#2455 will remind everyone to bump every 2 hours. I'm going to ma
 
 @Announcements""",
                "Does anyone know how to get lichblade",
+               "Vixo do you know how to get the lichblade?",
+               "How do you get the litchblade",
                ])
 Y = np.array([0,1,1,1,1,0,1,0,1,
 0,1,0,0,1,
@@ -613,7 +631,8 @@ Y = np.array([0,1,1,1,1,0,1,0,1,
 1,1,1,1,1,1,1,1,1,0,1,0,0,0,1,0,0,1,0,0,0,1,1,1,1,1,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 ,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-               1,1,1,0,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0
+               1,1,1,0,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,
+              0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
               ])
 Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
               0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -628,7 +647,7 @@ Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
                0,0,0,
                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,
-               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                
                
                ])
