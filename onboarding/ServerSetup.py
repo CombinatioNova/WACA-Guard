@@ -19,6 +19,10 @@ class SetupCommand(Cog):
         moderator_role = disnake.utils.get(interaction.guild.roles, name="Moderator")
         trial_moderator_role = disnake.utils.get(interaction.guild.roles, name="Trial Moderator")
         unverified_role = disnake.utils.get(interaction.guild.roles, name="Unverified")
+        verified_role = disnake.utils.get(interaction.guild.roles, name="Verified")
+        wick_verified_role = disnake.utils.get(interaction.guild.roles, name="Wick Verified")
+        staff_role = disnake.utils.get(interaction.guild.roles, name="Staff")
+        greeter_role = disnake.utils.get(interaction.guild.roles, name="Greeter")
 
         # If the roles don't exist, create them
         if not server_admin_role:
@@ -29,8 +33,15 @@ class SetupCommand(Cog):
             moderator_role = await interaction.guild.create_role(name="Moderator")
         if not trial_moderator_role:
             trial_moderator_role = await interaction.guild.create_role(name="Trial Moderator")
+
         if not unverified_role:
             unverified_role = await interaction.guild.create_role(name="Unverified")
+        if not verified_role or not wick_verified_role:
+            verified_role = await interaction.guild.create_role(name="Verified")
+        if not staff_role:
+            staff_role = await interaction.guild.create_role(name="Staff")
+        if not greeter_role:
+            greeter_role = await interaction.guild.create_role(name="Greeter")
             
         # Check if the channels exist
         # Check if the channels exist

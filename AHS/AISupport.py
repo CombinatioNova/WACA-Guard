@@ -749,22 +749,8 @@ class Support(Cog):
     **Points of Help Data: {len(Y)}**
     """, color=0x00ff00,timestamp=datetime.now())
         embed.set_footer(text=f"Bot ready in {delta.total_seconds()} seconds")
-        guilds = [
-                    guild
-                    for guild in bot.guilds
-                    if disnake.utils.get(guild.channels, name="waca-guard-audit") is not None
-                ]
-        
-        for guild in guilds:
-            
-            try:
-                channel = bot.get_channel(1062470547327426682)
-                betterChannel = disnake.utils.get(guild.channels, name="waca-guard-audit")
-                await channel.send(embed=embed)
-                await betterChannel.send(embed=embed)
-            except:
-                betterChannel = disnake.utils.get(guild.channels, name="waca-guard-audit")
-                await betterChannel.send(embed=embed)
+        channel = bot.get_channel(1117508646541201488)
+        await betterChannel.send(embed=embed)
         self.check_server.start()
     
     # Dictionary to keep track of server status and last message time
@@ -902,7 +888,6 @@ class Support(Cog):
                 print(message_content + " FLAGGED IN HELP WORDS")
                 print(f"POLY {polyPrediction}")
                 if polyPrediction == 1:
-                    channel = self.bot.get_channel(913208895017717810)
                     yes1 = Button(label="Yes",custom_id=f"yes1",style=disnake.ButtonStyle.success)
                     no1 = Button(label="No",custom_id=f"no1",style=disnake.ButtonStyle.danger)
                     embed = disnake.Embed(title='Do you need help?', description=f'Use the get-support channel  to open a support ticket to get help! \nWould you like me to open a ticket for you now?', color=0xffa500)

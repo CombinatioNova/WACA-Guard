@@ -5,6 +5,8 @@ from disnake.ui import Button
 from disnake import TextInputStyle
 import chat_exporter
 import io
+import aiofiles
+import aiohttp
 from datetime import datetime
 
 global av
@@ -15,7 +17,7 @@ class Ticket(Cog):
     @slash_command(description="Make A Ticket Button")
     async def makebutton(self, inter: disnake.ApplicationCommandInteraction):
         av="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
-        yes1 = Button(label="Open a Ticket",custom_id=f"yes1",style=disnake.ButtonStyle.success)
+        yes1 = Button(label="Open a Ticket",custom_id=f"open",style=disnake.ButtonStyle.success)
         appeal_url = 'https://smpwa.ca/appeal'
         appeal = Button(label='Submit a Ban Appeal!', url=appeal_url, style=disnake.ButtonStyle.link)
         embed = disnake.Embed(title='Need some help?', description=f'''Open a support ticket using the **button below** to get help from our friendly staff team!
@@ -36,7 +38,7 @@ Our staff team is here to help with any issue you might have! From theft, to pet
         else:
             role = disnake.utils.get(inter.user.guild.roles, name="Staff")
         
-        if inter.component.custom_id.startswith("yes1"):
+        if inter.component.custom_id.startswith("open"):
             bot = self.bot
             global name
             user = inter.user
@@ -99,7 +101,6 @@ Our staff team is here to help with any issue you might have! From theft, to pet
             other.disabled = True
             await inter.message.edit(components=[joinProb,exploit,grief,theft,other,close])
             await inter.channel.edit(name=f"joining-{inter.author.display_name}")
-            await inter.channel.send(role.mention)
             log = disnake.Embed(
                     title=f"Thanks, {inter.author.name}!", # Smart or smoothbrain?????
                     description=f"""
@@ -126,7 +127,6 @@ As we wait for our helpful staff to be with you, __**please describe your issue 
             other.disabled = True
             await inter.message.edit(components=[joinProb,exploit,grief,theft,other,close])
             await inter.channel.edit(name=f"hack-{inter.author.display_name}")
-            await inter.channel.send(role.mention)
             log = disnake.Embed(
                     title=f"Thanks, {inter.author.name}!", # Smart or smoothbrain?????
                     description=f"""
@@ -159,7 +159,6 @@ We'll get to you as soon as we can!""",
             other.disabled = True
             await inter.message.edit(components=[joinProb,exploit,grief,theft,other,close])
             await inter.channel.edit(name=f"grief-{inter.author.display_name}")
-            await inter.channel.send(role.mention)
             log = disnake.Embed(
                     title=f"Thanks, {inter.author.name}!", # Smart or smoothbrain?????
                     description=f"""
@@ -189,7 +188,6 @@ While you wait for help from our {role.mention}, please let us know the followin
             other.disabled = True
             await inter.message.edit(components=[joinProb,exploit,grief,theft,other,close])
             await inter.channel.edit(name=f"theft-{inter.author.display_name}")
-            await inter.channel.send(role.mention)
             log = disnake.Embed(
                     title=f"Thanks, {inter.author.name}!", # Smart or smoothbrain?????
                     description=f"""
@@ -219,7 +217,6 @@ While you wait for help from our {role.mention}, please let us know the followin
             other.disabled = True
             await inter.message.edit(components=[joinProb,exploit,grief,theft,other,close])
             await inter.channel.edit(name=f"other-{inter.author.display_name}")
-            await inter.channel.send(role.mention)
             log = disnake.Embed(
                     title=f"Thanks, {inter.author.name}!", # Smart or smoothbrain?????
                     description=f"""

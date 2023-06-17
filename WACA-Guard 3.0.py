@@ -1,29 +1,86 @@
-import disnake
+
+global testingMode
+testingMode = False
+if not testingMode:
+    print('''
+                                                                                                                                           
+                                                                                                         ,,                      
+`7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM                             
+  `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM                             
+   VM:   ,VVM:   ,V  ,V^MM.   dM'       `   ,V^MM.        dM'       ``7MM  `7MM   ,6"Yb.  `7Mb,od8  ,M""bMM       pd""b.      ,pP""Yq.  
+    MM.  M' MM.  M' ,M  `MM   MM           ,M  `MM        MM           MM    MM  8)   MM    MM' "',AP    MM      (O)  `8b    6W'    `Wb 
+    `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM           ,89    8M      M8 
+     :MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM         ""Yb. ,, YA.    ,A9 
+      VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.          88 db  `Ybmmd9'  
+                                                                                                                 (O)  .M'               
+                                                                                                                  bmmmd'                
+                                                                                                                                        
+                                                                                                             
+                                                                                                             ''')
+else:
+    print('''
+                                                                                                                                                                               
+                                                                                                         ,,                                                                    
+`7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM                                 `7MM"""Yp,           mm            
+  `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM                                   MM    Yb           MM            
+   VM:   ,VVM:   ,V  ,V^MM.   dM'       `   ,V^MM.        dM'       ``7MM  `7MM   ,6"Yb.  `7Mb,od8  ,M""bMM       pd""b.      ,pP""Yq.        MM    dP  .gP"Ya mmMMmm  ,6"Yb.  
+    MM.  M' MM.  M' ,M  `MM   MM           ,M  `MM        MM           MM    MM  8)   MM    MM' "',AP    MM      (O)  `8b    6W'    `Wb       MM"""bg. ,M'   Yb  MM   8)   MM  
+    `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM           ,89    8M      M8       MM    `Y 8M""""""  MM    ,pm9MM  
+     :MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM         ""Yb. ,, YA.    ,A9       MM    ,9 YM.    ,  MM   8M   MM  
+      VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.          88 db  `Ybmmd9'      .JMMmmmd9   `Mbmmd'  `Mbmo`Moo9^Yo.
+                                                                                                                 (O)  .M'                                                      
+                                                                                                                  bmmmd'
+
+                                                                                                                  
+                                                                                                             ''')
+print('''
+**WACA GUARD IS STARTING**
+
+WACA-Guard is property of The Network Without A Cool Acronym and is used to progress the network's security and moderation logging capabilities.
+Please wait for startup...
+
+''')
 print("Importing disnake")
-from disnake.ext import commands
+import disnake
+from disnake.ext import commands, tasks
 from commands.ping import Ping
 print("Importing RVDS")
-#from RVDS.MDS import MDS
+from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
-
-#from AHS import AISupport#, Reminder
+from AHS import AISupport#, Reminder
 
 print("Completed!")
-from commands import owo,notify
+print("Importing owo, suggestion, and notify commands")
+from commands import owo,notify,suggestions
+print("Completed!")
+print("Importing training acceptance comamnds")
 from training import accept
+print("Completed!")
+print("Importing Moderation Logs")
+
 from moderation.Log import Log
-from moderation import DMListener
+print("Completed!")
+print("Importing DM Listener")
+
+from moderation import DMListener, BanSync
+print("Completed!")
+print("Importing Verification")
+
 from onboarding.verified import on_verification
+
+print("Completed!")
+import asyncio
 from eastereggs import insanity
 from eastereggs import Mitochondria
 from eastereggs import bless
 from moderation import Close
 #from commands import hostinfo
 from ServerStats import Status
-from onboarding import ServerSetup, BumpReminder, tickets
+from onboarding import ServerSetup, BumpReminder, tickets,JoinsAndLeaves
 import os
-global testingMode
+
+
 global pingOn
 global veriOn
 global owoOn
@@ -39,10 +96,15 @@ global hostOn
 global botVer
 global DMListen
 global blessOn
+global banSync
+global closeSystem
+global statusSystem
+global serverSetup
+global bumpReminder
+global ticketsSystem
 
 print("Setting variables")
 
-testingMode = True
 
 pingOn = "Online :green_circle:"
 veriOn = "Online :green_circle:"
@@ -60,26 +122,72 @@ DMListen = "Online :green_circle:"
 blessOn = "Online :green_circle:"
 hostOn = "Online :green_circle:"
 
+banSync = "Online :green_circle:"
+closeSystem = "Online :green_circle:"
+statusSystem = "Online :green_circle:"
+serverSetup = "Online :green_circle:"
+bumpReminder = "Online :green_circle:"
+ticketsSystem = "Online :green_circle:"
+
 command_sync_flags = commands.CommandSyncFlags.default()
 command_sync_flags.sync_commands_debug = True
-activity = disnake.Activity(name='for troublemakers', type=disnake.ActivityType.watching)
+activity = disnake.Activity(name='over NETWACA', type=disnake.ActivityType.watching)
 client = disnake.Client(activity=activity)
 bot = commands.Bot(
     command_prefix='!',
     command_sync_flags=command_sync_flags,
-    intents=disnake.Intents.all(),
-    activity=activity
+    intents=disnake.Intents.all()
     )
 
+@tasks.loop(seconds=90)
+async def change_status():
+    total_users = sum(guild.member_count for guild in bot.guilds)
+    await bot.change_presence(activity=disnake.Activity(name='over NETWACA', type=disnake.ActivityType.watching))
+    await asyncio.sleep(30)
+    await bot.change_presence(activity=disnake.Activity(name=f'{len(bot.guilds)} servers!', type=disnake.ActivityType.watching))
+    await asyncio.sleep(30)
+    await bot.change_presence(activity=disnake.Activity(name=f'{total_users} users!', type=disnake.ActivityType.watching))
+    await asyncio.sleep(30)
+@bot.event
+async def on_ready():
+    print("Starting Status Loop")
+    change_status.start()
+    print("Started Status Loop")
+    
+    print("All systems online! WACA-Guard 3.0 is now running in...\n")
+    for guild in bot.guilds:
+        print(guild)
 
-
-
+    print('\nWelcome to WACA-Guard! Run /setup in any servers you wish for WACA-Guard to have full functionality in.')
 ## ADD COGS
-bot.add_cog(tickets.Ticket(bot))
-bot.add_cog(BumpReminder.BumpPings(bot))
-bot.add_cog(ServerSetup.SetupCommand(bot))
-bot.add_cog(Status.Status(bot))
-bot.add_cog(Close.Close(bot))
+    
+print("Adding Cogs")
+bot.add_cog(JoinsAndLeaves.JoinAndLeave(bot))
+bot.add_cog(suggestions.Suggestions(bot))
+try:
+    bot.add_cog(tickets.Ticket(bot))
+except:
+    ticketsSystem = "Offline :red_circle:"
+try:
+    bot.add_cog(BumpReminder.BumpPings(bot))
+except:
+    bumpReminder = "Offline :red_circle:"
+try:
+    bot.add_cog(ServerSetup.SetupCommand(bot))
+except:
+    serverSetup = "Offline :red_circle:"
+try:
+    bot.add_cog(Status.Status(bot))
+except:
+    statusSystem = "Offline :red_circle:"
+try:
+    bot.add_cog(Close.Close(bot))
+except:
+    closeSystem = "Offline :red_circle:"
+try:
+    bot.add_cog(BanSync.BanUser(bot))
+except:
+    banSync = "Offline :red_circle:"
 try:
     bot.add_cog(DMListener.DMListener(bot))
 except:
@@ -136,10 +244,14 @@ try:
     bot.add_cog(hostinfo.hoster(bot))
 except:
     hostOn = "Offline :red_circle:"
+
+print("Completed! All tasks have completed. Beginning WACA-Guard...")
+
+
 @bot.slash_command(description="WACA-Guard Information")
 async def about(inter):
-    botVer = "3.0 Beta 3"
-    depDate = "May 22nd, 2023"
+    botVer = "3.0 Beta 6"
+    depDate = "June 15th, 2023"
     embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
 Deployed on: **{depDate}**
@@ -152,40 +264,48 @@ Bot latency is {bot.latency * 1000:.2f}ms.
 
 --------------------------------------------
 
-**COG FUNCTIONALITY ANALYSIS:**
+**Commands**
 
 Ping: **{pingOn}**
-Verification: **{veriOn}**
 OWO Commands: **{owoOn}**
 Moderation Logs: **{logOn}**
 Support Detection: **{supportOn}**
-Friendly Reminders: **{reminderOn}**
 Notifications: **{notifyOn}**
 Training Commands: **{acceptOn}**
 Insanity Easter Egg:**{insanityOn}**
 Mitochondria Easter Egg: **{mitoOn}**
+Server Setup: {serverSetup}
+
+**Automatic Reminders**
+
+Bump Reminder: {bumpReminder}
 
 **Machine Learning Algorithms:**
 
 Mean Detection System: **{MDSOn}**
 NSFW Detection System : **NOT IMPLEMENTED  :red_circle:**
+Join/Help Detection
 
 **Listeners:**
 
 DM Listener: **{DMListen}**
 OWO Listener: **{owoOn}**
 Easter Egg Listeners: **{insanityOn}**
+Verification: **{veriOn}**
+Server Status Listener: {statusSystem}
+Friendly Reminders: **{reminderOn}**
+
+**Network Security Systems**
+
+Network Ban Synchronization
+
+**Help Systems**
+
+Ticketing System: {ticketsSystem}
+Ticket Closing System: {closeSystem}
 
 --------------------------------------------
 
-**Notable Changes:**
-
-- Fixed and updated vericheck
-- Fixed and updated backend organization
-- Made logging commands cross-server
-- Made acceptance commands cross-server
-- Added Network language
-- Added playing statuses
 
 """, color = disnake.Colour.brand_green())
     await inter.response.send_message(embed=embed)

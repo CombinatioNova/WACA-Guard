@@ -15,9 +15,9 @@ class accept(Cog):
             description = f"""
     **Dear, {user}**
 
-    We have reviewed your application thoroughly and we have come to the conclusion that you meet the necessary qualifications to join the SMPWACA Staff TraIning Program!
+    We have reviewed your application thoroughly and we have come to the conclusion that you meet the necessary qualifications to join the NETWACA Staff TraIning Program!
 
-    This program is designed to help you gain the skills, knowledge, and attitudes needed to become a staff member for N-WACA. There is no prior work that needs to be done on your end, so sit tight as we determine the date for your first day of training!
+    This program is designed to help you gain the skills, knowledge, and attitudes needed to become a staff member for NETWACA. There is no prior work that needs to be done on your end, so sit tight as we determine the date for your first day of training!
 
     Our team will be in contact with you in the near future to determine the details of the class and what times work for you.
 
@@ -26,13 +26,13 @@ class accept(Cog):
     Thank you for applying!
 
     **Regards,**
-    **N-WACA Management**
+    **NETWACA Management**
     """,
             color=disnake.Colour.brand_green(),
             timestamp=datetime.now()
             )
         embed.set_author(
-            name="N-WACA Management",
+            name="NETWACA Management",
             icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1037813968502259833/Information_Type1.png"
             )
         embed.set_footer(
@@ -84,7 +84,7 @@ class accept(Cog):
         if inter.component.custom_id.startswith(f"1acc"):
             
             
-            channel = disnake.utils.get(user.guild.channels, name = "training-resources")
+            channel = bot.get_channel(1108543942326235208)
             embed = disnake.Embed(title=f"{inter.user.display_name} has accepted!",description= f"{inter.user.display_name} has accepted their training program invitation. \n\n They may now be added to the list of official Trainees",color=disnake.Colour.brand_green())
             embed.set_author(
                 name="Training Program Notice",
@@ -95,11 +95,11 @@ class accept(Cog):
                 icon_url=inter.user.display_avatar
                 )
             await channel.send(embed=embed)
-            await inter.send("Thank you for accepting our invitation to the training program! We're glad to have you here.")
+            await inter.send("Thank you for accepting our invitation to the training program! We're glad to have you here. Please join the NETWACA Staff Discord in order to have more efficient communication: https://discord.gg/SCAphDvv6j")
         if inter.component.custom_id.startswith(f"d"):
             
             
-            channel = disnake.utils.get(user.guild.channels, name = "training-resources")
+            channel = bot.get_channel(1108543942326235208)
             embed = disnake.Embed(title=f"{inter.user.display_name} has DENIED their application",description= f"{inter.user.display_name} has deniedn their training program invitation. \n\n They are no longer a valid candidate for the training program",color=disnake.Colour.brand_red())
             embed.set_author(
                 name="Training Program Notice",

@@ -51,6 +51,7 @@ class Log(Cog):
         await inter.response.send_message(content = f"Moderation case for **{user}** logged!", ephemeral = True)
     @slash_command(description="Log a moderation action") #The actual command
     async def log(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, reason: str, notes: str = "N/A", punishment: str = Param(choices=["Verbal Warning", "1 Hour Ban", "3 Hour Ban", "6 Hour Ban","1 Day Ban", "3 Day Ban", "5 Day Ban", "7 Day Ban", "14 Day Ban", "Permanent Ban", "Permanent Ban Without Appeal"])):
+        await inter.response.defer(with_message = True,ephemeral=True)
         server = inter.guild.name
         inChannelMsg = f'''
     **Dear {user},**
@@ -60,7 +61,7 @@ class Log(Cog):
     Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
 
     You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
-    https://forms.gle/Rar6La3p7D56szUe9
+    https://smpwa.ca/appeal
 
     You also have the right to your evidence. Below should be the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
 
@@ -77,7 +78,7 @@ class Log(Cog):
     Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
 
     You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
-    https://forms.gle/Rar6La3p7D56szUe9
+    https://smpwa.ca/appeal
 
     You also have the right to your evidence. You are able to request the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
 
@@ -205,7 +206,7 @@ class Log(Cog):
         try:
             
             await user.send(embed=embed)
-            await inter.response.send_message(content = f"Moderation case for **{user}** logged in {channel.mention}!", ephemeral = True)
+            await inter.edit_original_response(f"Moderation case for **{user}** logged in {channel.mention}!")
         except disnake.Forbidden as error:
             log = disnake.Embed(
             title=f"Error dming {user}!", 
@@ -248,7 +249,7 @@ class Log(Cog):
             else:
                 return
             
-            await inter.response.send_message(embed=log, ephemeral = True)
+            await inter.edit_original_response(embed=log)
             
             pass
         except Exception as error:
@@ -263,7 +264,7 @@ class Log(Cog):
             )
             log.add_field(name="Error Message", value=error, inline=False)
           
-            await inter.response.send_message(embed=log, ephemeral = True)
+            await inter.edit_original_response(embed=log)
             pass
         
     @Cog.listener()

@@ -16,7 +16,7 @@ class on_verification(Cog):
     async def on_member_update(self, before, after):
         bot = self.bot
         
-        if "Wick Verified" in [r.name for r in after.roles] and "Wick Verified" not in [r.name for r in before.roles]:
+        if "Wick Verified" in [r.name for r in after.roles] and "Wick Verified" not in [r.name for r in before.roles] or "Verified" in [r.name for r in after.roles] and "Verified" not in [r.name for r in before.roles]:
             role = disnake.utils.get(after.guild.channels, name="🏠│general")# replace channel_id with the actual ID of the channel you want to send the message in
             joinChan = disnake.utils.get(after.guild.channels, name="✅│how-to-join")
             if after.guild.id == 826107409906008085:
@@ -36,14 +36,15 @@ Check out {joinChan.mention} for information on how to join the minecraft server
         await inter.response.defer(with_message = True,ephemeral=False)
         unverified_role = disnake.utils.get(inter.guild.roles, name="Unverified")
         wick_verified_role = disnake.utils.get(inter.guild.roles, name="Wick Verified")
-
+        verified_role = disnake.utils.get(inter.guild.roles, name="Verified")
+        
         checked_members = 0
         changed_members = 0
         for member in inter.guild.members:
             if checked_members == 0:
                 print("Starting!")
             checked_members += 1
-            if wick_verified_role not in member.roles:
+            if wick_verified_role not in member.roles and verified_role not in member.roles:
                 await member.add_roles(unverified_role)
                 changed_members += 1
             if checked_members % 10 == 0:
@@ -70,5 +71,18 @@ Check out {joinChan.mention} for information on how to join the minecraft server
         await channel.send(embed=embed)
         await inter.edit_original_response(f"Done! Verified {checked_members} members.")
 
+    @slash_command(name="verify", description="Verify a user in NETWACA", guild_ids=[1117508209884799026])
+    async def verify(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, server: str = Param(choices=["Character SMP", "Tortopia", "Parabellum", "SMPWACA"]), position: str = Param(choices=["Network Oversight Council", "Network Director", "Network Advisor", "Server Owner", "Server Management", "Server Staff"])):
+        await inter.response.defer(with_message = True,ephemeral=False)
+        unverified_role = disnake.utils.get(inter.guild.roles, name="Unverified")
+        wick_verified_role = disnake.utils.get(inter.guild.roles, name="Wick Verified")
+        verified_role = disnake.utils.get(inter.guild.roles, name="Verified")
+        if wick_verified_role not in user.roles and verified_role not in user.roles:
+            await user.add_roles(verified_role)
+            server_role = disnake.utils.get(inter.guild.roles, name=server)
+            position_role = disnake.utils.get(inter.guild.roles, name=position)
+            await user.add_roles(server_role)
+            await user.add_roles(position_role)
+            await inter.edit_original_response(f"Done! Verified {user}.")
 def setup(bot: Bot) -> None:
     bot.add_cog(Ping(bot))
