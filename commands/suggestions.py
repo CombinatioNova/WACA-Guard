@@ -1,6 +1,7 @@
 import disnake
+from disnake import Embed, ButtonStyle, TextInputStyle
 from disnake.ext import commands
-from disnake.ui import Button
+from disnake.ui import View, Button, Select
 import sqlite3
 from datetime import datetime
 
@@ -23,7 +24,276 @@ cursor.execute('''
     )
 ''')
 conn.commit()
+class AcceptModal(disnake.ui.Modal):
+    
+    def __init__(self,message_id,suggestion_id,bot: commands.Bot):
+        self.message_id = message_id
+        self.suggestion_id = suggestion_id
+        self.bot = bot
+        title = "Accept Suggestion",
+        custom_id="acceptModal",
+        components = [
+            
+            disnake.ui.TextInput(
+                label="Reason",
+                
+                custom_id=f"reason",
+                style=TextInputStyle.short,
+                required=True,\
+                max_length=500,),
+            
+            ]
 
+        
+        super().__init__(title="Accept Suggestion",custom_id="acceptModal",components=components)
+    async def callback(self, inter: disnake.ApplicationCommandInteraction):
+        # Get the suggestion message
+        
+        suggestion_message = await inter.channel.fetch_message(self.message_id)
+        
+        bot = self.bot
+        global ava
+        print(inter.text_values.items())
+        dic=inter.text_values
+        reason=dic["reason"]
+        print("Sending embed")
+        upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{self.suggestion_id}")
+        downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{self.suggestion_id}")
+        more_button = Button(style=disnake.ButtonStyle.gray, label="More", custom_id=f"suggMore_{self.suggestion_id}")
+        # Disable the upvote and downvote buttons
+        upvote_button.disabled = True
+        downvote_button.disabled = True
+
+        print("Editing message")
+        embed = suggestion_message.embeds[0]
+        embed.color = 65280  # Green color
+        embed.title = f"Suggestion #{self.suggestion_id} Accepted!"
+        ##############
+        reason_index = None
+        for index, field in enumerate(embed.fields):
+            if field.name == "Reason":
+                reason_index = index
+                break
+        if reason_index is not None:
+            # Update the value of the "Reason" field
+            embed.set_field_at(reason_index, name="Reason", value=reason, inline=False)
+        else:
+            # Add a new field if "Reason" field is not found
+            embed.add_field(name="Reason", value=reason, inline=False)
+
+        #######################
+
+        userIndex = None
+        for index, field in enumerate(embed.fields):
+            if field.name == "Accepted By" or field.name == "Denied By" or field.name == "Reopened By":
+                userIndex = index
+                break
+        if userIndex is not None:
+            # Update the value of the "Reason" field
+            embed.set_field_at(userIndex, name="Accepted By", value=f"{inter.author.display_name}", inline=False)
+        else:
+            # Add a new field if "Reason" field is not found
+            embed.add_field(name="Accepted By", value=f"{inter.author.display_name}", inline=False)
+            
+        await suggestion_message.edit(embed=embed, components=[upvote_button,downvote_button,more_button])
+        await inter.response.edit_message("Suggestion Accepted!")
+
+
+
+
+
+
+
+
+
+
+class DenyModal(disnake.ui.Modal):
+    
+    def __init__(self,message_id,suggestion_id,bot: commands.Bot):
+        self.message_id = message_id
+        self.suggestion_id = suggestion_id
+        self.bot = bot
+        title = "Deny Suggestion",
+        custom_id="denyModal",
+        components = [
+            
+            disnake.ui.TextInput(
+                label="Reason",
+                
+                custom_id=f"reason",
+                style=TextInputStyle.short,
+                required=True,\
+                max_length=500,),
+            
+            ]
+
+        
+        super().__init__(title="Deny Suggestion",custom_id="denyModal",components=components)
+    async def callback(self, inter: disnake.ApplicationCommandInteraction):
+        # Get the suggestion message
+        
+        suggestion_message = await inter.channel.fetch_message(self.message_id)
+        
+        bot = self.bot
+        global ava
+        print(inter.text_values.items())
+        dic=inter.text_values
+        reason=dic["reason"]
+        print("Sending embed")
+        upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{self.suggestion_id}")
+        downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{self.suggestion_id}")
+        more_button = Button(style=disnake.ButtonStyle.gray, label="More", custom_id=f"suggMore_{self.suggestion_id}")
+        # Disable the upvote and downvote buttons
+        upvote_button.disabled = True
+        downvote_button.disabled = True
+
+        print("Editing message")
+        embed = suggestion_message.embeds[0]
+        embed.color = disnake.Color.red()  # Red color
+        embed.title = f"Suggestion #{self.suggestion_id} Denied!"
+        ##############
+        reason_index = None
+        for index, field in enumerate(embed.fields):
+            if field.name == "Reason":
+                reason_index = index
+                break
+        if reason_index is not None:
+            # Update the value of the "Reason" field
+            embed.set_field_at(reason_index, name="Reason", value=reason, inline=False)
+        else:
+            # Add a new field if "Reason" field is not found
+            embed.add_field(name="Reason", value=reason, inline=False)
+
+        #######################
+
+        userIndex = None
+        for index, field in enumerate(embed.fields):
+            if field.name == "Accepted By" or field.name == "Denied By" or field.name == "Reopened By":
+                userIndex = index
+                break
+        if userIndex is not None:
+            # Update the value of the "Reason" field
+            embed.set_field_at(userIndex, name="Denied By", value=f"{inter.author.display_name}", inline=False)
+        else:
+            # Add a new field if "Reason" field is not found
+            embed.add_field(name="Denied By", value=f"{inter.author.display_name}", inline=False)
+            
+        await suggestion_message.edit(embed=embed, components=[upvote_button,downvote_button,more_button])
+        await inter.response.edit_message("Suggestion Denied!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+class OpenModal(disnake.ui.Modal):
+    
+    def __init__(self,message_id,suggestion_id,bot: commands.Bot):
+        self.message_id = message_id
+        self.suggestion_id = suggestion_id
+        self.bot = bot
+        title = "Reopen Suggestion",
+        custom_id="opemModal",
+        components = [
+            
+            disnake.ui.TextInput(
+                label="Reason",
+                
+                custom_id=f"reason",
+                style=TextInputStyle.short,
+                required=True,\
+                max_length=500,),
+            
+            ]
+
+        
+        super().__init__(title="Reopen Suggestion",custom_id="opemModal",components=components)
+    async def callback(self, inter: disnake.ApplicationCommandInteraction):
+        # Get the suggestion message
+        
+        suggestion_message = await inter.channel.fetch_message(self.message_id)
+        
+        bot = self.bot
+        global ava
+        print(inter.text_values.items())
+        dic=inter.text_values
+        reason=dic["reason"]
+        print("Sending embed")
+        upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{self.suggestion_id}")
+        downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{self.suggestion_id}")
+        more_button = Button(style=disnake.ButtonStyle.gray, label="More", custom_id=f"suggMore_{self.suggestion_id}")
+        # Disable the upvote and downvote buttons
+        upvote_button.disabled = False
+        downvote_button.disabled = False
+
+        print("Editing message")
+        embed = suggestion_message.embeds[0]
+        embed.color = 3106815  # Red color
+        embed.title = f"Pending Suggestion #{self.suggestion_id}"
+        ##############
+        reason_index = None
+        for index, field in enumerate(embed.fields):
+            if field.name == "Reason":
+                reason_index = index
+                break
+        if reason_index is not None:
+            # Update the value of the "Reason" field
+            embed.set_field_at(reason_index, name="Reason", value=reason, inline=False)
+        else:
+            # Add a new field if "Reason" field is not found
+            embed.add_field(name="Reason", value=reason, inline=False)
+
+        #######################
+
+        userIndex = None
+        for index, field in enumerate(embed.fields):
+            if field.name == "Accepted By" or field.name == "Denied By" or field.name == "Reopened By":
+                userIndex = index
+                break
+        if userIndex is not None:
+            # Update the value of the "Reason" field
+            embed.set_field_at(userIndex, name="Reopened By", value=f"{inter.author.display_name}", inline=False)
+        else:
+            # Add a new field if "Reason" field is not found
+            embed.add_field(name="Reopened By", value=f"{inter.author.display_name}", inline=False)
+            
+        await suggestion_message.edit(embed=embed, components=[upvote_button,downvote_button,more_button])
+        await inter.response.edit_message("Suggestion Reopened!")
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+class MoreOptions(View):
+    def __init__(self, suggestion_id):
+        super().__init__()
+        self.suggestion_id = suggestion_id
+        
+        self.accept_button = Button(style=ButtonStyle.green, label="Accept", custom_id=f"suggAccept_{suggestion_id}")
+        self.deny_button = Button(style=ButtonStyle.red, label="Deny", custom_id=f"suggDeny_{suggestion_id}")
+        self.open_button = Button(style=ButtonStyle.gray, label="Open", custom_id=f"suggOpen_{suggestion_id}")
+        self.view_button = Button(style=disnake.ButtonStyle.gray, label="View Votes", custom_id=f"suggView_{suggestion_id}")
+        
+        self.add_item(self.accept_button)
+        self.add_item(self.deny_button)
+        self.add_item(self.open_button)
+        self.add_item(self.view_button)
+        
 # Cog class for suggestions
 class Suggestions(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -50,8 +320,8 @@ class Suggestions(commands.Cog):
         conn.commit()
         
         embed = disnake.Embed(
-            title=f"Server Suggestion #{suggestion_id}:",
-            color=4143049,
+            title=f"Pending Suggestion #{suggestion_id}:",
+            color=3106815,
             timestamp=datetime.now(),
             description=suggestion
         )
@@ -66,8 +336,7 @@ class Suggestions(commands.Cog):
         
         upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{suggestion_id}")
         downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{suggestion_id}")
-        view_button = Button(style=disnake.ButtonStyle.gray, label="View Votes", custom_id=f"suggView_{suggestion_id}")
-        
+        more_button = Button(style=disnake.ButtonStyle.gray, label="More", custom_id=f"suggMore_{suggestion_id}")
         channel = None
         
         for guild_channel in inter.guild.channels:
@@ -77,7 +346,7 @@ class Suggestions(commands.Cog):
         
         
         if channel:
-            message = await channel.send(embed=embed, components=[[upvote_button, downvote_button, view_button]])
+            message = await channel.send(embed=embed, components=[[upvote_button, downvote_button, more_button]])
             suggestion_message_id = message.id
             
             cursor.execute("UPDATE suggestions SET message_id = ? WHERE id = ?", (suggestion_message_id, suggestion_id))
@@ -91,6 +360,77 @@ class Suggestions(commands.Cog):
     @commands.Cog.listener()
     async def on_button_click(self, inter):
         custom_id = inter.component.custom_id
+        if custom_id.startswith("suggMore"):
+            suggestion_id = int(custom_id.split("_")[1])
+            more_options = MoreOptions(suggestion_id)
+            await inter.response.send_message("More options:", view=more_options, ephemeral=True)
+            
+        elif custom_id.startswith("suggAccept"):
+            if disnake.utils.get(inter.author.roles, name="Server Owner") or disnake.utils.get(inter.author.roles, name="Owner"):
+                suggestion_id = int(custom_id.split("_")[1])
+
+                # Update the suggestion status to "Accepted" in the database
+                cursor.execute("UPDATE suggestions SET status = 'Accepted' WHERE id = ?", (suggestion_id,))
+                conn.commit()
+
+                # Get the suggestion message ID from the database
+                cursor.execute("SELECT message_id FROM suggestions WHERE id = ?", (suggestion_id,))
+                result = cursor.fetchone()
+                if not result:
+                    await inter.response.send_message("The suggestion message does not exist.", ephemeral=True)
+                    return
+
+                suggestion_message_id = result[0]
+    
+                # Show a modal to enter the acceptance reason
+                await inter.response.send_modal(AcceptModal(suggestion_message_id,suggestion_id,self.bot))
+            else:
+                await inter.response.edit_message("Only Server Owners do that!")
+        
+        elif custom_id.startswith("suggDeny"):
+            if disnake.utils.get(inter.author.roles, name="Server Owner") or disnake.utils.get(inter.author.roles, name="Owner"):
+                suggestion_id = int(custom_id.split("_")[1])
+
+                # Update the suggestion status to "Accepted" in the database
+                cursor.execute("UPDATE suggestions SET status = 'Accepted' WHERE id = ?", (suggestion_id,))
+                conn.commit()
+
+                # Get the suggestion message ID from the database
+                cursor.execute("SELECT message_id FROM suggestions WHERE id = ?", (suggestion_id,))
+                result = cursor.fetchone()
+                if not result:
+                    await inter.response.send_message("The suggestion message does not exist.", ephemeral=True)
+                    return
+
+                suggestion_message_id = result[0]
+
+            
+                # Show a modal to enter the acceptance reason
+                await inter.response.send_modal(DenyModal(suggestion_message_id,suggestion_id,self.bot))
+            else:
+                await inter.response.edit_message("Only Server Owners do that!")
+        elif custom_id.startswith("suggOpen"):
+            if disnake.utils.get(inter.author.roles, name="Server Owner") or disnake.utils.get(inter.author.roles, name="Owner"):
+                suggestion_id = int(custom_id.split("_")[1])
+
+                # Update the suggestion status to "Accepted" in the database
+                cursor.execute("UPDATE suggestions SET status = 'Accepted' WHERE id = ?", (suggestion_id,))
+                conn.commit()
+
+                # Get the suggestion message ID from the database
+                cursor.execute("SELECT message_id FROM suggestions WHERE id = ?", (suggestion_id,))
+                result = cursor.fetchone()
+                if not result:
+                    await inter.response.send_message("The suggestion message does not exist.", ephemeral=True)
+                    return
+
+                suggestion_message_id = result[0]
+
+            
+                # Show a modal to enter the acceptance reason
+                await inter.response.send_modal(OpenModal(suggestion_message_id,suggestion_id,self.bot))
+            else:
+                await inter.response.edit_message("Only Server Owners do that!")
 ######################################
         if custom_id.startswith("suggView"):
             suggestion_id = int(custom_id.split("_")[1])
@@ -138,145 +478,83 @@ class Suggestions(commands.Cog):
         if custom_id.startswith("suggUpvote"):
             suggestion_id = int(custom_id.split("_")[1])
             user_id = str(inter.author.id)
-            
-            # Check if the user has already upvoted
-            cursor.execute("SELECT upvoters FROM suggestions WHERE id = ?", (suggestion_id,))
-            result = cursor.fetchone()
-            
+
+            # Check if the user has already upvoted or downvoted
+            cursor.execute("SELECT upvoters, downvoters FROM suggestions WHERE id = ?", (suggestion_id,))
+            result = cursor.fetchall()
+
             if result:
-                upvoters = result[0] or ""
+                upvoters = result[0][0].split(",") if result[0][0] else []
+                downvoters = result[0][1].split(",") if result[0][1] else []
+
                 if user_id in upvoters:
                     await inter.response.send_message("You may only vote once!", ephemeral=True)
                     return  # User has already upvoted, do nothing
-                
-                # Check if the user has already downvoted
-                cursor.execute("SELECT downvoters FROM suggestions WHERE id = ?", (suggestion_id,))
-                result = cursor.fetchone()
-                
-                if result:
-                    downvoters = result[0] or ""
-                    if user_id in downvoters:
-                        # Switch from downvote to upvote
-                        downvoters = downvoters.replace(user_id, "")
-                        cursor.execute("UPDATE suggestions SET downvoters = ? WHERE id = ?", (downvoters, suggestion_id))
-                        cursor.execute("UPDATE suggestions SET upvoters = upvoters || ? WHERE id = ?", (f",{user_id}", suggestion_id))
-                        cursor.execute("UPDATE suggestions SET upvotes = upvotes + 1, downvotes = downvotes - 1 WHERE id = ?", (suggestion_id,))
-                        conn.commit()
-                        
-                        # Fetch the updated suggestion from the database
-                        cursor.execute("SELECT upvotes, downvotes FROM suggestions WHERE id = ?", (suggestion_id,))
-                        result = cursor.fetchone()
-                        
-                        if result:
-                            upvotes = result[0]
-                            downvotes = result[1]
-                            
-                            # Update the suggestion's embed with the new number of likes and dislikes
-                            embed = inter.message.embeds[0]
-                            embed.set_field_at(0, name="Likes", value=upvotes, inline=True)
-                            embed.set_field_at(1, name="Dislikes", value=downvotes, inline=True)
-                            
-                            await inter.response.edit_message(embed=embed)
-                            
-                        return
-            
-                # Update the upvoters list in the database
-                upvoters += f",{user_id}"
-                cursor.execute("UPDATE suggestions SET upvoters = ? WHERE id = ?", (upvoters, suggestion_id))
-                conn.commit()
-                
-                # Increment the upvotes count
-                cursor.execute("UPDATE suggestions SET upvotes = upvotes + 1 WHERE id = ?", (suggestion_id,))
-                conn.commit()
-                
-                # Fetch the updated suggestion from the database
-                cursor.execute("SELECT upvotes, downvotes FROM suggestions WHERE id = ?", (suggestion_id,))
-                result = cursor.fetchone()
-                
-                if result:
-                    upvotes = result[0]
-                    downvotes = result[1]
-                    
-                    # Update the suggestion's embed with the new number of likes and dislikes
-                    embed = inter.message.embeds[0]
-                    embed.set_field_at(0, name="Likes", value=upvotes, inline=True)
-                    embed.set_field_at(1, name="Dislikes", value=downvotes, inline=True)
-                    
-                    await inter.response.edit_message(embed=embed)
-                
-        elif custom_id.startswith("suggDownvote"):
-            suggestion_id = int(custom_id.split("_")[1])
-            user_id = str(inter.author.id)
 
-            # Check if the user has already downvoted
-            cursor.execute("SELECT downvoters FROM suggestions WHERE id = ?", (suggestion_id,))
-            result = cursor.fetchone()
-
-            if result:
-                downvoters = result[0] or ""
                 if user_id in downvoters:
-                    await inter.response.send_message("You may only vote once!", ephemeral=True)
-                    return  # User has already downvoted, do nothing
+                    # Switch from downvote to upvote
+                    downvoters.remove(user_id)
+                    upvoters.append(user_id)
+                else:
+                    upvoters.append(user_id)
 
-                # Check if the user has already upvoted
-                cursor.execute("SELECT upvoters FROM suggestions WHERE id = ?", (suggestion_id,))
-                result = cursor.fetchone()
-
-                if result:
-                    upvoters = result[0] or ""
-                    if user_id in upvoters:
-                        # Switch from upvote to downvote
-                        upvoters = upvoters.replace(user_id, "")
-                        cursor.execute("UPDATE suggestions SET upvoters = ? WHERE id = ?", (upvoters, suggestion_id))
-                        cursor.execute("UPDATE suggestions SET downvoters = downvoters || ? WHERE id = ?",
-                                       (f",{user_id}", suggestion_id))
-                        cursor.execute("UPDATE suggestions SET upvotes = upvotes - 1, downvotes = downvotes + 1 WHERE id = ?",
-                                       (suggestion_id,))
-                        conn.commit()
-
-                        # Fetch the updated suggestion from the database
-                        cursor.execute("SELECT upvotes, downvotes FROM suggestions WHERE id = ?", (suggestion_id,))
-                        result = cursor.fetchone()
-
-                        if result:
-                            upvotes = result[0]
-                            downvotes = result[1]
-
-                            # Update the suggestion's embed with the new number of likes and dislikes
-                            embed = inter.message.embeds[0]
-                            embed.set_field_at(0, name="Likes", value=upvotes, inline=True)
-                            embed.set_field_at(1, name="Dislikes", value=downvotes, inline=True)
-
-                            await inter.response.edit_message(embed=embed)
-
-                        return
-
-            # Update the downvoters list in the database
-            downvoters += f",{user_id}"
-            cursor.execute("UPDATE suggestions SET downvoters = ? WHERE id = ?", (downvoters, suggestion_id))
-            conn.commit()
-
-            # Check if the user has already upvoted and adjust the counts accordingly
-            if result and user_id in upvoters:
-                upvoters = upvoters.replace(user_id, "")
-                cursor.execute("UPDATE suggestions SET upvoters = ? WHERE id = ?", (upvoters, suggestion_id))
-                cursor.execute("UPDATE suggestions SET upvotes = upvotes - 1 WHERE id = ?", (suggestion_id,))
+                # Update the upvoters and downvoters lists in the database
+                cursor.execute("UPDATE suggestions SET upvoters = ?, downvoters = ? WHERE id = ?",
+                               (",".join(upvoters), ",".join(downvoters), suggestion_id))
                 conn.commit()
-
-            # Fetch the updated suggestion from the database
-            cursor.execute("SELECT upvotes, downvotes FROM suggestions WHERE id = ?", (suggestion_id,))
-            result = cursor.fetchone()
-
-            if result:
-                upvotes = result[0]
-                downvotes = result[1]
 
                 # Update the suggestion's embed with the new number of likes and dislikes
+                upvotes = len(upvoters)
+                downvotes = len(downvoters)
+
                 embed = inter.message.embeds[0]
                 embed.set_field_at(0, name="Likes", value=upvotes, inline=True)
                 embed.set_field_at(1, name="Dislikes", value=downvotes, inline=True)
 
                 await inter.response.edit_message(embed=embed)
+
+            return
+
+        elif custom_id.startswith("suggDownvote"):
+            suggestion_id = int(custom_id.split("_")[1])
+            user_id = str(inter.author.id)
+
+            # Check if the user has already downvoted or upvoted
+            cursor.execute("SELECT upvoters, downvoters FROM suggestions WHERE id = ?", (suggestion_id,))
+            result = cursor.fetchall()
+
+            if result:
+                upvoters = result[0][0].split(",") if result[0][0] else []
+                downvoters = result[0][1].split(",") if result[0][1] else []
+
+                if user_id in downvoters:
+                    await inter.response.send_message("You may only vote once!", ephemeral=True)
+                    return  # User has already downvoted, do nothing
+
+                if user_id in upvoters:
+                    # Switch from upvote to downvote
+                    upvoters.remove(user_id)
+                    downvoters.append(user_id)
+                else:
+                    downvoters.append(user_id)
+
+                # Update the upvoters and downvoters lists in the database
+                cursor.execute("UPDATE suggestions SET upvoters = ?, downvoters = ? WHERE id = ?",
+                               (",".join(upvoters), ",".join(downvoters), suggestion_id))
+                conn.commit()
+
+                # Update the suggestion's embed with the new number of likes and dislikes
+                upvotes = len(upvoters)
+                downvotes = len(downvoters)
+
+                embed = inter.message.embeds[0]
+                embed.set_field_at(0, name="Likes", value=upvotes, inline=True)
+                embed.set_field_at(1, name="Dislikes", value=downvotes, inline=True)
+
+                await inter.response.edit_message(embed=embed)
+
+            return
+
 
 
 

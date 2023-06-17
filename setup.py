@@ -1,0 +1,16 @@
+install_requires=[
+    "disnake",
+    "other_dependency",
+    "chat-exporter",
+    "regex",
+    "asyncio",
+    "python-Levenshtein",
+    "aiofiles",
+    "numpy",
+    "iris",
+    "scikit-learn",
+    "fuzzywuzzy",
+    "SpeechRecognition",
+    "Pydub",
+    "sqlite3"
+]
