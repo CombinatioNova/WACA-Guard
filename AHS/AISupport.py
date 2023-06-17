@@ -750,7 +750,7 @@ class Support(Cog):
     """, color=0x00ff00,timestamp=datetime.now())
         embed.set_footer(text=f"Bot ready in {delta.total_seconds()} seconds")
         channel = bot.get_channel(1117508646541201488)
-        await betterChannel.send(embed=embed)
+        await channel.send(embed=embed)
         self.check_server.start()
     
     # Dictionary to keep track of server status and last message time

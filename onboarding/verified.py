@@ -4,7 +4,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 from disnake.utils import get
 from datetime import datetime
-
+import unicodedata
 class on_verification(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
@@ -84,5 +84,15 @@ Check out {joinChan.mention} for information on how to join the minecraft server
             await user.add_roles(server_role)
             await user.add_roles(position_role)
             await inter.edit_original_response(f"Done! Verified {user}.")
+    def sanitize_username(self,username):
+        normalized = unicodedata.normalize('NFKD', username)
+        sanitized = ''.join(c for c in normalized if not unicodedata.combining(c))
+        return sanitized
+    @slash_command(description="Normalize a username")
+    async def sanitize(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User):
+        await inter.response.defer(with_message = True,ephemeral=False)
+        sanitized_username = self.sanitize_username(user.display_name)
+        await user.edit(nick=sanitized_username)
+        await inter.edit_original_response(f"Done! Sanitized {user}.")
 def setup(bot: Bot) -> None:
     bot.add_cog(Ping(bot))

@@ -22,7 +22,7 @@ from sklearn.svm import SVC
 from sklearn.model_selection import RandomizedSearchCV
 from scipy.stats import randint as sp_randint
 from sklearn.datasets import load_iris
-
+import unicodedata
 verNum = "1.6"
 depDate = "Jan. 14th, 2023"
 start_time = datetime.now()
@@ -1826,11 +1826,14 @@ accuracyLin="%0.2f (+/- %0.2f)" % (linScore.mean(), linScore.std() * 2)
 
 
 async def preprocess_text(self, text):
+    normalized = unicodedata.normalize('NFKD', text)
+    text = ''.join(c for c in normalized if not unicodedata.combining(c))
     text = re.sub(r"[^A-Za-z0-9 ]+", "", text)
     text = re.sub(r" +", " ", text)
     text = re.sub(r"[@]+", "a", text)
     text = re.sub(r"[1]+", "i", text)
     text = re.sub(r"[3]+", "e", text)
+    
     return text
 class MDS(Cog):
     def __init__(self, bot: Bot) -> None:
