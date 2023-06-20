@@ -1762,6 +1762,28 @@ https://discord.gg/JuhKgfHsYB""",
     "What the fuck you smoking lmao",
     "thats usually what an 8 year old furry hater says when they see a furry, and they go on to ramble about how much they hate furries.",
     "@Fuck you @CombinatioNova @Chåractèr🎗",
+
+    "this bot can go fuck itself",
+    "right mate it’s 4am in the morning and your moderating a discord server that’s sad on multiple levels",
+    "(virgin)",
+    "mate your a virgin",
+    "he’s read the rules by assumption",
+    "Shut up stupid bot",
+    "who tf want to raid this small ass server",
+    "this bots crap",
+    "Fatimadeshar this server is an anarchy server so you can pretty much do anything exept hacking (u can still use Xray) if u didn't know",
+    "stfu 9 year old",
+    "dick means fat in german",
+    "He's a fucking dick lmao",
+    "Everything is somebody else’s fault, nothing is ever your fault. Your a cunt to everybody you have ever met",
+    "Nobody’s touching this bitch",
+    "i hate todays english",
+    "@Harry Did you ban someone because they were annoying?!?!",
+    "he's gonna be more mad when he finds out you LIED",
+    "Good news: The suggestions database didn't fuck up",
+    "FUCK YOU BOYO",
+
+    
     
     ])
 y = np.array(
@@ -1771,7 +1793,7 @@ y = np.array(
  1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
  ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
- 0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,1,0,1,
+ 0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,0,0,0,1
  ])
 
 MEAN_WORDS = ["slag","whore","short","slut","ugly","willy","schlong","dong","fanny","suicide","pussy","penis","stfu","dicks","annoying","fing","shit","fuck ","slit","gay","twat",
