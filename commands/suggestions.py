@@ -59,7 +59,7 @@ class AcceptModal(disnake.ui.Modal):
         print("Sending embed")
         upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{self.suggestion_id}")
         downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{self.suggestion_id}")
-        more_button = Button(style=disnake.ButtonStyle.gray, label="More", custom_id=f"suggMore_{self.suggestion_id}")
+        more_button = Button(style=disnake.ButtonStyle.gray, emoji="<:menu:1124096544606531635>", custom_id=f"suggMore_{self.suggestion_id}")
         # Disable the upvote and downvote buttons
         upvote_button.disabled = True
         downvote_button.disabled = True
