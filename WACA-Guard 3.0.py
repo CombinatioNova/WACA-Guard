@@ -1,8 +1,8 @@
 
 global testingMode
-testingMode = False
+testingMode = True
 if not testingMode:
-    print('''
+    print(r'''
                                                                                                                                            
                                                                                                          ,,                      
 `7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM                             
@@ -18,7 +18,7 @@ if not testingMode:
                                                                                                              
                                                                                                              ''')
 else:
-    print('''
+    print(r'''
                                                                                                                                                                                
                                                                                                          ,,                                                                    
 `7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM                                 `7MM"""Yp,           mm            
@@ -45,21 +45,21 @@ import disnake
 from disnake.ext import commands, tasks
 from commands.ping import Ping
 print("Importing RVDS")
-from RVDS.MDS import MDS
+#from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
-from AHS import AISupport#, Reminder
+#from AHS import AISupport#, Reminder
 
 print("Completed!")
 print("Importing owo, suggestion, and notify commands")
 from commands import owo,notify,suggestions
 print("Completed!")
 print("Importing training acceptance comamnds")
-from training import accept
+from training import accept, deny
 print("Completed!")
 print("Importing Moderation Logs")
 
-from moderation.Log import Log
+from moderation.Log2 import Log
 print("Completed!")
 print("Importing DM Listener")
 
@@ -151,7 +151,7 @@ async def change_status():
 @bot.event
 async def on_ready():
     print("Starting Status Loop")
-    change_status.start()
+    change_status.start() 
     print("Started Status Loop")
     
     print("All systems online! WACA-Guard 3.0 is now running in...\n")
@@ -162,6 +162,7 @@ async def on_ready():
 ## ADD COGS
     
 print("Adding Cogs")
+bot.add_cog(deny.deny(bot))
 bot.add_cog(JoinsAndLeaves.JoinAndLeave(bot))
 bot.add_cog(suggestions.Suggestions(bot))
 try:
@@ -250,8 +251,8 @@ print("Completed! All tasks have completed. Beginning WACA-Guard...")
 
 @bot.slash_command(description="WACA-Guard Information")
 async def about(inter):
-    botVer = "3.0 Beta 6"
-    depDate = "June 15th, 2023"
+    botVer = "4.0 Beta"
+    depDate = "July 1st, 2023"
     embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
 Deployed on: **{depDate}**
@@ -264,50 +265,28 @@ Bot latency is {bot.latency * 1000:.2f}ms.
 
 --------------------------------------------
 
-**Commands**
-
-Ping: **{pingOn}**
-OWO Commands: **{owoOn}**
-Moderation Logs: **{logOn}**
-Support Detection: **{supportOn}**
-Notifications: **{notifyOn}**
-Training Commands: **{acceptOn}**
-Insanity Easter Egg:**{insanityOn}**
-Mitochondria Easter Egg: **{mitoOn}**
-Server Setup: {serverSetup}
-
-**Automatic Reminders**
-
-Bump Reminder: {bumpReminder}
-
-**Machine Learning Algorithms:**
-
-Mean Detection System: **{MDSOn}**
-NSFW Detection System : **NOT IMPLEMENTED  :red_circle:**
-Join/Help Detection
-
-**Listeners:**
-
-DM Listener: **{DMListen}**
-OWO Listener: **{owoOn}**
-Easter Egg Listeners: **{insanityOn}**
-Verification: **{veriOn}**
-Server Status Listener: {statusSystem}
-Friendly Reminders: **{reminderOn}**
-
-**Network Security Systems**
-
-Network Ban Synchronization
-
-**Help Systems**
-
-Ticketing System: {ticketsSystem}
-Ticket Closing System: {closeSystem}
-
---------------------------------------------
-
+**COMMAND CENTER:**
 
 """, color = disnake.Colour.brand_green())
+    embed.add_field(name="Ping",value=f"{pingOn}")
+    embed.add_field(name="OwO",value=f"{owoOn}")
+    embed.add_field(name="Moderation Logs",value=f"{logOn}")
+    embed.add_field(name="Support Detection",value=f"{supportOn}")
+    embed.add_field(name="Notifications",value=f"{notifyOn}")
+    embed.add_field(name="Training Commands",value=f"{acceptOn}")
+    embed.add_field(name="Insanity Easter Egg",value=f"{insanityOn}")
+    embed.add_field(name="Mitochondria Easter Egg",value=f"{mitoOn}")
+    embed.add_field(name="Server Setup",value=f"{serverSetup}")
+    embed.add_field(name="Bump Reminder",value=f"{bumpReminder}")
+    embed.add_field(name="Mean Detection System",value=f"{MDSOn}")
+    embed.add_field(name="DM Listener",value=f"{DMListen}")
+    embed.add_field(name="OWO Listener",value=f"{insanityOn}")
+    embed.add_field(name="Easter Egg Listeners",value=f"{veriOn}")
+    embed.add_field(name="Verification",value=f"{statusSystem}")
+    embed.add_field(name="Friendly Reminders",value=f"{reminderOn}")
+    
+    appeal = Button(label='Appeals Link', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
+    
     await inter.response.send_message(embed=embed)
 
 

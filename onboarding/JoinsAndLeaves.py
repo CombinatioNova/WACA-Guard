@@ -30,7 +30,8 @@ You are member #{member_count}!""",
                     timestamp=datetime.now()
             )
             embed.set_thumbnail(url=member.avatar.url)
-            await channel.send(embed=embed)
+            message = await channel.send(embed=embed)
+            await message.add_reaction("<a:wave:1124927758057881681>")
         
 
     @Cog.listener()

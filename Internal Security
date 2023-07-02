@@ -1,0 +1,58 @@
+import disnake
+from disnake.ext import commands
+from discord.ext import tasks
+from bs4 import BeautifulSoup
+import aiohttp
+import os
+
+class TranscriptCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.transcript_folder = "transcripts"  # Folder to save transcripts
+        self.transcript_interval = 3600  # Interval in seconds (1 hour)
+
+        # Create the transcript folder if it doesn't exist
+        if not os.path.exists(self.transcript_folder):
+            os.makedirs(self.transcript_folder)
+
+        # Start the transcript task
+        self.transcript_task.start()
+
+    def cog_unload(self):
+        # Stop the transcript task when the cog is unloaded
+        self.transcript_task.cancel()
+
+    @tasks.loop(seconds=transcript_interval)
+    async def transcript_task(self):
+        guild = self.bot.get_guild(GUILD_ID)  # Replace GUILD_ID with the actual ID of the guild
+
+        if guild is None:
+            print("Guild not found.")
+            return
+
+        print(f"Generating transcripts for server: {guild.name}")
+
+        for channel in guild.text_channels:
+            await self.save_transcript(channel)
+
+    async def save_transcript(self, channel):
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(channel.transcripts.url) as response:
+                    if response.status == 200:
+                        transcript_html = await response.text()
+                        soup = BeautifulSoup(transcript_html, "html.parser")
+                        transcript_file = os.path.join(self.transcript_folder, f"{channel.name}.html")
+
+                        with open(transcript_file, "w", encoding="utf-8") as file:
+                            file.write(str(soup))
+
+                        print(f"Transcript saved for channel: {channel.name}")
+                    else:
+                        print(f"Failed to retrieve transcript for channel: {channel.name}")
+            except Exception as e:
+                print(f"Error saving transcript for channel: {channel.name}")
+                print(str(e))
+
+def setup(bot):
+    bot.add_cog(TranscriptCog(bot))

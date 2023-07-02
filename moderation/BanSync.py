@@ -35,7 +35,7 @@ class BanUser(Cog):
             title=f"NETWORK BAN NOTICE",
             description=f"""
 
-The user {user.name} has been marked for a network-ban. They will no longer have access to NETWACA services, and will no longer be eligible for any staff positions.
+User {user.name} has been banned network-wide.
 
 **Below is a breakdown of their user information:**
 """,
@@ -46,7 +46,7 @@ The user {user.name} has been marked for a network-ban. They will no longer have
     #User Information
         embed.add_field(name="Name: ", value=user.name, inline=True)
         embed.add_field(name="ID: ", value=user.id, inline=True)
-        embed.add_field(name="Created On: ", value=user.created_at, inline=True)
+        embed.add_field(name="Created On: ", value=f"<t:{user.created_at.timestamp()}:F>", inline=True)
         
     #Reason
         embed.add_field(name="Reason: ", value=reason, inline=False)
@@ -104,7 +104,7 @@ The user {user.name} has been marked for a network-ban. They will no longer have
         #User Information
         embed.add_field(name="Name: ", value=user.name, inline=True)
         embed.add_field(name="ID: ", value=user.id, inline=True)
-        embed.add_field(name="Created On: ", value=user.created_at, inline=False)
+        embed.add_field(name="Created On: ", value=f"<t:{user.created_at.timestamp()}:F>", inline=False)
     #Reason
         embed.add_field(name="Reason: ", value=reason, inline=False)
         embed.set_author( # Narcissism
@@ -171,7 +171,7 @@ The user {user.name} has been marked for a network-ban. They will no longer have
 
         embed = disnake.Embed(
             title="Ban Status",
-            description=f"User ID: {user.id}\n\nUser Name: {user.name}\n\nAccount Creation Date: {user.created_at}",
+            description=f"User ID: {user.id}\n\nUser Name: {user.name}\n\nAccount Creation Date: <t:{user.created_at.timestamp()}:f>",
             color=0xff0000 if banned_servers else 0x00ff00
         )
 

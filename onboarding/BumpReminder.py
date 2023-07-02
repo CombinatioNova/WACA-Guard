@@ -19,7 +19,7 @@ class BumpPings(Cog):
             tortoGuild = disnake.utils.get(bot.guilds, id=tortopia_id)
             role = disnake.utils.get(tortoGuild.roles, name="Bump Pings")
             channel = disnake.utils.get(tortoGuild.channels, name="🤖│bot-commands")
-            await channel.send(f"Remember to bump the server! {role.mention}")
+            await channel.send(f"Run /bump in this channel to help get our members up! {role.mention}")
 
     @tasks.loop(hours=1)
     async def wacaRemind(self):
@@ -32,7 +32,7 @@ class BumpPings(Cog):
             smpwacaGuild = disnake.utils.get(bot.guilds, id=smpwaca_id)
             role = disnake.utils.get(smpwacaGuild.roles, name="Bump Pings")
             channel = disnake.utils.get(smpwacaGuild.channels, name="🤜│bump")
-            await channel.send(f"Remember to bump the server! {role.mention}")
+            await channel.send(f"Run /bump in this channel to help get our members up! {role.mention}")
 
     @slash_command(description="Remind all servers to bump!")
     async def bumpremind(self, inter: disnake.ApplicationCommandInteraction):
@@ -42,13 +42,13 @@ class BumpPings(Cog):
         smpwacaGuild = disnake.utils.get(bot.guilds, id=smpwaca_id)
         role = disnake.utils.get(smpwacaGuild.roles, name="Bump Pings")
         channel = disnake.utils.get(smpwacaGuild.channels, name="🤜│bump")
-        await channel.send(f"Remember to bump the server! {role.mention}")
+        await channel.send(f"Run /bump in this channel to help get our members up! {role.mention}")
 
         tortopia_id = 826107409906008085
         tortoGuild = disnake.utils.get(bot.guilds, id=tortopia_id)
         role = disnake.utils.get(tortoGuild.roles, name="Bump Pings")
         channel = disnake.utils.get(tortoGuild.channels, name="🤖│bot-commands")
-        await channel.send(f"Remember to bump the server! {role.mention}")
+        await channel.send(f"Run /bump in this channel to help get our members up! {role.mention}")
         
         await inter.response.send_message("Done!", ephemeral=True)
 

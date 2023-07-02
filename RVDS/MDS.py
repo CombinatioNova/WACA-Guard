@@ -1783,6 +1783,20 @@ https://discord.gg/JuhKgfHsYB""",
     "Good news: The suggestions database didn't fuck up",
     "FUCK YOU BOYO",
 
+    "YOU WORTHLESS PILE OF MEANINGLESS VALUES.",
+    "Fuck you",
+    "I'll feel fat",
+    "My food teacher is a bitch",
+    "Dumbass",
+    "I bet waca guard has like a 0.1% chance to just go FUCKING SHUT UP",
+    "Bitch have they seen Adam",
+    "@VixotheAxo_ Could you roll back my stuff. i died after server crash",
+    'Oh yeah wick is like car insurance, it\'s super annoying until you actually need it and if you dont have it you just sorta go "well, fuck"',
+    "you your going to fuck around, your going to find out",
+    "Did Nova shorten his name-",
+    "I hate vocabulary words",
+    "Fatimadeshar this server is an anarchy server so you can pretty much do anything exept hacking (u can still use Xray) if u didn't know",
+    
     
     
     ])
@@ -1793,7 +1807,7 @@ y = np.array(
  1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
  ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
- 0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,0,0,0,1
+ 0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,0,0,0,1,1,1,0,1,1,1,1,0,0,0,0,0,0
  ])
 
 MEAN_WORDS = ["slag","whore","short","slut","ugly","willy","schlong","dong","fanny","suicide","pussy","penis","stfu","dicks","annoying","fing","shit","fuck ","slit","gay","twat",
