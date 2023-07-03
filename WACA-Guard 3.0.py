@@ -1,4 +1,5 @@
 
+from disnake.ui import Button
 global testingMode
 testingMode = True
 if not testingMode:
@@ -290,6 +291,7 @@ Bot latency is {bot.latency * 1000:.2f}ms.
     await inter.response.send_message(embed=embed)
 
 
+    await inter.response.send_message(embed=embed, components = [appeal])
 
 
     

@@ -7,7 +7,21 @@ class SetupCommand(Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
+    @slash_command(name="delete_all")
+    async def delete_all(self, ctx):
+        # Replace '1010578625814335588' with your server ID
+        if ctx.guild.id != 1010578625814335588:
+            await ctx.send("Sorry, this command can only be used in the specified server.")
+            return
 
+        for category in ctx.guild.categories:
+            await category.delete()
+
+        for channel in ctx.guild.channels:
+            await channel.delete()
+
+        await ctx.send("All channels and categories have been deleted.")
+        
     @slash_command(name="setup")
     async def setup(self, interaction: disnake.ApplicationCommandInteraction):
         roleExists = []
@@ -89,6 +103,7 @@ class SetupCommand(Cog):
         transcripts_channel = disnake.utils.get(interaction.guild.channels, name="📂transcripts")
         waca_guard_audit_channel = disnake.utils.get(interaction.guild.channels, name="waca-guard-audit")
         joinInfo = disnake.utils.get(interaction.guild.channels, name="✅│how-to-join")
+        bugReport = disnake.utils.get(interaction.guild.channels, name="🐛│bug-reports")
          # If the channels don't exist, create them
         newCat = disnake.utils.get(interaction.guild.categories, name="New Channels")
 
@@ -104,6 +119,8 @@ class SetupCommand(Cog):
             channelExists.append("WACA-Guard Audit")
         if joinInfo:
             channelExists.append("How-To-Join")
+        if bugReport:
+            channelExists.append("Bug Reports")
 
         if newCat:
             categoryExists.append("New Channels")
@@ -112,6 +129,24 @@ class SetupCommand(Cog):
         if not newCat:
             newCat = await interaction.guild.create_category_channel(name="New Channels")
             categoryCreated.append("New Channels")
+
+        if not bugReport:
+            try:
+                overwrites = {
+                inter.guild.default_role: disnake.PermissionOverwrite(read_messages=False),
+                get(inter.guild.roles, name="Verified"): disnake.PermissionOverwrite(read_messages = True),
+                get(inter.guild.roles, name="Moderator"): disnake.PermissionOverwrite(read_messages = True),
+                get(inter.guild.roles, name="Senior Admin"): disnake.PermissionOverwrite(read_messages = True),
+                get(inter.guild.roles, name="Trial Moderator"): disnake.PermissionOverwrite(read_messages = True),}
+            except:
+                overwrites = {
+                inter.guild.default_role: disnake.PermissionOverwrite(read_messages=False),
+                get(inter.guild.roles, name="Wick Verified"): disnake.PermissionOverwrite(read_messages = True),
+                get(inter.guild.roles, name="Moderator"): disnake.PermissionOverwrite(read_messages = True),
+                get(inter.guild.roles, name="Senior Admin"): disnake.PermissionOverwrite(read_messages = True),
+                get(inter.guild.roles, name="Trial Moderator"): disnake.PermissionOverwrite(read_messages = True),}
+            bugReport = await interaction.guild.create_text_channel(name="🐛│bug-reports", overwrites=overwrites, category = newCat)
+            channelCreated.append("Bug Reports")
             
         if not moderation_channel:
             overwrites = {

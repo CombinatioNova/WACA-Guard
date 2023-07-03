@@ -75,6 +75,8 @@ class Log(commands.Cog):
             ]
         )
     ):
+        
+        
         server = inter.guild.name
         inChannelMsg = f'''
     **Dear {user},**
@@ -144,8 +146,25 @@ class Log(commands.Cog):
             disabled=True,  # Initially disabled
         )
 
-        action_row = [edit_button, remove_button]
-
+        
+        if "Trial Moderator" in [r.name for r in inter.author.roles]:
+            # Add Accept button
+            accept_button = Button(
+                style=ButtonStyle.success,
+                label="Accept",
+                custom_id=f"log_accept:{log_id}",
+                disabled=False, 
+            )
+            # Add Deny button
+            deny_button = Button(
+                style=ButtonStyle.danger,
+                label="Deny",
+                custom_id=f"log_deny:{log_id}",
+                disabled=False, 
+            )
+            action_row = [edit_button, remove_button, accept_button, deny_button]
+        else:
+            action_row = [edit_button, remove_button]
         message = await channel.send(embed=log_embed, components=action_row)
         
         # Get the message ID of the logged message
@@ -160,86 +179,96 @@ class Log(commands.Cog):
         )
         self.conn.commit()
  ############################################# -- SEND MESSAGE TO USER -- #############################################################################       
+        if "Trial Moderator" not in [r.name for r in inter.author.roles]:
+            log = self.get_log(log_id)
+            member = user
 
-        log = self.get_log(log_id)
-        member = user
-
-        overwrites = {
-            member.guild.default_role: disnake.PermissionOverwrite(read_messages=False),
-            get(member.guild.roles, name="Staff"): disnake.PermissionOverwrite(read_messages = True),
-            member: disnake.PermissionOverwrite(read_messages = True)}
-        category = disnake.utils.get(member.guild.categories, name = "📬 | Support tickets")
-        channel = await member.guild.create_text_channel(f"notice-{member.display_name}", overwrites=overwrites, category=category)
-        print(channel.id)
-        await channel.send(f"**ATTN:** {inter.author.mention} {user.mention}")
+            overwrites = {
+                member.guild.default_role: disnake.PermissionOverwrite(read_messages=False),
+                get(member.guild.roles, name="Staff"): disnake.PermissionOverwrite(read_messages = True),
+                member: disnake.PermissionOverwrite(read_messages = True)}
+            category = disnake.utils.get(member.guild.categories, name = "📬 | Support tickets")
+            channel = await member.guild.create_text_channel(f"notice-{member.display_name}", overwrites=overwrites, category=category)
+            print(channel.id)
+            await channel.send(f"**ATTN:** {inter.author.mention} {user.mention}")
 
 
-        logmsg = disnake.Embed(
-            title=f"NOTICE FOR: {user.display_name}", # Smart or smoothbrain?????
-            color=disnake.Colour.brand_red(), # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
-            description=inChannelMsg,
-            timestamp=datetime.now(), #Get the datetime... now...
-        )
-
-        logmsg.set_author( # Narcissism
-            name="SMPWACA Moderation",
-            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
-        )
-        logmsg.set_footer( # Show the moderator
-            text=f"Your moderator: {inter.author.name}",
-            icon_url=inter.author.display_avatar,
-        )
-        logmsg.set_thumbnail(user.display_avatar)
-        logmsg.add_field(name="<:NumRed:1124124538905575444> Case Number: ", value=log_id, inline=True)
-        logmsg.add_field(name="<:Punishment:1124125689772257310> Action Taken: ", value=punishment, inline=True)
-        logmsg.add_field(name="<:ReasonRed:1124124959158054912> Reason: ", value=reason, inline=True)
-        logmsg.add_field(name="<:NoteRed:1124125152666456134>Moderator Notes: ", value=notes, inline = False)
-        logmsg.add_field(name="<:StaffRed:1124124861271392346> Your Moderator: ", value=inter.author.name, inline=True)
-        appeal = Button(label='Appeal Ban', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
-        close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
-        message = await channel.send(embed=logmsg, components = [appeal, close])
-        print(message.id)
-        dmmsg = await user.send(embed=logmsg, components = [appeal])
-        # Get the message ID of the logged message
-        servermsg_id = message.id
-        dmmsg_id = dmmsg.id
-       
-        if log:
-            #
-            self.cursor.execute(
-                'UPDATE logs SET servermsg_id = ? WHERE log_id = ?',
-                (servermsg_id, log_id)
+            logmsg = disnake.Embed(
+                title=f"NOTICE FOR: {user.display_name}", # Smart or smoothbrain?????
+                color=disnake.Colour.brand_red(), # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
+                description=inChannelMsg,
+                timestamp=datetime.now(), #Get the datetime... now...
             )
-            self.cursor.execute(
-                'UPDATE logs SET dmmsg_id = ? WHERE log_id = ?',
-                (dmmsg_id, log_id)
+
+            logmsg.set_author( # Narcissism
+                name="SMPWACA Moderation",
+                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
             )
-            self.cursor.execute(
-                'UPDATE logs SET channel_id = ? WHERE log_id = ?',
-                (channel.id, log_id)
+            logmsg.set_footer( # Show the moderator
+                text=f"Your moderator: {inter.author.name}",
+                icon_url=inter.author.display_avatar,
             )
-            self.cursor.execute(
-                'UPDATE logs SET dm_id = ? WHERE log_id = ?',
-                (user.dm_channel.id, log_id)
+            logmsg.set_thumbnail(user.display_avatar)
+            logmsg.add_field(name="<:NumRed:1124124538905575444> Case Number: ", value=log_id, inline=True)
+            logmsg.add_field(name="<:Punishment:1124125689772257310> Action Taken: ", value=punishment, inline=True)
+            logmsg.add_field(name="<:ReasonRed:1124124959158054912> Reason: ", value=reason, inline=True)
+            logmsg.add_field(name="<:NoteRed:1124125152666456134>Moderator Notes: ", value=notes, inline = False)
+            logmsg.add_field(name="<:StaffRed:1124124861271392346> Your Moderator: ", value=inter.author.name, inline=True)
+            appeal = Button(label='Appeal Ban', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
+            close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
+            message = await channel.send(embed=logmsg, components = [appeal, close])
+            print(message.id)
+            dmmsg = await user.send(embed=logmsg, components = [appeal])
+            # Get the message ID of the logged message
+            servermsg_id = message.id
+            dmmsg_id = dmmsg.id
+           
+            if log:
+                #
+                self.cursor.execute(
+                    'UPDATE logs SET servermsg_id = ? WHERE log_id = ?',
+                    (servermsg_id, log_id)
+                )
+                self.cursor.execute(
+                    'UPDATE logs SET dmmsg_id = ? WHERE log_id = ?',
+                    (dmmsg_id, log_id)
+                )
+                self.cursor.execute(
+                    'UPDATE logs SET channel_id = ? WHERE log_id = ?',
+                    (channel.id, log_id)
+                )
+                self.cursor.execute(
+                    'UPDATE logs SET dm_id = ? WHERE log_id = ?',
+                    (user.dm_channel.id, log_id)
+                )
+                
+                self.conn.commit()
+
+
+
+
+
+
+            query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
+            self.cursor.execute(query, (user.id,inter.guild.id,))
+            count = self.cursor.fetchone()[0]
+            queryNet = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+            self.cursor.execute(queryNet, (user.id,))
+            countNet = self.cursor.fetchone()[0]
+
+            await inter.edit_original_response(
+                f"{user.display_name} has been logged. They currently have {count} offence(s) in {inter.guild.name} and {countNet} offence(s) network-wide."
             )
-            
-            self.conn.commit()
-
-
-
-
-
-
-        query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
-        self.cursor.execute(query, (user.id,inter.guild.id,))
-        count = self.cursor.fetchone()[0]
-        queryNet = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
-        self.cursor.execute(queryNet, (user.id,))
-        countNet = self.cursor.fetchone()[0]
-
-        await inter.edit_original_response(
-            f"{user.display_name} has been logged. They currently have {count} offence(s) in {inter.guild.name} and {countNet} offence(s) network-wide."
-        )
+        else:
+            query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
+            self.cursor.execute(query, (user.id,inter.guild.id,))
+            count = self.cursor.fetchone()[0]
+            queryNet = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+            self.cursor.execute(queryNet, (user.id,))
+            countNet = self.cursor.fetchone()[0]
+            await inter.edit_original_response(
+                f"{user.display_name} has been logged. They currently have {count} offence(s) in {inter.guild.name} and {countNet} offence(s) network-wide. Please wait for a Moderator+ to accept or deny your log..."
+            )
 
     @commands.Cog.listener()
     async def on_button_click(self, inter: disnake.MessageInteraction):
@@ -256,6 +285,246 @@ class Log(commands.Cog):
         elif custom_id.startswith("reinstate_log"):
             await self.handle_reinstate_button(inter, log_id)
 
+
+        elif custom_id.startswith("log_accept"):
+            await inter.response.defer(with_message=True, ephemeral=True)
+            
+            log = self.get_log(log_id)
+            
+            log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
+            user = await self.bot.fetch_user(int(log[2]))
+            member = user
+
+            inChannelMsg = f'''
+    **Dear {user},**
+
+    We regret to inform you that after investigation, we have determined that you have violated {inter.guild.name} guidelines.
+
+    The results of our investigation are linked below, and a **link to your appeals site** is included.
+
+    Please remember to abide by the server rules in the future.
+
+    **Regards,**
+    **{inter.guild.name} Management Team**
+    '''
+            inDMMessage= f'''
+    **Dear {user},**
+
+    We regret to inform you that after close investigation, we have concluded that you have by greater weight of the evidence violated {inter.guild.name} Community Guidelines (The Rules).
+
+    Due to this, our staff team has decided it is in the server's best interest to give you a **{punishment}.**
+
+    You should be aware, however, that you have **rights** in this case. We believe everyone deserves to be heard, so if you so desire, you may appeal this action using this link for our records:
+    https://smpwa.ca/appeal
+
+    You also have the right to your evidence. You are able to request the evidence provided by your moderator as well as the pertinent information from your log. Note that this will not include any external notes the moderator may have made during extensive investigation.
+
+    We hope this will be a learning experience for you.
+
+    **Regards,**
+    **{inter.guild.name} Management Team**
+    '''
+            overwrites = {
+                inter.guild.default_role: disnake.PermissionOverwrite(read_messages=False),
+                get(inter.guild.roles, name="Staff"): disnake.PermissionOverwrite(read_messages = True),
+                member: disnake.PermissionOverwrite(read_messages = True)}
+            category = disnake.utils.get(inter.guild.categories, name = "📬 | Support tickets")
+            channel = await inter.guild.create_text_channel(f"notice-{member.display_name}", overwrites=overwrites, category=category)
+            print(channel.id)
+            await channel.send(f"**ATTN:** {inter.author.mention} {user.mention}")
+
+
+            logmsg = disnake.Embed(
+                title=f"NOTICE FOR: {user.display_name}", # Smart or smoothbrain?????
+                color=disnake.Colour.brand_red(), # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
+                description=inChannelMsg,
+                timestamp=datetime.now(), #Get the datetime... now...
+            )
+
+            logmsg.set_author( # Narcissism
+                name="SMPWACA Moderation",
+                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+            )
+            logmsg.set_footer( # Show the moderator
+                text=f"Your moderator: {inter.author.name}",
+                icon_url=inter.author.display_avatar,
+            )
+            logmsg.set_thumbnail(user.display_avatar)
+            logmsg.add_field(name="<:NumRed:1124124538905575444> Case Number: ", value=log_id, inline=True)
+            logmsg.add_field(name="<:Punishment:1124125689772257310> Action Taken: ", value=punishment, inline=True)
+            logmsg.add_field(name="<:ReasonRed:1124124959158054912> Reason: ", value=reason, inline=True)
+            logmsg.add_field(name="<:NoteRed:1124125152666456134>Moderator Notes: ", value=notes, inline = False)
+            logmsg.add_field(name="<:StaffRed:1124124861271392346> Your Moderator: ", value=inter.author.name, inline=True)
+            appeal = Button(label='Appeal Ban', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
+            close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
+            message = await channel.send(embed=logmsg, components = [appeal, close])
+            print(message.id)
+            dmmsg = await user.send(embed=logmsg, components = [appeal])
+            # Get the message ID of the logged message
+            servermsg_id = message.id
+            dmmsg_id = dmmsg.id
+           
+            if log:
+                #
+                self.cursor.execute(
+                    'UPDATE logs SET servermsg_id = ? WHERE log_id = ?',
+                    (servermsg_id, log_id)
+                )
+                self.cursor.execute(
+                    'UPDATE logs SET dmmsg_id = ? WHERE log_id = ?',
+                    (dmmsg_id, log_id)
+                )
+                self.cursor.execute(
+                    'UPDATE logs SET channel_id = ? WHERE log_id = ?',
+                    (channel.id, log_id)
+                )
+                self.cursor.execute(
+                    'UPDATE logs SET dm_id = ? WHERE log_id = ?',
+                    (user.dm_channel.id, log_id)
+                )
+                
+                self.conn.commit()
+                # Check if the log is already removed
+                if log[6] == 1:
+                    await inter.edit_original_response(
+                        f"Log {log_id} has been removed and cannot be edited.",
+                        ephemeral=True
+                    )
+                    return
+
+                # Retrieve the log embed message
+                channel = disnake.utils.get(inter.guild.channels, name="📂moderation")
+                message_id = log[1]
+
+                try:
+                    message = await channel.fetch_message(message_id)
+                except disnake.NotFound:
+                    await inter.edit_original_response(
+                        f"Unable to find the log message with ID {message_id}.",
+                        ephemeral=True
+                    )
+                    return
+
+                # Update the embed fields with the new values
+                embed = message.embeds[0]
+                embed.color=embedColor
+                try:
+                    embed.set_field_at(3, name="<:Staff:1124124862487732255> Initial Moderator",value=log[4], inline=True)
+                except IndexError:
+                    embed.add_field(name="<:Staff:1124124862487732255> Initial Moderator",value=log[4])
+                try:
+                    embed.set_field_at(4, name="<:Punishment:1124125689772257310> Action",value=log[6], inline=True)
+                except IndexError:
+                    pass
+                
+                embed.set_footer(
+                text=f"Log approved by {inter.author.name}",
+                icon_url=inter.author.display_avatar,
+            )
+                
+                # Add Remove button
+                remove_button = Button(
+                    style=ButtonStyle.danger,
+                    custom_id=f"remove_log:{log_id}",
+                    emoji = "<:trash2:1124096546032603347> "
+                )
+                # Add Edit button
+                edit_button = Button(
+                    style=ButtonStyle.primary,
+                    label="Edit",
+                    custom_id=f"edit_log:{log_id}",
+                )
+                
+                #Update the log
+                await message.edit(embed=embed, components=[edit_button,remove_button])
+                await inter.edit_original_response("Approved!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+        elif custom_id.startswith("log_deny"):
+            # Retrieve the log entry from the database
+            log = self.get_log(log_id)
+
+            # Retrieve the log embed message
+            channel = disnake.utils.get(inter.guild.channels, name="📂moderation")
+            message = inter.message.id
+
+            
+            
+            # Reason input field
+            reason_input = disnake.ui.TextInput(
+                label="Deny Reason:",
+                placeholder="Enter the reason for denial...",
+                min_length=1,
+                max_length=256,
+                custom_id=f"deny_reason:{log_id}",
+                value = log[5]
+            )
+            
+
+            # Create a modal for editing the log entry
+            modal = disnake.ui.Modal(title="Deny Log",custom_id=f"denyLogModal:{log_id}", components=[reason_input])
+            
+            # Add items to the modal            
+            await inter.response.send_modal(modal)
+
+
+
+
+
+
+
+
+
+
+            
         elif custom_id.startswith("user_logs_detail_network"):
             cursor = self.cursor
             user_id = int(inter.component.custom_id.split("_")[-1])
@@ -269,11 +538,18 @@ class Log(commands.Cog):
                     title=f"Moderation History of: {user.display_name}",
                     color=4143049
                 )
-                
+                query2 = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+                cursor.execute(query2, (user_id,))
+                count = cursor.fetchone()[0]
                 for log in logs:
                     log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
-                    embed.add_field(name=f"<:Num:1124124537580179536> Case Number: {log_id}", value=f"Punishment: {punishment}\nReason: {reason}\nModerator: {moderator}\n---", inline=False)
+                    server = await self.bot.fetch_guild(guild_id)
+                    embed.add_field(name=f"<:Num:1124124537580179536> Case Number: {log_id}", value=f"\n**Punishment:** {punishment}\n**Reason:** {reason}\n**Moderator:** {moderator}\n**Server:** {server.name}\n---\n", inline=False)
                 embed.set_thumbnail(user.display_avatar)
+                embed.set_footer(
+                text=f"Found {count} moderation log(s)!",
+                icon_url=user.display_avatar
+                )
                 await inter.response.edit_message(embed=embed, components = [])
             else:
                 await inter.response.edit_message(content="No logs found for the user.")
@@ -287,6 +563,7 @@ class Log(commands.Cog):
             logs = cursor.fetchall()
             
             if logs:
+                
                 embed = disnake.Embed(
                     title=f"Moderation History of: {user.display_name}",
                     color=4143049
@@ -295,7 +572,14 @@ class Log(commands.Cog):
                 for log in logs:
                     log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
                     embed.add_field(name=f"<:Num:1124124537580179536> Case Number: {log_id}", value=f"Punishment: {punishment}\nReason: {reason}\nModerator: {moderator}\n---", inline=False)
+                query3 = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
+                cursor.execute(query3, (user_id,inter.guild.id,))
+                count = cursor.fetchone()[0]
                 embed.set_thumbnail(user.display_avatar)
+                embed.set_footer(
+                text=f"Found {count} moderation log(s)!",
+                icon_url=user.display_avatar
+                )
                 await inter.response.edit_message(embed=embed, components = [])
             else:
                 await inter.response.edit_message(content="No logs found for the user.")
@@ -540,7 +824,7 @@ class Log(commands.Cog):
                 embed.add_field(name="<:StaffGreen:1124124859237138543> Initial Moderator",value=log[4])
             embed.remove_field(4)
             embed.set_footer(
-            text=f"❗Log reinstated by {inter.author.name}❗",
+            text=f"❗Log restored by {inter.author.name}❗",
             icon_url=inter.author.display_avatar,
         )
 
@@ -606,7 +890,97 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     async def on_modal_submit(self, inter: disnake.ModalInteraction):
 
-        if inter.custom_id.startswith("editLogModal"):
+
+
+
+
+
+        if inter.custom_id.startswith("denyLogModal"):
+            await inter.response.defer(with_message=True, ephemeral=False)
+            log_id = int(inter.custom_id.split(":")[1])
+            log = self.get_log(log_id)
+            dic=inter.text_values
+            
+            reason=dic[f"deny_reason:{log_id}"]
+
+            
+            if log:
+                # Update the 'removed' field in the database
+                self.cursor.execute(
+                    'UPDATE logs SET removed = ? WHERE log_id = ?',
+                    (1, log_id)
+                )
+                self.conn.commit()
+
+                await inter.send(
+                    f"Log {log_id} has been removed.",
+                    ephemeral=True
+                )
+
+                # Add Edit button
+                edit_button = Button(
+                    style=ButtonStyle.primary,
+                    label="Edit",
+                    custom_id=f"edit_log:{log_id}",
+                    disabled=True,  # Initially disabled
+                )
+
+                # Add Reinstate button
+                reinstate_button = Button(
+                    style=ButtonStyle.success,
+                    custom_id=f"reinstate_log:{log_id}",
+                    emoji="<:restore:1124096542228365343>",
+                    disabled=False,  # Initially disabled
+            )
+                # Retrieve the log embed message
+                channel = disnake.utils.get(inter.guild.channels, name="📂moderation")
+                message_id = log[1]
+
+                try:
+                    message = await channel.fetch_message(message_id)
+                except disnake.NotFound:
+                    await inter.send(
+                        f"Unable to find the log message with ID {message_id}.",
+                        ephemeral=True
+                    )
+                    return
+                user = await self.bot.fetch_user(int(log[2]))
+                # Update the embed fields with the new values
+                embed = message.embeds[0]
+                embed.color=disnake.Colour.red()
+                embed.title = f"{user.display_name}: LOG DENIED"
+                embed.set_field_at(0, name="<:NumRed:1124124538905575444> Case Number",value=log[0], inline=True)
+                embed.set_field_at(1, name="<:ReasonRed:1124124959158054912> Reason",value=log[3], inline=True)
+                embed.set_field_at(2, name="<:NoteRed:1124125152666456134> Notes",value=reason, inline=False)
+                try:
+                    embed.set_field_at(3, name="<:StaffRed:1124124861271392346> Initial Moderator",value=log[4], inline=True)
+                except IndexError:
+                    embed.add_field(name="<:StaffRed:1124124861271392346> Initial Moderator",value=log[4])
+                try:
+                    embed.set_field_at(4, name="<:Punishment:1124125689772257310> Action",value=log[6], inline=True)
+                except IndexError:
+                    embed.add_field(name="<:Punishment:1124125689772257310> Action",value=log[6])
+                
+                embed.set_footer(
+                text=f"Log denied by {inter.author.name}",
+                icon_url=inter.author.display_avatar,
+            )
+                self.cursor.execute(
+                    'UPDATE logs SET notes = ? WHERE log_id = ?',
+                    (reason, log_id)
+                )
+                self.conn.commit()
+                await message.edit(embed=embed, components=[edit_button,reinstate_button])
+            else:
+                await inter.send(
+                    f"<:wacanotice:1109510616206557254> **NOTICE:** No log found with ID {log_id}.",
+                    ephemeral=True
+                )
+
+                
+
+        elif inter.custom_id.startswith("editLogModal"):
+            await inter.response.defer(with_message=True, ephemeral=False)
             log_id = int(inter.custom_id.split(":")[1])
             log = self.get_log(log_id)
             dic=inter.text_values
@@ -617,7 +991,7 @@ class Log(commands.Cog):
             if log:
                 # Check if the log is already removed
                 if log[6] == 1:
-                    await inter.send(
+                    await inter.edit_original_response(
                         f"Log {log_id} has been removed and cannot be edited.",
                         ephemeral=True
                     )
@@ -630,7 +1004,7 @@ class Log(commands.Cog):
                 try:
                     message = await channel.fetch_message(message_id)
                 except disnake.NotFound:
-                    await inter.send(
+                    await inter.edit_original_response(
                         f"Unable to find the log message with ID {message_id}.",
                         ephemeral=True
                     )
@@ -659,8 +1033,8 @@ class Log(commands.Cog):
                 
                 # Update the log entry in the database
                 self.cursor.execute(
-                    'UPDATE logs SET punishment = ?, reason = ?, moderator = ?, notes = ? WHERE log_id = ?',
-                    (punish, reason, name, notes, log_id)
+                    'UPDATE logs SET punishment = ?, reason = ?, notes = ? WHERE log_id = ?',
+                    (punish, reason, notes, log_id)
                 )
                 self.conn.commit()
                 
@@ -689,16 +1063,18 @@ Your case has been updated by a staff member! Please review the changes to your 
                     channel = disnake.utils.get(inter.guild.channels, id=log[11])
                     message = await channel.fetch_message(int(message_id))
                     await message.edit(embed=embed, components=[appeal])
-                except disnake.NotFound:
+                except:
                     pass
-
-                # Fetch DM Channel and send to User
-                message_id = log[8]
-                dm = log[10]
-                channel = await self.bot.fetch_user(log[2])
-                message = await channel.fetch_message(message_id)
-                await message.edit(embed=embed, components=[appeal])
-                await inter.response.send_message("Done!")
+                try:
+                    # Fetch DM Channel and send to User
+                    message_id = log[8]
+                    dm = log[10]
+                    channel = await self.bot.fetch_user(log[2])
+                    message = await channel.fetch_message(message_id)
+                    await message.edit(embed=embed, components=[appeal])
+                except:
+                    pass
+                await inter.edit_original_response("Edited Log!")
 
 
 
@@ -734,7 +1110,7 @@ Your case has been updated by a staff member! Please review the changes to your 
                     disnake.ui.Button(
                         style=disnake.ButtonStyle.primary,
                         label="More Detail",
-                        custom_id=f"{user_id}"
+                        custom_id=f"user_logs_detail_{user_id}"
                     )
                 ]
                 action_row = disnake.ui.ActionRow(*components)
@@ -779,7 +1155,7 @@ Your case has been updated by a staff member! Please review the changes to your 
         log = cursor.fetchone()
         
         if log:
-            log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id = log
+            log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
             
             embed = disnake.Embed(
                 title=f"{inter.author.display_name}: {punishment}",

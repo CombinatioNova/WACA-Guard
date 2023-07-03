@@ -39,8 +39,8 @@ class accept(Cog):
             text=f"Sent to {user}",
             icon_url=user.display_avatar
             )
-        accept = Button(label="Accept", custom_id=f"1acc",style=disnake.ButtonStyle.success)
-        deny = Button(label="Deny", custom_id=f"d",style=disnake.ButtonStyle.danger)
+        accept = Button(label="Accept", custom_id=f"acceptapp",style=disnake.ButtonStyle.success)
+        deny = Button(label="Deny", custom_id=f"denyapp",style=disnake.ButtonStyle.danger)
         try:
             await user.send(embed=embed,components=[accept,deny])
         except disnake.Forbidden as error:
@@ -81,7 +81,7 @@ class accept(Cog):
     @Cog.listener()
     async def on_button_click(self, inter):
         bot=self.bot
-        if inter.component.custom_id.startswith(f"1acc"):
+        if inter.component.custom_id.startswith(f"acceptapp"):
             
             
             channel = bot.get_channel(1108543942326235208)
@@ -96,7 +96,7 @@ class accept(Cog):
                 )
             await channel.send(embed=embed)
             await inter.send("Thank you for accepting our invitation to the training program! We're glad to have you here. Please join the NETWACA Staff Discord in order to have more efficient communication: https://discord.gg/SCAphDvv6j")
-        if inter.component.custom_id.startswith(f"d"):
+        if inter.component.custom_id.startswith(f"denyapp"):
             
             
             channel = bot.get_channel(1108543942326235208)

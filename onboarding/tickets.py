@@ -75,6 +75,7 @@ Click **Contact Support** below to get help dealing with join issues, griefing, 
         except:
             pass
         if inter.component.custom_id.startswith("open"):
+            await inter.response.defer(with_message = True, ephemeral = True)
             bot = self.bot
             global name
             user = inter.user
@@ -86,7 +87,7 @@ Click **Contact Support** below to get help dealing with join issues, griefing, 
                 get(member.guild.roles, name="Staff"): disnake.PermissionOverwrite(read_messages = True),
                 inter.user: disnake.PermissionOverwrite(read_messages = True)}
             category = disnake.utils.get(member.guild.categories, name = "📬 | Support tickets")
-            channel = await inter.user.guild.create_text_channel(f"ticket-{member.display_name}", overwrites=overwrites, category=category)
+            channel = await inter.user.guild.create_text_channel(f"🟢│ticket-{member.display_name}", overwrites=overwrites, category=category)
             welcome_embed = disnake.Embed(
             title="Welcome to Your Help Dashboard!",
             description="""
@@ -121,7 +122,7 @@ Please select a category from the buttons below:
             
             message = await channel.send(inter.user.mention, embed=welcome_embed)
             await message.edit(content="", embed=welcome_embed,components=[menu,joinProb,report,other,close])
-            await inter.response.send_message(f"<:wacayes:1109510617401917540> **TICKET CREATED:** Head on over to {channel.mention} to get some help!", ephemeral = True)
+            await inter.edit_original_response(f"<:wacayes:1109510617401917540> **TICKET CREATED:** Head on over to {channel.mention} to get some help!")
 ############################################ -- REPORT THING -- #####################################################
 
 
@@ -131,7 +132,7 @@ Please select a category from the buttons below:
             grief = Button(label="Grief", custom_id=f"grief: {inter.author.id}",style=disnake.ButtonStyle.primary, emoji="<:Grief:1124143626855915611>")
             hack = Button(label="Hacker", custom_id=f"hack: {inter.author.id}",style=disnake.ButtonStyle.primary, emoji="<:Report:1124146580442857502>")
             back = Button(label="Go Back", custom_id=f"back: {inter.author.id}",style=disnake.ButtonStyle.success)
-            await inter.channel.edit(name=f"report-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🟡│report-{inter.author.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             embed = inter.message.embeds[0]
@@ -148,7 +149,7 @@ Please choose what incident you would like to report with using the buttons belo
             await inter.response.edit_message(embed = embed, components=[menu,theft,grief,hack,back,close])
 
         elif inter.component.custom_id.startswith("theft"):
-            await inter.channel.edit(name=f"theft-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🟡│theft-{inter.author.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             embed = inter.message.embeds[0]
@@ -175,7 +176,7 @@ We understand that getting your stuff stolen can be really frustrating. We're he
 
 
         elif inter.component.custom_id.startswith("grief"):
-            await inter.channel.edit(name=f"grief-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🟡│grief-{inter.author.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             embed = inter.message.embeds[0]
@@ -199,7 +200,7 @@ We understand that getting griefed can be really frustrating. We're here to make
             await inter.response.edit_message(embed = embed, components=[menu,close])
             await inter.channel.send(role.mention)
         elif inter.component.custom_id.startswith("hack"):
-            await inter.channel.edit(name=f"hack-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🔴│hack-{inter.author.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
             
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
@@ -225,6 +226,7 @@ We understand that getting griefed can be really frustrating. We're here to make
             await inter.response.edit_message(embed = embed, components=[menu,close])
             await inter.channel.send(f"**HIGH PRIORITY!** {role.mention}")
         elif inter.component.custom_id.startswith("back"):
+            await inter.channel.edit(name=f"🟢│ticket-{inter.author.display_name}")
             welcome_embed = inter.message.embeds[0]
             welcome_embed = disnake.Embed(
             title="Welcome to Your Help Dashboard!",
@@ -261,7 +263,7 @@ Please select a category from the buttons below:
             await inter.response.edit_message(embed = welcome_embed, components=[menu,joinProb,report,other,close])
             
         elif inter.component.custom_id.startswith("joinProb"):
-            
+            await inter.channel.edit(name=f"🟡│join-{inter.author.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             
@@ -348,7 +350,7 @@ Please select a category from the buttons below:
         elif inter.component.custom_id.startswith("other"):
             close = Button(label="Close Ticket", custom_id=f"close: {inter.author.id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
-            await inter.channel.edit(name=f"other-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🟢│other-{inter.author.display_name}")
 
 
             embed = inter.message.embeds[0]
@@ -365,6 +367,7 @@ As you wait for our friendly staff to assist you, please give us as much informa
             await inter.response.edit_message(embed = embed, components=[menu, close])
             await inter.channel.send(role.mention)
         elif inter.component.custom_id.startswith("close"):
+            await inter.response.defer(with_message = True, ephemeral = True)
             bot = self.bot
             user_id = int(inter.component.custom_id.split(": ")[1])
             user = await self.bot.fetch_user(user_id)
@@ -441,10 +444,10 @@ As you wait for our friendly staff to assist you, please give us as much informa
                     await user.send(embed=toSend,components = [veryHappy,happy,neutral,unhappy,veryUnhappy])
                     await user.send(file=transcript_file)
                 await inter.channel.delete()
-                await inter.response.send_message("Sent to Transcripts!", ephemeral=True)
+                await inter.edit_original_response("Sent to Transcripts!")
                 
             else:
-                await inter.response.send_message("No.", ephemeral=True)
+                await inter.edit_original_response("No.")
 
 ############################################ -- REACTION THINGS -- #####################################################
         elif inter.component.custom_id.startswith("veryHappy"):

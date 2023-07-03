@@ -336,7 +336,7 @@ class Suggestions(commands.Cog):
         
         upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{suggestion_id}")
         downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{suggestion_id}")
-        more_button = Button(style=disnake.ButtonStyle.gray, label="More", custom_id=f"suggMore_{suggestion_id}")
+        more_button = Button(style=disnake.ButtonStyle.gray, emoji="<:menu:1124096544606531635>", custom_id=f"suggMore_{suggestion_id}")
         channel = None
         
         for guild_channel in inter.guild.channels:
