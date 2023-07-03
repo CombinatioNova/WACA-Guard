@@ -30,7 +30,8 @@ class Log(commands.Cog):
                                 dmmsg_id INTEGER,
                                 servermsg_id INTEGER,
                                 dm_id INTEGER,
-                                channel_id INTEGER
+                                channel_id INTEGER,
+                                guild_id INTEGER
                             )''')
         self.conn.commit()
 
@@ -153,9 +154,9 @@ class Log(commands.Cog):
         # Log the moderation action in the database
         self.cursor.execute(
             '''INSERT INTO logs
-            (log_id, message_id, user_id, reason, moderator, notes, punishment, removed)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-            (log_id, message_id, user.id, reason, inter.author.display_name, notes,punishment, 0)
+            (log_id, message_id, user_id, reason, moderator, notes, punishment, removed, guild_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+            (log_id, message_id, user.id, reason, inter.author.display_name, notes,punishment, 0, inter.guild.id)
         )
         self.conn.commit()
  ############################################# -- SEND MESSAGE TO USER -- #############################################################################       
@@ -229,12 +230,15 @@ class Log(commands.Cog):
 
 
 
-        query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
-        self.cursor.execute(query, (user.id,))
+        query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
+        self.cursor.execute(query, (user.id,inter.guild.id,))
         count = self.cursor.fetchone()[0]
+        queryNet = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+        self.cursor.execute(queryNet, (user.id,))
+        countNet = self.cursor.fetchone()[0]
 
         await inter.edit_original_response(
-            f"{user.display_name} has been logged. They currently have {count} offence(s)"
+            f"{user.display_name} has been logged. They currently have {count} offence(s) in {inter.guild.name} and {countNet} offence(s) network-wide."
         )
 
     @commands.Cog.listener()
@@ -252,7 +256,7 @@ class Log(commands.Cog):
         elif custom_id.startswith("reinstate_log"):
             await self.handle_reinstate_button(inter, log_id)
 
-        elif custom_id.startswith("user_logs_detail"):
+        elif custom_id.startswith("user_logs_detail_network"):
             cursor = self.cursor
             user_id = int(inter.component.custom_id.split("_")[-1])
             user = await self.bot.fetch_user(user_id)
@@ -267,7 +271,29 @@ class Log(commands.Cog):
                 )
                 
                 for log in logs:
-                    log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id = log
+                    log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
+                    embed.add_field(name=f"<:Num:1124124537580179536> Case Number: {log_id}", value=f"Punishment: {punishment}\nReason: {reason}\nModerator: {moderator}\n---", inline=False)
+                embed.set_thumbnail(user.display_avatar)
+                await inter.response.edit_message(embed=embed, components = [])
+            else:
+                await inter.response.edit_message(content="No logs found for the user.")
+
+        elif custom_id.startswith("user_logs_detail"):
+            cursor = self.cursor
+            user_id = int(inter.component.custom_id.split("_")[-1])
+            user = await self.bot.fetch_user(user_id)
+            query = "SELECT * FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
+            cursor.execute(query, (user_id,inter.guild.id,))
+            logs = cursor.fetchall()
+            
+            if logs:
+                embed = disnake.Embed(
+                    title=f"Moderation History of: {user.display_name}",
+                    color=4143049
+                )
+                
+                for log in logs:
+                    log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
                     embed.add_field(name=f"<:Num:1124124537580179536> Case Number: {log_id}", value=f"Punishment: {punishment}\nReason: {reason}\nModerator: {moderator}\n---", inline=False)
                 embed.set_thumbnail(user.display_avatar)
                 await inter.response.edit_message(embed=embed, components = [])
@@ -687,33 +713,63 @@ Your case has been updated by a staff member! Please review the changes to your 
 
                 
     @commands.slash_command(description="Find a user's mod history")
-    async def history(self, inter, user: disnake.User):
-        cursor = self.cursor
-        user_id = user.id
-        query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
-        cursor.execute(query, (user_id,))
-        count = cursor.fetchone()[0]
-        
-        embed = disnake.Embed(
-            title="User Logs",
-            description=f"Total logs for {user.mention}: {count}",
-            color=4143049
-        )
-        embed.set_thumbnail(url=user.avatar.url)
-        
-        if count > 0:
-            # Add "More Detail" button
-            components = [
-                disnake.ui.Button(
-                    style=disnake.ButtonStyle.primary,
-                    label="More Detail",
-                    custom_id=f"user_logs_detail_{user_id}"
-                )
-            ]
-            action_row = disnake.ui.ActionRow(*components)
-            await inter.response.send_message(embed=embed, components=[action_row])
+    async def history(self, inter, user: disnake.User, network: bool = False):
+        if not network:
+            cursor = self.cursor
+            user_id = user.id
+            query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
+            cursor.execute(query, (user_id,inter.guild.id,))
+            count = cursor.fetchone()[0]
+            
+            embed = disnake.Embed(
+                title="User Logs",
+                description=f"Total logs for {user.mention}: {count}",
+                color=4143049
+            )
+            embed.set_thumbnail(url=user.avatar.url)
+            
+            if count > 0:
+                # Add "More Detail" button
+                components = [
+                    disnake.ui.Button(
+                        style=disnake.ButtonStyle.primary,
+                        label="More Detail",
+                        custom_id=f"{user_id}"
+                    )
+                ]
+                action_row = disnake.ui.ActionRow(*components)
+                await inter.response.send_message(embed=embed, components=[action_row])
+            else:
+                await inter.response.send_message(embed=embed)
         else:
-            await inter.response.send_message(embed=embed)
+            cursor = self.cursor
+            user_id = user.id
+            query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+            cursor.execute(query, (user_id,))
+            count = cursor.fetchone()[0]
+            
+            embed = disnake.Embed(
+                title="User Logs",
+                description=f"Total logs for {user.mention}: {count}",
+                color=4143049
+            )
+            embed.set_thumbnail(url=user.avatar.url)
+            
+            if count > 0:
+                # Add "More Detail" button
+                components = [
+                    disnake.ui.Button(
+                        style=disnake.ButtonStyle.primary,
+                        label="More Detail",
+                        custom_id=f"user_logs_detail_network_{user_id}"
+                    )
+                ]
+                action_row = disnake.ui.ActionRow(*components)
+                await inter.response.send_message(embed=embed, components=[action_row])
+            else:
+                await inter.response.send_message(embed=embed)
+
+    
 
     @commands.slash_command(description="Find any mod log!")
     async def findlog(self, inter, log_id: int):

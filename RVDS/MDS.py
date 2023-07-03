@@ -1823,7 +1823,7 @@ vectorizer = CountVectorizer()
 
 #instantiate SVM classifier
 
-param_grid = {'C': [0.001, 0.1,0.2,11,12,13,14], 'gamma': [0.14,0.13,0.12,0.16]}
+param_grid = {'C': [0.001, 0.1,0.2,11,13,14,15], 'gamma': [0.14,0.12,0.16,0.17]}
 classifier = GridSearchCV(SVC(), param_grid, n_jobs = -1)
 
 polyGrid ={
@@ -1831,13 +1831,9 @@ polyGrid ={
     'kernel': ['poly'],
     'degree': [2,4],
     'coef0': [0, 1, 10,15]}
-linGrid = {
-    'C': [0.1, 1, 10],
-    'max_iter': [500,800]
-}
+
 
 optionPoly = GridSearchCV(SVC(), polyGrid, n_jobs = -1)
-optionLinear = GridSearchCV(SVC(),linGrid, n_jobs = -1)
 
 # Train the classifier
 X_train = vectorizer.fit_transform(X)
@@ -1852,13 +1848,9 @@ print("Accuracy of rbf: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 polyScore= cross_val_score(optionPoly, X_train, y, cv=5)
 print("Accuracy of poly: %0.2f (+/- %0.2f)" % (polyScore.mean(), polyScore.std() * 2))
-linScore= cross_val_score(optionLinear, X_train, y, cv=5)
-print("Accuracy of linear: %0.2f (+/- %0.2f)" % (linScore.mean(), linScore.std() * 2))
 optionPoly.fit(X_train, y)
-optionLinear.fit(X_train, y)
 accuracy = "%0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2)
 accuracyPoly="%0.2f (+/- %0.2f)" % (polyScore.mean(), polyScore.std() * 2)
-accuracyLin="%0.2f (+/- %0.2f)" % (linScore.mean(), linScore.std() * 2)
 
 
 async def preprocess_text(self, text):
@@ -1891,11 +1883,8 @@ class MDS(Cog):
 
     Best Estimators: {classifier.best_estimator_}
 
-    **Linear (unused, only for comparison): {accuracyLin}**
+    **Linear REMOVED FOR SPEED**
 
-    Best Parameters: {optionLinear.best_params_}
-
-    Best Estimators: {optionLinear.best_estimator_}
 
     **Polynomial:{accuracyPoly}**
 
@@ -1935,47 +1924,20 @@ class MDS(Cog):
                 X2_test = vectorizer.transform([message_content])
                 prediction = classifier.predict(X2_test)[0]
                 polyPrediction = optionPoly.predict(X2_test)[0]
-                linPrediction = optionLinear.predict(X2_test)[0]
                 print(message_content + " FLAGGED IN MEAN WORDS")
                 print(f"RBF {prediction}")
-                print(f"LINEAR {linPrediction}")
                 print(f"POLY {polyPrediction}")
                 if polyPrediction == 1 or prediction == 1:
                     # Create the embed message
-                    titles = ['Make sure you\'re being nice!',"Are you being a meanie bo beanie?", "Careful! Follow the rules!", "Let's take a breather"]
+                    titles = ['Make sure you\'re being nice!',"Are you being a meanie bo beanie?", "Careful! Follow the rules!", "Let's take a breather", "Make sure you're kind to everyone!", "Peace and Love Only"]
                     randTitle = random.choice(titles)
                     
-                    embed = disnake.Embed(title=randTitle, description='This message was flagged as a potential violation of Rule 1: "Show other players respect." Make sure you\'re being kind to all players!', color=0xff0000, timestamp=datetime.now())
-                    log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0x00ff00)
+                    embed = disnake.Embed(title=randTitle, description='This message was flagged as a potentially mean message. Please make sure to be kind to other players!', color=0xff0000, timestamp=datetime.now())
+                    
+                    log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for being potentially mean! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0x00ff00)
 
-                    if polyPrediction == 1 and linPrediction == 1 and prediction == 1:
-                        
-                        embed.set_footer(text="Poly, RBF, and Linear Flag")
-                        
-                        log.set_footer(text="Poly, RBF, and Linear Flag")
-                        log.add_field(name="User",value=message.author,inline=True)
-                        log.add_field(name="Message",value=message.content,inline=True)
-                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
-                        await channel.send(embed=log)
-                    elif polyPrediction == 1 and linPrediction == 1:
-                        
-                        embed.set_footer(text="Polynomial and Linear Flag")
-                       
-                        log.set_footer(text="Polynomial and Linear Flag")
-                        log.add_field(name="User",value=message.author,inline=True)
-                        log.add_field(name="Message",value=message.content,inline=True)
-                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
-                        await channel.send(embed=log)
-                    elif linPrediction == 1 and prediction == 1:
-                        
-                        embed.set_footer(text="Linear and RBF Flag")
-                       
-                        log.set_footer(text="Linear and RBF Flag")
-                        log.add_field(name="User",value=message.author,inline=True)
-                        log.add_field(name="Message",value=message.content,inline=True)
-                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
-                        await channel.send(embed=log)
-                    elif polyPrediction == 1 and prediction == 1:
+                
+                    if polyPrediction == 1 and prediction == 1:
                         
                         embed.set_footer(text="Polynomial and RBF Flag")
                         
@@ -2008,37 +1970,14 @@ class MDS(Cog):
                 X2_test = vectorizer.transform([message_content])
                 prediction = classifier.predict(X2_test)[0]
                 polyPrediction = optionPoly.predict(X2_test)[0]
-                linPrediction = optionLinear.predict(X2_test)[0]
                 print(message_content + " FLAGGED IN MEAN WORDS")
                 print(f"RBF {prediction}")
-                print(f"LINEAR {linPrediction}")
                 print(f"POLY {polyPrediction}")
                 if polyPrediction == 1 or prediction == 1:
                     # Create the embed message
-                    embed = disnake.Embed(title='Make suwe you\'we being nice!', description='This message was fwagged as a potentiaw viowation of Wule 1: "Show othew pwayews wespect." Make sure you\'we being kind to aww pwayews! ÒwÓ', color=0xff0000, timestamp=datetime.now())
-                    if polyPrediction == 1 and linPrediction == 1 and prediction == 1:
-                        embed.set_footer(text="Powy, AwBF, and Winear FWag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0x00ff00)
-                        log.add_field(name="User",value=message.author,inline=True)
-                        log.add_field(name="Message",value=message.content,inline=True)
-                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
-                        
-                        await channel.send(embed=log)
-                    elif polyPrediction == 1 and linPrediction == 1:
-                        embed.set_footer(text="Powynomiaw and Winear Fwag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
-                        log.add_field(name="User",value=message.author,inline=True)
-                        log.add_field(name="Message",value=message.content,inline=True)
-                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
-                        await channel.send(embed=log)
-                    elif linPrediction == 1 and prediction == 1:
-                        embed.set_footer(text="Winear and AwBF Fwag")
-                        log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
-                        log.add_field(name="User",value=message.author,inline=True)
-                        log.add_field(name="Message",value=message.content,inline=True)
-                        channel = disnake.utils.get(user.guild.channels, name = "📂reports")
-                        await channel.send(embed=log)
-                    elif polyPrediction == 1 and prediction == 1:
+                    embed = disnake.Embed(title='OwO what\'s this??? Make suwe you\'we being nice!', description='This message was fwagged as a potentiaw viowation of Wule 1: "Show othew pwayews wespect." Make sure you\'we being kind to aww pwayews! ÒwÓ', color=0xff0000, timestamp=datetime.now())
+                   
+                    if polyPrediction == 1 and prediction == 1:
                         embed.set_footer(text="Powynomial and AwBF Fwag")
                         log = disnake.Embed(title=f"Message Flagged in {message.channel}!", description=f"A message was flagged for potentially violating Rule 1! \n\n [Go To Message](https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id})",color=0xffa500)
                         log.add_field(name="User",value=message.author,inline=True)
@@ -2064,7 +2003,7 @@ class MDS(Cog):
                     await message.reply(embed=embed)
                     
     @slash_command(name="analyze",description="Tells you how many messages have been mean")
-    async def meaninfo(self,inter,messages: int = 2000,agreement: str = Param(choices=["Radial Basis Function","Polynomial","Linear","RBF and Poly","Linear and Poly","RBF and Linear","Unanimous","Broad"])):
+    async def meaninfo(self,inter,messages: int = 2000,agreement: str = Param(choices=["Radial Basis Function","Polynomial","RBF and Poly","Unanimous","Broad"])):
         numFlags = 0
         numCrudeFlags = 0
         await inter.response.defer(with_message = True,ephemeral=False)
