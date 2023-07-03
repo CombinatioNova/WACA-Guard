@@ -229,10 +229,12 @@ class Log(commands.Cog):
 
 
 
-
+        query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+        self.cursor.execute(query, (user.id,))
+        count = self.cursor.fetchone()[0]
 
         await inter.edit_original_response(
-            f"{user.display_name} has been logged and a support ticket has been created."
+            f"{user.display_name} has been logged. They currently have {count} offence(s)"
         )
 
     @commands.Cog.listener()
@@ -249,6 +251,29 @@ class Log(commands.Cog):
             await self.handle_remove_button(inter, log_id)
         elif custom_id.startswith("reinstate_log"):
             await self.handle_reinstate_button(inter, log_id)
+
+        elif custom_id.startswith("user_logs_detail"):
+            cursor = self.cursor
+            user_id = int(inter.component.custom_id.split("_")[-1])
+            user = await self.bot.fetch_user(user_id)
+            query = "SELECT * FROM logs WHERE user_id = ? AND removed = 0"
+            cursor.execute(query, (user_id,))
+            logs = cursor.fetchall()
+            
+            if logs:
+                embed = disnake.Embed(
+                    title=f"Moderation History of: {user.display_name}",
+                    color=4143049
+                )
+                
+                for log in logs:
+                    log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id = log
+                    embed.add_field(name=f"<:Num:1124124537580179536> Case Number: {log_id}", value=f"Punishment: {punishment}\nReason: {reason}\nModerator: {moderator}\n---", inline=False)
+                embed.set_thumbnail(user.display_avatar)
+                await inter.response.edit_message(embed=embed, components = [])
+            else:
+                await inter.response.edit_message(content="No logs found for the user.")
+            
 
     async def handle_edit_button(self, inter: disnake.MessageInteraction, log_id: int):
         custom_id = inter.component.custom_id
@@ -608,8 +633,8 @@ class Log(commands.Cog):
                 
                 # Update the log entry in the database
                 self.cursor.execute(
-                    'UPDATE logs SET reason = ?, moderator = ?, notes = ? WHERE log_id = ?',
-                    (reason, name, notes, log_id)
+                    'UPDATE logs SET punishment = ?, reason = ?, moderator = ?, notes = ? WHERE log_id = ?',
+                    (punish, reason, name, notes, log_id)
                 )
                 self.conn.commit()
                 
@@ -648,6 +673,80 @@ Your case has been updated by a staff member! Please review the changes to your 
                 message = await channel.fetch_message(message_id)
                 await message.edit(embed=embed, components=[appeal])
                 await inter.response.send_message("Done!")
+
+
+
+
+
+
+
+
+
+
+
+
+                
+    @commands.slash_command(description="Find a user's mod history")
+    async def history(self, inter, user: disnake.User):
+        cursor = self.cursor
+        user_id = user.id
+        query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
+        cursor.execute(query, (user_id,))
+        count = cursor.fetchone()[0]
+        
+        embed = disnake.Embed(
+            title="User Logs",
+            description=f"Total logs for {user.mention}: {count}",
+            color=4143049
+        )
+        embed.set_thumbnail(url=user.avatar.url)
+        
+        if count > 0:
+            # Add "More Detail" button
+            components = [
+                disnake.ui.Button(
+                    style=disnake.ButtonStyle.primary,
+                    label="More Detail",
+                    custom_id=f"user_logs_detail_{user_id}"
+                )
+            ]
+            action_row = disnake.ui.ActionRow(*components)
+            await inter.response.send_message(embed=embed, components=[action_row])
+        else:
+            await inter.response.send_message(embed=embed)
+
+    @commands.slash_command(description="Find any mod log!")
+    async def findlog(self, inter, log_id: int):
+        cursor = self.cursor
+        query = "SELECT * FROM logs WHERE log_id = ?"
+        cursor.execute(query, (log_id,))
+        log = cursor.fetchone()
+        
+        if log:
+            log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id = log
+            
+            embed = disnake.Embed(
+                title=f"{inter.author.display_name}: {punishment}",
+                color=4143049,
+                timestamp=inter.created_at
+            )
+            embed.add_field(name="<:Num:1124124537580179536> Case Number", value=log_id, inline=False)
+            embed.add_field(name="<:Reason:1124124961712394310> Reason", value=reason, inline=False)
+            embed.add_field(name="<:Note:1124096605944037438> Notes", value=notes, inline=False)
+            embed.set_footer(
+                text=f"Logged case by {inter.author.display_name}",
+                icon_url=inter.author.avatar.url
+            )
+            embed.set_author(
+                name="SMPWACA Moderation",
+                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
+            )
+            embed.set_thumbnail(url=inter.author.avatar.url)
+            
+            await inter.response.send_message(embed=embed)
+        else:
+            await inter.response.send_message("Log not found.")
+
 
 def setup(bot):
     bot.add_cog(Log(bot))
