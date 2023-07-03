@@ -181,6 +181,8 @@ class Log(commands.Cog):
  ############################################# -- SEND MESSAGE TO USER -- #############################################################################       
         if "Trial Moderator" not in [r.name for r in inter.author.roles]:
             log = self.get_log(log_id)
+            
+            log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
             member = user
 
             overwrites = {
