@@ -709,7 +709,7 @@ class Support(Cog):
                 "discord_id": 912725322166829116  # Replace with your SMPWACA Discord server ID
             },
             "tortopia": {
-                "domain": "tortopia.netwaca.com",
+                "domain": "tortopia.netwaca.com:25096",
                 "discord_id": 826107409906008085  # Replace with your Tortopia Discord server ID
             },
             "parabellum": {

@@ -442,53 +442,6 @@ class Log(commands.Cog):
                 await inter.edit_original_response("Approved!")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 
         elif custom_id.startswith("log_deny"):
             # Retrieve the log entry from the database
@@ -858,19 +811,11 @@ class Log(commands.Cog):
                 await channel.send(embed=embed)
             except disnake.NotFound:
                 pass
-
             # Fetch DM Channel and send to User
             message_id = log[8]
             dm = log[10]
             channel = await self.bot.fetch_user(log[2])
             await channel.send(embed=embed)
-
-
-
-
-
-
-
         else:
             await inter.send(
                 f"No log found with ID {log_id}.",
@@ -1158,9 +1103,9 @@ Your case has been updated by a staff member! Please review the changes to your 
         
         if log:
             log_id, message_id, user_id, reason, moderator, notes, punishment, removed, dmmsg_id, servermsg_id, dm_id, channel_id, guild_id = log
-            
+            user = await self.bot.fetch_user(user_id)
             embed = disnake.Embed(
-                title=f"{inter.author.display_name}: {punishment}",
+                title=f"{user.display_name}: {punishment}",
                 color=4143049,
                 timestamp=inter.created_at
             )
@@ -1168,7 +1113,7 @@ Your case has been updated by a staff member! Please review the changes to your 
             embed.add_field(name="<:Reason:1124124961712394310> Reason", value=reason, inline=False)
             embed.add_field(name="<:Note:1124096605944037438> Notes", value=notes, inline=False)
             embed.set_footer(
-                text=f"Logged case by {inter.author.display_name}",
+                text=f"Moderated by {moderator}",
                 icon_url=inter.author.avatar.url
             )
             embed.set_author(

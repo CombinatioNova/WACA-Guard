@@ -270,23 +270,92 @@ Please select a category from the buttons below:
             embed = inter.message.embeds[0]
             embed.set_field_at(1,name="<:Status:1124145577312145509> Status", value="Waiting for Staff Response...")
             embed.set_field_at(0,name="<:Priority:1124145576074805268> Priority", value="Medium")
-             
-            embed.title = "Please write what your join issue is:"
-            embed.description = """
 
-**Before we begin, have you tried...**
+            match inter.guild.id:
+                
+############################################################################################################################################################################################################
 
-<:arrow5:1023715845748305961> Making sure to enable Direct Messages from server members?
+                case 912725322166829116: #SMPWACA
+                    embed.title = "Please write what your join issue is:"
+                    embed.description = """
 
-<:arrow5:1023715845748305961> (If on Console, Mobile, Switch, or Windows 10 Edition) Using the Bedrock port 19132?
+        **Before we begin, have you tried...**
 
-<:arrow5:1023715845748305961> Using the IP play.smpwaca.com?
+        <:arrow5:1023715845748305961> Making sure to enable Direct Messages from server members?
 
-"""
-            user = await self.bot.fetch_user(1032680296396636191)
-            embed.add_field(name=f":link: Send the Code to:", value = user.mention)
-            embed.add_field(name=f":computer: Server Version:", value = "1.19.2")
-            embed.add_field(name=f":closed_lock_with_key: Registration Command:", value = "/register (Password)")
+        <:arrow5:1023715845748305961> (If on Console, Mobile, Switch, or Windows 10 Edition) Using the Bedrock port 19132?
+
+        <:arrow5:1023715845748305961> Using the IP play.smpwaca.com?
+
+        """
+                    user = await self.bot.fetch_user(1032680296396636191)
+                    embed.add_field(name=f":link: Send the Code to:", value = user.mention)
+                    embed.add_field(name=f":computer: Server Version:", value = "1.19.2")
+                    embed.add_field(name=f":closed_lock_with_key: Registration Command:", value = "/register (Password)")
+                    
+############################################################################################################################################################################################################
+
+                case 826107409906008085: #Tortopia
+                    embed.title = "Please write what your join issue is:"
+                    embed.description = """
+
+        **Before we begin, have you tried...**
+
+        <:arrow5:1023715845748305961> Making sure the Modpack is up to date?
+
+        <:arrow5:1023715845748305961> Checking announcements for downtime?
+
+        <:arrow5:1023715845748305961> Using the IP tortopia.netwaca.com:25096?
+
+        """
+                    
+                    
+############################################################################################################################################################################################################
+
+                case 1069398385758580757: #Parabellum
+                    embed.title = "Please write what your join issue is:"
+                    embed.description = """
+
+        **Before we begin, have you tried...**
+
+        <:arrow5:1023715845748305961> Making sure to enable Direct Messages from server members?
+
+        <:arrow5:1023715845748305961> (If on Console, Mobile, Switch, or Windows 10 Edition) Using the Bedrock port 19132?
+
+        <:arrow5:1023715845748305961> Using the IP parabellum.netwaca.com?
+
+        """
+                    user = await self.bot.fetch_user(1032680296396636191)
+                    embed.add_field(name=f":link: Send the Code to:", value = user.mention)
+                    embed.add_field(name=f":computer: Server Version:", value = "1.19.2")
+                    embed.add_field(name=f":closed_lock_with_key: Registration Command:", value = "/register (Password)")
+                    
+############################################################################################################################################################################################################
+
+                case 854938852599005196: #Character SMP
+                    embed.title = "Please write what your join issue is:"
+                    embed.description = """
+
+        **Before we begin, have you tried...**
+
+        <:arrow5:1023715845748305961> Making sure to enable Direct Messages from server members?
+
+        <:arrow5:1023715845748305961> (If on Console, Mobile, Switch, or Windows 10 Edition) Using the Bedrock port 19132?
+
+        <:arrow5:1023715845748305961> Using the IP character.netwaca.com?
+
+        """
+                    user = await self.bot.fetch_user(1047760428115173419)
+                    embed.add_field(name=f":link: Send the Code to:", value = user.mention)
+                    embed.add_field(name=f":computer: Server Version:", value = "1.19.2")
+                    embed.add_field(name=f":closed_lock_with_key: Registration Command:", value = "/register (Password)")
+
+                case _:                
+
+                    embed.title = "Please write what your join issue is:"
+                    embed.description = """
+Feel free to write about whatever problems you have 
+        """
             
             await inter.response.edit_message(embed = embed, components=[menu, close])
             await inter.channel.send(role.mention)
