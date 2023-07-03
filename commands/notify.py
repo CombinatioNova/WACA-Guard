@@ -25,7 +25,7 @@ class notify(Cog):
             )
 
         
-        acknowledge = Button(label="Acknowledge", custom_id=f"a",style=disnake.ButtonStyle.success)
+        acknowledge = Button(label="Acknowledge", custom_id=f"acknowledge",style=disnake.ButtonStyle.success)
         try:
             await user.send(embed=embed)
             guilds = [
@@ -97,7 +97,7 @@ class notify(Cog):
     @Cog.listener()
     async def on_button_click(self, inter):
         bot=self.bot
-        if inter.component.custom_id.startswith(f"a"):
+        if inter.component.custom_id.startswith(f"acknowledge"):
             
             
             embed = disnake.Embed(title="Notice Acknowledged",color=5639085,)
