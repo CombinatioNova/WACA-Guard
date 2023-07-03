@@ -618,6 +618,15 @@ The @WACA-Guard#2455 will remind everyone to bump every 2 hours. I'm going to ma
                "Does anyone know how to get lichblade",
                "Vixo do you know how to get the lichblade?",
                "How do you get the litchblade",
+               
+               "I need help",
+               "I need help from a staff member",
+               "Can someone help me?",
+               "Are there any staff around",
+               "Is staff around?",
+               "I've been griefed",
+               "I've been robbed",
+               "I've been stolen from"
                ])
 Y = np.array([0,1,1,1,1,0,1,0,1,
 0,1,0,0,1,
@@ -647,7 +656,8 @@ Y2 = np.array([1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,
                0,0,0,
                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,
-               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+               1,1,1,1,1,1,1,1
                
                
                ])
