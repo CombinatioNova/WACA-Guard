@@ -190,7 +190,7 @@ class Log(commands.Cog):
                 get(member.guild.roles, name="Staff"): disnake.PermissionOverwrite(read_messages = True),
                 member: disnake.PermissionOverwrite(read_messages = True)}
             category = disnake.utils.get(member.guild.categories, name = "📬 | Support tickets")
-            channel = await member.guild.create_text_channel(f"notice-{member.display_name}", overwrites=overwrites, category=category)
+            channel = await member.guild.create_text_channel(f"📝│notice-{member.display_name}", overwrites=overwrites, category=category)
             print(channel.id)
             await channel.send(f"**ATTN:** {inter.author.mention} {user.mention}")
 
