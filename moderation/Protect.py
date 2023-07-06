@@ -322,8 +322,9 @@ class SecurityCheckView(View):
                 top_role = sorted(guild.roles, key=lambda role: role.position, reverse=True)[0]
                 if not wick_role and not wick_prem_role:
                     features.append("<:SecurityBad:1126200375125483520>│Wick is **__missing__** or it's default role has changed names!")
-                if wick_role != top_role:
+                if wick_role != top_role and wick_prem_role != top_role:
                     qVio.append("<:SecurityBad:1126200375125483520>│Wick role is not highest!")
+                
                     
                 waca_guard = await guild.fetch_member(self.bot.user.id)
                 waca_guard_roles = []
