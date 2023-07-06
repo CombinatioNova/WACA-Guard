@@ -131,7 +131,7 @@ Please select a category from the buttons below:
             
             await inter.response.edit_message(embed=welcome_embed,components=[menu,joinProb,report,other,close])
         if inter.component.custom_id.startswith("open"):
-            user_id = int(inter.component.custom_id.split(": ")[1])
+            user_id = inter.author.id
             await inter.response.defer(with_message = True, ephemeral = True)
             bot = self.bot
             global name
