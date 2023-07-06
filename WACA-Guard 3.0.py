@@ -2,6 +2,7 @@
 from disnake.ui import Button
 global testingMode
 testingMode = True
+
 if not testingMode:
     print(r'''
                                                                                                                                            
@@ -64,7 +65,7 @@ from moderation.Log2 import Log
 print("Completed!")
 print("Importing DM Listener")
 
-from moderation import DMListener, BanSync
+from moderation import DMListener, BanSync, Protect
 print("Completed!")
 print("Importing Verification")
 
@@ -163,6 +164,7 @@ async def on_ready():
 ## ADD COGS
     
 print("Adding Cogs")
+bot.add_cog(Protect.Protect(bot))
 bot.add_cog(deny.deny(bot))
 bot.add_cog(JoinsAndLeaves.JoinAndLeave(bot))
 bot.add_cog(suggestions.Suggestions(bot))
@@ -288,9 +290,6 @@ Bot latency is {bot.latency * 1000:.2f}ms.
     
     appeal = Button(label='Appeals Link', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
     
-    await inter.response.send_message(embed=embed)
-
-
     await inter.response.send_message(embed=embed, components = [appeal])
 
 
