@@ -203,7 +203,7 @@ class Log(commands.Cog):
             )
 
             logmsg.set_author( # Narcissism
-                name="SMPWACA Moderation",
+                name="NETWACA Moderation",
                 icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
             )
             logmsg.set_footer( # Show the moderator
