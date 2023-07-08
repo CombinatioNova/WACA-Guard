@@ -2,7 +2,7 @@
 from Fun import Quotes, EightBall, Emojify, GeneralFun, counting
 from disnake.ui import Button
 global testingMode
-testingMode = True
+testingMode = False
 
 if not testingMode:
     print(r'''
@@ -51,7 +51,7 @@ print("Importing RVDS")
 #from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
-#from AHS import AISupport#, Reminder
+from AHS import AISupport#, Reminder
 
 print("Completed!")
 print("Importing owo, suggestion, and notify commands")
@@ -66,7 +66,6 @@ from moderation.Log2 import Log
 print("Completed!")
 print("Importing DM Listener")
 
-from moderation import DMListener, BanSync, Protect
 from moderation import DMListener, BanSync, Protect, Backup
 print("Completed!")
 print("Importing Verification")
@@ -121,7 +120,7 @@ acceptOn="Online :green_circle:"
 insanityOn="Online :green_circle:"
 mitoOn="Online :green_circle:"
 MDSOn = "Online :green_circle:"
-botVer = "2.0.2"
+botVer = "4.0.0"
 DMListen = "Online :green_circle:"
 blessOn = "Online :green_circle:"
 hostOn = "Online :green_circle:"
@@ -158,7 +157,7 @@ async def on_ready():
     change_status.start() 
     print("Started Status Loop")
     
-    print("All systems online! WACA-Guard 3.0 is now running in...\n")
+    print("All systems online! WACA-Guard 4.0 is now running in...\n")
     for guild in bot.guilds:
         print(guild)
 
@@ -262,8 +261,8 @@ print("Completed! All tasks have completed. Beginning WACA-Guard...")
 
 @bot.slash_command(description="WACA-Guard Information")
 async def about(inter):
-    botVer = "4.0 Beta"
-    depDate = "July 1st, 2023"
+    botVer = "4.0 Beta 6"
+    depDate = "July 7th, 2023"
     embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
 Deployed on: **{depDate}**
