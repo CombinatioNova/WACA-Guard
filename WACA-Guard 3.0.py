@@ -1,4 +1,5 @@
 
+from Fun import Quotes, EightBall, Emojify, GeneralFun, counting
 from disnake.ui import Button
 global testingMode
 testingMode = True
@@ -66,6 +67,7 @@ print("Completed!")
 print("Importing DM Listener")
 
 from moderation import DMListener, BanSync, Protect
+from moderation import DMListener, BanSync, Protect, Backup
 print("Completed!")
 print("Importing Verification")
 
@@ -164,6 +166,12 @@ async def on_ready():
 ## ADD COGS
     
 print("Adding Cogs")
+bot.add_cog(counting.CountingCog(bot))
+bot.add_cog(GeneralFun.FunCog(bot))
+bot.add_cog(Emojify.EmojifyCog(bot))
+bot.add_cog(EightBall.EightBall(bot))
+bot.add_cog(Quotes.QuotesCog(bot))
+bot.add_cog(Backup.BackupCog(bot))
 bot.add_cog(Protect.Protect(bot))
 bot.add_cog(deny.deny(bot))
 bot.add_cog(JoinsAndLeaves.JoinAndLeave(bot))
