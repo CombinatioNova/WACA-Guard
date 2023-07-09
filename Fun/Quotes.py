@@ -2,6 +2,7 @@ import disnake
 from disnake.ext import commands
 import sqlite3
 from datetime import datetime
+
 class QuotesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -29,7 +30,9 @@ class QuotesCog(commands.Cog):
                 and not self.is_message_reacted(reaction.message.id)
             ):
                 self.add_reacted_message(reaction.message.id)
-                await quotes_channel.send(f"\"{reaction.message.content}\" -{reaction.message.author.display_name.capitalize()}, {datetime.now().year}")
+                quoted_content = self.remove_mentions(reaction.message.content, reaction.message.mentions)
+                quoted_text = f"\"{quoted_content}\" - {reaction.message.author.display_name.capitalize()}, {datetime.now().year}"
+                await quotes_channel.send(quoted_text)
                 await reaction.message.add_reaction("📸")
 
     def is_message_reacted(self, message_id):
@@ -42,6 +45,11 @@ class QuotesCog(commands.Cog):
         cursor = self.db_connection.cursor()
         cursor.execute("INSERT INTO reacted_messages (message_id) VALUES (?)", (message_id,))
         self.db_connection.commit()
+        
+    def remove_mentions(self, content, mentions):
+        for mention in mentions:
+            content = content.replace(mention.mention, mention.display_name)
+        return content
 
 def setup(bot):
     bot.add_cog(QuotesCog(bot))
