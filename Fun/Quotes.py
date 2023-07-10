@@ -3,6 +3,7 @@ from disnake.ext import commands
 from disnake import ApplicationCommandInteraction
 import sqlite3
 from datetime import datetime
+import re
 
 class QuotesCog(commands.Cog):
     def __init__(self, bot):
@@ -53,8 +54,16 @@ class QuotesCog(commands.Cog):
         self.db_connection.commit()
 
     def remove_mentions(self, content, mentions):
+        # Remove @everyone and @here mentions
+        content = content.replace("@everyone", "@\u200beveryone").replace("@here", "@\u200bhere")
+
+        # Remove role mentions
+        content = re.sub(r"<@&[0-9]+>", "", content)
+
+        # Remove user mentions
         for mention in mentions:
             content = content.replace(mention.mention, mention.display_name)
+
         return content
 
     @commands.message_command(name="Snapshot")
