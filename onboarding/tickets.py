@@ -8,8 +8,8 @@ import io
 import aiofiles
 import aiohttp
 from datetime import datetime
-suppVer = 2.1
-dashVer = 1.1
+suppVer = 2.2
+dashVer = 1.2
 designVer = 1.2
 global av
 class MoreOptions(View):
@@ -50,7 +50,7 @@ class MoreStaffOptions(View):
         
         self.claim_button = Button(style=disnake.ButtonStyle.green, label="Claim Ticket", custom_id=f"claim: {ticket_id}", emoji = "<:Claim:1124497312190828635>")
         self.about_button = Button(style=disnake.ButtonStyle.secondary, label="About", custom_id=f"aboutTicket", emoji = "<:About:1124497314346700920>")
-        self.bug_button = Button(style=disnake.ButtonStyle.danger, label="Report Bug", custom_id=f"bugReport", emoji = "🐞")
+        self.bug_button = Button(style=disnake.ButtonStyle.danger, label="Report Bug", custom_id=f"bugReport", emoji = "<:bugReport:1128679024256893092>")
         
         self.add_item(self.claim_button)
         self.add_item(self.about_button)
@@ -178,19 +178,97 @@ Please select a category from the buttons below:
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             
             message = await channel.send(inter.user.mention, embed=welcome_embed)
-            await message.edit(content="", embed=welcome_embed,components=[menu,joinProb,report,other,close])
+            if inter.guild.id != 1128423988960428122: # If it isn't the Minecraft connections server (Needs to be replaced with a database just in case)
+                await message.edit(embed=welcome_embed,components=[menu,joinProb,report,other,close])
+            else:
+                
+                report = Button(label="Report Violation", custom_id=f"reportDisc: {user_id}",style=disnake.ButtonStyle.primary, emoji = "<:Report:1124146580442857502>")
+                partner = Button(label="Partnerships", custom_id=f"partner: {user_id}",style=disnake.ButtonStyle.primary, emoji = "<:partner:1128679022793064458> ")
+                await message.edit(embed=welcome_embed,components=[menu,partner,report,other,close])
             await inter.edit_original_response(f"<:wacayes:1109510617401917540> **TICKET CREATED:** Head on over to {channel.mention} to get some help!")
 ############################################ -- REPORT THING -- #####################################################
+        elif inter.component.custom_id.startswith("partner"):
+            user_id = int(inter.component.custom_id.split(": ")[1])
+            user = await self.bot.fetch_user(user_id)
+            close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
+            menu = Button(custom_id=f"menu: {user_id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
+            await inter.channel.edit(name=f"🟢│partner-{user.display_name}")
+
+
+            embed = inter.message.embeds[0]
+            embed.title = "Please tell us how we can help you..."
+            embed.set_author(
+                name="Support Dashboard",
+                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1037813968502259833/Information_Type1.png")
+            embed.set_field_at(0,name="<:Low:1124512597111214110> Priority", value="Low")
+            embed.set_field_at(1,name="<:Status:1124145577312145509> Status", value="Waiting for Staff Response...")
+            embed.description = """
+As you wait for our friendly staff to assist you, please give us as much information as you can on why you are here!
+"""
+            
+            await inter.response.edit_message(embed = embed, components=[menu, close])
+            message = await inter.channel.send(role.mention)
+            await message.delete()
+        elif inter.component.custom_id.startswith("reportDisc"):
+            user_id = int(inter.component.custom_id.split(": ")[1])
+            user = await self.bot.fetch_user(user_id)
+            await inter.channel.edit(name=f"🟡│report-{user.display_name}")
+            close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
+            menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
+            embed = inter.message.embeds[0]
+            embed.set_field_at(1,name="<:Status:1124145577312145509> Status", value="Waiting for Staff Response...")
+            embed.set_field_at(0,name="<:Priority:1124145576074805268> Priority", value="Medium")
+             
+            embed.title = "Please tell us..."
+            embed.description = """
+
+<:arrow5:1023715845748305961> **What** rule was violated?
+
+<:arrow5:1023715845748305961> **Who** violated the rule?
+
+<:arrow5:1023715845748305961> **Where** was the rule violated?
 
 
 
+"""
+            
+            await inter.response.edit_message(embed = embed, components=[menu,close])
+            message = await inter.channel.send(role.mention)
+            await message.delete()
+            
+        elif inter.component.custom_id.startswith("verify"):
+            user_id = int(inter.component.custom_id.split(": ")[1])
+            user = await self.bot.fetch_user(user_id)
+            await inter.channel.edit(name=f"🔴│verify-{user.display_name}")
+            close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
+            menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
+            embed = inter.message.embeds[0]
+            embed.color=disnake.Color.red()
+            embed.set_field_at(1,name="<:Status:1124145577312145509> Status", value="Waiting for Staff Response...")
+            embed.set_field_at(0,name="<:High:1124512819895877693> Priority", value="High")
+             
+            embed.title = "Please tell us..."
+            embed.description = """
+
+<:arrow5:1023715845748305961> Can you **see** the verification channel?
+
+<:arrow5:1023715845748305961> Does it say "Interaction response failed" or something similar?
+
+<:arrow5:1023715845748305961> Are you able to check announcements to see potential issues that are being dealt with?
+
+"""
+            
+            await inter.response.edit_message(embed = embed, components=[menu,close])
+            await inter.channel.send(f"**HIGH PRIORITY!** {role.mention}")
+            
         elif inter.component.custom_id.startswith("report"):
             user_id = int(inter.component.custom_id.split(": ")[1])
+            user = await self.bot.fetch_user(user_id)
             theft = Button(label="Theft", custom_id=f"theft: {user_id}",style=disnake.ButtonStyle.primary, emoji="<:Theft:1124143633835233340>")
             grief = Button(label="Grief", custom_id=f"grief: {user_id}",style=disnake.ButtonStyle.primary, emoji="<:Grief:1126089989332144229>")
             hack = Button(label="Hacker", custom_id=f"hack: {user_id}",style=disnake.ButtonStyle.primary, emoji="<:Hack:1126090342157013042>")
             back = Button(label="Back", custom_id=f"back: {user_id}",style=disnake.ButtonStyle.success, emoji="<:Back:1126089988187107380>")
-            await inter.channel.edit(name=f"🟡│report-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🟡│report-{user.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             embed = inter.message.embeds[0]
@@ -208,8 +286,8 @@ Please choose what incident you would like to report with using the buttons belo
 
         elif inter.component.custom_id.startswith("theft"):
             user_id = int(inter.component.custom_id.split(": ")[1])
-            
-            await inter.channel.edit(name=f"🟡│theft-{inter.author.display_name}")
+            user = await self.bot.fetch_user(user_id)
+            await inter.channel.edit(name=f"🟡│theft-{user.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             embed = inter.message.embeds[0]
@@ -264,7 +342,8 @@ We understand that getting griefed can be really frustrating. We're here to make
             await message.delete()
         elif inter.component.custom_id.startswith("hack"):
             user_id = int(inter.component.custom_id.split(": ")[1])
-            await inter.channel.edit(name=f"🔴│hack-{inter.author.display_name}")
+            user = await self.bot.fetch_user(user_id)
+            await inter.channel.edit(name=f"🔴│hack-{user.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
@@ -293,7 +372,8 @@ We understand that getting griefed can be really frustrating. We're here to make
             
         elif inter.component.custom_id.startswith("joinProb"):
             user_id = int(inter.component.custom_id.split(": ")[1])
-            await inter.channel.edit(name=f"🟡│join-{inter.author.display_name}")
+            user = await self.bot.fetch_user(user_id)
+            await inter.channel.edit(name=f"🟡│join-{user.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             
@@ -398,7 +478,8 @@ Feel free to write about whatever problems you have
 ############################################ -- TICKET CLAIMING -- #####################################################
         elif inter.component.custom_id.startswith("PasswordReset"):
             user_id = int(inter.component.custom_id.split(": ")[1])
-            await inter.channel.edit(name=f"🟡│reset-{inter.author.display_name}")
+            user = await self.bot.fetch_user(user_id)
+            await inter.channel.edit(name=f"🟡│reset-{user.display_name}")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
             
@@ -481,9 +562,10 @@ We'll make sure to have your password reset ASAP! Please be ready to join the Mi
             
         elif inter.component.custom_id.startswith("other"):
             user_id = int(inter.component.custom_id.split(": ")[1])
+            user = await self.bot.fetch_user(user_id)
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             menu = Button(custom_id=f"menu: {inter.author.id}",style=disnake.ButtonStyle.secondary, emoji = "<:menu:1124096544606531635>")
-            await inter.channel.edit(name=f"🟢│other-{inter.author.display_name}")
+            await inter.channel.edit(name=f"🟢│other-{user.display_name}")
 
 
             embed = inter.message.embeds[0]

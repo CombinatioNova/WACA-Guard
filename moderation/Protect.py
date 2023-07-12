@@ -5,7 +5,7 @@ from disnake.ui import View, Select, Button
 from disnake.utils import get
 from datetime import datetime
 import numba
-checkVer = "1.0"
+checkVer = "1.2"
 
 class Protect(Cog):
     def __init__(self, bot):
@@ -38,7 +38,7 @@ class Protect(Cog):
          
         # Add the guild ID to the dropdown options
         dropdown = SecurityCheckView(self.bot.guilds[:25], self.bot)
-        brief_embed = disnake.Embed(title="WACA-Guard Health Check-Up", description="Welcome to Check-Up, NETWACA's own security analysis tool. While this tool cannot detect all vulnerabilities, it's a solid start to getting you on your way to a safer server!")
+        brief_embed = disnake.Embed(title="<:vitals:1128679029797556274> | WACA-Guard Health Check-Up", description="Welcome to Check-Up, NETWACA's own security analysis tool. While this tool cannot detect all vulnerabilities, it's a solid start to getting you on your way to a safer server!")
         brief_embed.color = 4143049
         brief_embed.set_footer( # Show the moderator
                 text=f"Department of Institutional Security | Health Check-Up v.{checkVer}"
@@ -125,8 +125,53 @@ class Protect(Cog):
             
             await inter.edit_original_response("Done!")
             
+        if custom_id.startswith("migrationUtil"):
+            await inter.response.defer(with_message=True, ephemeral = True)
+            guild_id = int(custom_id.split("_")[1])
+            guild = disnake.utils.get(self.bot.guilds, id=guild_id)
+            
+            pass
+        if custom_id.startswith("fixVeri"):
+            await inter.response.defer(with_message=True, ephemeral = True)
+            
+            guild_id = int(custom_id.split("_")[1])
+            guild = disnake.utils.get(self.bot.guilds, id=guild_id)
+            verifiedRole = get(guild.roles, name="Verified")
+            wickVerifiedRole = get(guild.roles, name="Wick Verified")
+            staffRole = get(guild.roles, name="Staff")
+            # Check if each channel denies view permission for quarantine or muted role
+            channels_without_verified_role = []
+            blacklisted_channels = ["📁wick-logs","📁wick-moderation-logs","💬│staff-chat","📂moderation","📂dms","📂reports","📂transcripts","📂appeals","waca-guard-audit"]
+            for channel in guild.channels:
+                
+                if verifiedRole is None and wickVerifiedRole is None or channel.name in blacklisted_channels:
+                    print("Exempted")
+                    continue
 
+                view_permission = disnake.Permissions(read_messages=True)
+                try:
+                    if verifiedRole in channel.overwrites or wickVerifiedRole in channel.overwrites or channel.category.name == "📬 | Support tickets":
+                        continue
+                    else:
+                        if staffRole in channel.overwrites:
+                            continue
+                        else:
+                            overwrites = channel.overwrites_for(verifiedRole)
+                            overwrites.read_messages = True
+                            await channel.set_permissions(verifiedRole, overwrite=overwrites)
                             
+                except Exception as e:
+                    print(e)
+                    if verifiedRole in channel.overwrites:
+                        continue
+                    else:
+                        overwrites = channel.overwrites_for(wickVerifiedRole)
+                        overwrites.read_messages = True
+                        await channel.set_permissions(wickVerifiedRole, overwrite=overwrites)
+                        continue
+            await inter.edit_original_response("Done!")
+            
+            
         if custom_id.startswith("fixProb"):
             await inter.response.defer(with_message=True, ephemeral = True)
             
@@ -151,7 +196,7 @@ class Protect(Cog):
                             pass
                         else:
                             overwrites = channel.overwrites_for(quarantine_role)
-                            overwrites.read_messages = True
+                            overwrites.read_messages = False
                             await channel.set_permissions(quarantine_role, overwrite=overwrites)
                             await inter.edit_original_response("Done!")
                     except:
@@ -159,7 +204,7 @@ class Protect(Cog):
                             pass
                         else:
                             overwrites = channel.overwrites_for(quarantine_role)
-                            overwrites.read_messages = True
+                            overwrites.read_messages = False
                             await channel.set_permissions(quarantine_role, overwrite=overwrites)
                             await inter.edit_original_response("Done!")
             elif muted_role:
@@ -251,6 +296,7 @@ class SecurityCheckView(View):
                 permVio = []
                 danger = []
                 features = []
+                unseen = []
 
                 default_notifications = guild.default_notifications
                 is_mfa_enabled = guild.mfa_level
@@ -364,6 +410,36 @@ class SecurityCheckView(View):
 
                 if channels_without_quarantine_role:
                     violations.append("\n".join(channels_without_quarantine_role))
+                    
+                verifiedRole = get(guild.roles, name="Verified")
+                wickVerifiedRole = get(guild.roles, name="Wick Verified")
+                staffRole = get(guild.roles, name="Staff")
+                blacklisted_channels = ["📁wick-logs","📁wick-moderation-logs","💬│staff-chat","📂moderation","📂dms","📂reports","📂transcripts","📂appeals","waca-guard-audit"]
+                blacklisted_categories = ["📂 | action logs", "staff",]
+                # Check if each channel denies view permission for quarantine or muted role
+                channels_without_verified_role = []
+                for channel in guild.channels:
+                    
+                    if verifiedRole is None and wickVerifiedRole is None:
+                        channels_without_verified_role.append(channel.name)
+                        continue
+
+                    view_permission = disnake.Permissions(read_messages=True)
+                    try:
+                        if verifiedRole in channel.overwrites or wickVerifiedRole in channel.overwrites or channel.category.name == "📬 | Support tickets" or channel.name in blacklisted_channels or channel.category.name.lower() in blacklisted_categories:
+                            continue
+                        else:
+                            channels_without_verified_role.append(channel.name)
+                            continue
+                    except:
+                        if verifiedRole in channel.overwrites or wickVerifiedRole in channel.overwrites:
+                            continue
+                        else:
+                            channels_without_verified_role.append(channel.name)
+                            continue
+
+                if channels_without_verified_role:
+                    unseen.append("\n".join(channels_without_verified_role))
 
                 # Check if the bot has proper permissions and role hierarchy
                 bot_member = guild.me
@@ -384,7 +460,6 @@ class SecurityCheckView(View):
                     if member == self.bot.user:
                         continue
                     # Check if people have dangerous permissions
-                    print("Checked")
                     mem_permissions = member.guild_permissions
                     if mem_permissions.administrator:
                         danger.append(f"<:SecurityWarn:1126200371572908153>│**{member.display_name.capitalize()}** has Administrator permissions!")
@@ -456,6 +531,12 @@ We checked your server for any potentially dangerous permissions, missing roles,
                     violation_message = "\n".join(qVio)
                     truncated_message = violation_message[:1019] + "`...`" if len(violation_message) > 1024 else violation_message
                     embed.add_field(name="Role Position Violations:", value=truncated_message, inline=False)
+                if unseen:
+                    violation_message = "\n".join(unseen)
+                    truncated_message = violation_message[:1019] + "`...`" if len(violation_message) > 1024 else violation_message
+                    embed.add_field(name="Verified not set up in:", value=truncated_message, inline=False)
+                    fixButton = Button(style=disnake.ButtonStyle.green,label="Fix Verification", emoji="<:Fix:1126241342922690714>", custom_id=f"fixVeri_{guild_id}")
+                    homeRow.append(fixButton)
 
 
                 
@@ -473,6 +554,8 @@ We checked your server for any potentially dangerous permissions, missing roles,
                     embed.add_field(name="Duplicated Roles", value="<:SecurityGood:1126200372806029322>│No Issues", inline=False)
                 if not qVio:
                     embed.add_field(name="Role Position Violations", value="<:SecurityGood:1126200372806029322>│No Issues", inline=False)
+                if not unseen:
+                    embed.add_field(name="Verified User Setup", value="<:SecurityGood:1126200372806029322>│No Issues", inline=False)
                 
                     
                     
