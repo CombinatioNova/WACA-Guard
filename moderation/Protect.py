@@ -535,8 +535,8 @@ We checked your server for any potentially dangerous permissions, missing roles,
                     violation_message = "\n".join(unseen)
                     truncated_message = violation_message[:1019] + "`...`" if len(violation_message) > 1024 else violation_message
                     embed.add_field(name="Verified not set up in:", value=truncated_message, inline=False)
-                    fixButton = Button(style=disnake.ButtonStyle.green,label="Fix Verification", emoji="<:Fix:1126241342922690714>", custom_id=f"fixVeri_{guild_id}")
-                    homeRow.append(fixButton)
+                    #fixButton = Button(style=disnake.ButtonStyle.green,label="Fix Verification", emoji="<:Fix:1126241342922690714>", custom_id=f"fixVeri_{guild_id}")
+                    #homeRow.append(fixButton)
 
 
                 
