@@ -29,7 +29,7 @@ class EightBall(commands.Cog):
         result = cursor.fetchone()
 
         if result:
-            embed = disnake.Embed(title=f'{inter.author.global_name.capitalize()} asked: {question}', description=f'{inter.author.mention}, you have already asked that question. You should know the answer is: {result[0]}', color=disnake.Color.blue())
+            embed = disnake.Embed(title=f'{inter.author.display_name.capitalize()} asked: {question}', description=f'{inter.author.mention}, you have already asked that question. You should know the answer is: {result[0]}', color=disnake.Color.blue())
             embed.set_footer( # Show the moderator
                 text=f"Department of Celestial Readings and Prediction"
             )
@@ -41,7 +41,7 @@ class EightBall(commands.Cog):
             cursor.execute("INSERT INTO questions (question, answer) VALUES (?, ?)", (question, answer))
             conn.commit()
 
-            embed = disnake.Embed(title=f'{inter.author.global_name.capitalize()} asked: {question}', description=answer, color=disnake.Color.blue())
+            embed = disnake.Embed(title=f'{inter.author.display_name.capitalize()} asked: {question}', description=answer, color=disnake.Color.blue())
             embed.set_footer( # Show the moderator
                 text=f"Department of Celestial Readings and Prediction"
             )

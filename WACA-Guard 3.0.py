@@ -48,7 +48,7 @@ import disnake
 from disnake.ext import commands, tasks
 from commands.ping import Ping
 print("Importing RVDS")
-#from RVDS.MDS import MDS
+from RVDS.MDS import MDS
 print("Completed!")
 print("Importing AI Support")
 from AHS import AISupport#, Reminder
@@ -66,7 +66,7 @@ from moderation.Log2 import Log
 print("Completed!")
 print("Importing DM Listener")
 
-from moderation import DMListener, BanSync, Protect, Backup
+from moderation import DMListener, BanSync, Protect#, Backup
 print("Completed!")
 print("Importing Verification")
 
@@ -170,7 +170,7 @@ bot.add_cog(GeneralFun.FunCog(bot))
 bot.add_cog(Emojify.EmojifyCog(bot))
 bot.add_cog(EightBall.EightBall(bot))
 bot.add_cog(Quotes.QuotesCog(bot))
-bot.add_cog(Backup.BackupCog(bot))
+#bot.add_cog(Backup.BackupCog(bot))
 bot.add_cog(Protect.Protect(bot))
 bot.add_cog(deny.deny(bot))
 bot.add_cog(JoinsAndLeaves.JoinAndLeave(bot))
@@ -261,7 +261,7 @@ print("Completed! All tasks have completed. Beginning WACA-Guard...")
 
 @bot.slash_command(description="WACA-Guard Information")
 async def about(inter):
-    botVer = "4.0 Beta 6"
+    botVer = "4.0.0"
     depDate = "July 7th, 2023"
     embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
@@ -299,7 +299,9 @@ Bot latency is {bot.latency * 1000:.2f}ms.
     
     await inter.response.send_message(embed=embed, components = [appeal])
 
-
+token = "OTIxMTAwMzUyMzAzMDMwMzU3.GNZa7k.pw6dcvL_UcH8I3wkldFwn6EBfxgVSXQwZTBT9w"
+testToken = "MTAzOTE2NjMyODAzODIyODEyMA.G3tsEx.zA58fRT8omJTjVU3VYDbHff9QRfEDsJEhymFus"
+    
     
 
 if testingMode:
