@@ -27,8 +27,7 @@ verbose = True
 terminalMode = True
 
 if not testingMode:
-    wacaGuardSign = r'''
-                                                                                                                                           
+    wacaGuardSign = r'''                                                                                                                
                                                                                                          ,,                      
 `7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM                             
   `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM                             
@@ -36,15 +35,11 @@ if not testingMode:
     MM.  M' MM.  M' ,M  `MM   MM           ,M  `MM        MM           MM    MM  8)   MM    MM' "',AP    MM     
     `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM
       MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM      
-      VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML. 
-                                                                                                                              
-                                                                                                                                 
-                                                                                                                                        
-                                                                                                             
+      VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.
+      
                                                                                                              '''
 else:
-    wacaGuardSign = r'''
-                                                                                                                                                                               
+    wacaGuardSign = r'''                                                                                                                                                
                                                                                                          ,,                                                                    
 `7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM     `7MM"""Yp,           mm            
   `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM       MM    Yb           MM            
@@ -53,8 +48,7 @@ else:
     `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM       MM    `Y 8M""""""  MM    ,pm9MM  
      :MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM       MM    ,9 YM.    ,  MM   8M   MM  
       VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.   .JMMmmmd9   `Mbmmd'  `Mbmo`Moo9^Yo.
-                                                                                                                                                                     
-                                                                                                                  
+      
                                                                                                              '''
 #Setting Global Variables
 global pingOn, veriOn, owoOn, logOn, supportOn, reminderOn, notifyOn, acceptOn, insanityOn, mitoOn, MDSOn, hostOn, botVer, DMListen, blessOn, banSync, closeSystem , statusSystem, serverSetup, bumpReminder, ticketsSystem
@@ -64,19 +58,24 @@ def terminal():
         import os
         import disnake
         from pathlib import Path
+        import datetime
+        import re
     except:
         import os
         from pathlib import Path
+        import datetime
+        import re
         print("Attempting First-Time Setup...")
         if os.name != 'nt' and os.getpid() != 0:
             print("First-Time Setup is only able to be completed automatically with sudo permissions. Please run \"sudo pip install -r requirements.txt\" or relaunch with sudo permissions to accomplish first-time setup requirements.")
         elif os.name != 'nt' and os.getpid() == 0:
             path = Path("requirements.txt").resolve()
-            os.system(f"sudo pip install -r {path}")
+            linuxPath = re.sub(" ","\ ", path)
+            os.system(f"sudo pip install -r {linuxPath}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         else:
             path = Path("./requirements.txt").resolve()
-            os.system(f"pip install -r {str(path)}")
+            os.system(f"pip install -r \"{str(path)}\"")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         
     choosing = True
@@ -101,15 +100,48 @@ def terminal():
                             verbose = True
                         
                 startup(testingMode, testStart, useAI, verbose)
+            case p if p.startswith("qping"):
+                try:
+                    args = command.split(" ")
+                    if os.name != 'nt':
+                        response = os.system("ping -c 1 " + args[1])
+                    else:
+                        response = os.system("ping /n 1 " + args[1])
+                    if response == 0:
+                      print(f"{args[1]} is UP")
+                    else:
+                      print(f"{args[1]} is DOWN")
+                except IndexError:
+                    print("""---PING HELP---
+
+ABOUT:
+Pings an IP or Domain with one packet of data to quickly determine uptime.
+
+USAGE:
+* - Required Argument
+qping [address*]
+
+ARGUMENTS:
+[address] - Domain or IP address to ping""")
+            case "about":
+                print(wacaGuardSign)
+                print("WACA-Guard Ver. 4.0 | Created by CombinatioNova for NETWACA")
+            case "time":
+                print(datetime.datetime.now().strftime("Current Time: %H:%M:%S"))
             case "exit" | "quit":
                 print("Quitting WACA-Guard...")
                 choosing = False
             case "setup":
                 if os.name != 'nt' and os.getpid() != 0:
                     print("This program is not run as sudo. Please run this program as sudo to ensure all permissions are properly handled.")
-                else:
+                elif os.name != 'nt' and os.getpid() == 0:
+                    path = Path("requirements.txt").resolve()
+                    linuxPath = re.sub(" ","\ ", path)
+                    os.system(f"sudo pip install -r {linuxPath}")
+                    print("Setup Complete!")
+                elif os.name == 'nt':
                     path = Path("./requirements.txt").resolve()
-                    os.system(f"pip install -r {path}")
+                    os.system(f"pip install -r \"{str(path)}\"")
                     print("Setup Complete!")
             case t if t.startswith("testimport") | t.startswith("ti"):
                 testport = command.split(" ")
@@ -132,8 +164,12 @@ def terminal():
                     match arg:
                         case h if h.startswith("-h"):
                             print("""---TEST SYSTEM HELP---
-USAGE:
+ABOUT:
 Test System tests all components of WACA-Guard's imports by running the startup command without providing a token.
+
+USAGE:
+* - Required Argument
+testsystem [options]
 
 OPTIONS:
  -n: No AI
@@ -351,7 +387,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
         except:
             hostOn = "Offline :red_circle:"
 
-        print("Completed! All tasks have completed. Beginning WACA-Guard...")
+        
 
 
         @bot.slash_command(description="WACA-Guard Information")
@@ -399,8 +435,10 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
 
         if testingMode:
             bot.run(testingToken)
+            print("Completed! All tasks have completed. Beginning WACA-Guard...")
         elif testingStart == False:
             bot.run(token)
+            print("Completed! All tasks have completed. Beginning WACA-Guard...")
     else:
         print("Importing modules...")
         import disnake
@@ -594,7 +632,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
         except:
             hostOn = "Offline :red_circle:"
 
-        print("Completed! All tasks have completed. Beginning WACA-Guard...")
+        
 
 
         @bot.slash_command(description="WACA-Guard Information")
@@ -642,8 +680,10 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
 
         if testingMode:
             bot.run(testingToken)
+            print("Starting WACA-Guard...")
         elif testingStart == False:
             bot.run(token)
+            print("Starting WACA-Guard...")
 if terminalMode:
     terminal()
 
