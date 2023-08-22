@@ -74,18 +74,29 @@ def terminal():
         elif os.name != 'nt' and os.getpid() == 0:
             path = Path("requirements.txt").resolve()
             linuxPath = re.sub(" ","\ ", path)
-            os.system(f"sudo python -m pip install -r {linuxPath}")
+            os.system(f"sudo pip install -r {linuxPath}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         else:
             path = Path("./requirements.txt").resolve()
-            os.system(f"python -m pip install -r \"{str(path)}\"")
+            os.system(f"pip install -r \"{str(path)}\"")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         
     choosing = True
     while choosing:
         command = input("WACA-Guard: ")
         match command.lower():
-            case s if s.startswith("start") | s.startswith("st"):
+            case "lc" | "listcommand" | "listc" | "commands":
+                print("""---COMMANDS---
+start
+qping
+about
+time
+exit | quit
+setup
+testimport | ti
+testsystem | ts
+""")
+            case s if s.startswith("start"):
                 args = command.split(" ")
                 # -n: No AI
                 # -t: Use Testing Bot Token
@@ -140,11 +151,11 @@ ARGUMENTS:
                 elif os.name != 'nt' and os.getpid() == 0:
                     path = Path("requirements.txt").resolve()
                     linuxPath = re.sub(" ","\ ", path)
-                    os.system(f"sudo python -m pip install -r {linuxPath}")
+                    os.system(f"sudo pip install -r {linuxPath}")
                     print("Setup Complete!")
                 elif os.name == 'nt':
                     path = Path("./requirements.txt").resolve()
-                    os.system(f"python -m pip install -r \"{str(path)}\"")
+                    os.system(f"pip install -r \"{str(path)}\"")
                     print("Setup Complete!")
             case t if t.startswith("testimport") | t.startswith("ti"):
                 testport = command.split(" ")
