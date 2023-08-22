@@ -12,3 +12,4 @@ scikit_learn==1.2.2
 scipy==1.11.2
 SpeechRecognition==3.10.0
 youtube_dl==2021.12.17
+python-Levenshtein==0.21.1 
