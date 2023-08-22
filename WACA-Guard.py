@@ -145,10 +145,16 @@ ARGUMENTS:
             case "exit" | "quit":
                 print("Quitting WACA-Guard...")
                 choosing = False
-            case "setup":
-                if os.name != 'nt' and os.getpid() != 0:
+            case s if s.startswith("setup"):
+                forced = False
+                args = s.split(" ")
+                for arg in args:
+                    match arg:
+                        case "--force":
+                            forced = True
+                if os.name != 'nt' and os.getpid() != 0 and not forced:
                     print("This program is not run as sudo. Please run this program as sudo to ensure all permissions are properly handled.")
-                elif os.name != 'nt' and os.getpid() == 0:
+                elif os.name != 'nt' and os.getpid() == 0 or forced:
                     path = Path("requirements.txt").resolve()
                     linuxPath = re.sub(" ","\ ", path)
                     os.system(f"sudo pip install -r {linuxPath}")
