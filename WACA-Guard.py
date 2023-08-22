@@ -1,3 +1,4 @@
+
 global testingMode
 global testingToken
 # CONFIGURATION GUIDE:
@@ -25,6 +26,8 @@ verbose = True
 
 # Should WACA-Guard launch in terminal mode?
 terminalMode = True
+# Should WACA-Guard ask if you would like to use the terminal on startup?
+terminalAsk = True
 
 if not testingMode:
     wacaGuardSign = r'''                                                                                                                
@@ -71,11 +74,11 @@ def terminal():
         elif os.name != 'nt' and os.getpid() == 0:
             path = Path("requirements.txt").resolve()
             linuxPath = re.sub(" ","\ ", path)
-            os.system(f"sudo pip install -r {linuxPath}")
+            os.system(f"sudo python -m pip install -r {linuxPath}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         else:
             path = Path("./requirements.txt").resolve()
-            os.system(f"pip install -r \"{str(path)}\"")
+            os.system(f"python -m pip install -r \"{str(path)}\"")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         
     choosing = True
@@ -137,11 +140,11 @@ ARGUMENTS:
                 elif os.name != 'nt' and os.getpid() == 0:
                     path = Path("requirements.txt").resolve()
                     linuxPath = re.sub(" ","\ ", path)
-                    os.system(f"sudo pip install -r {linuxPath}")
+                    os.system(f"sudo python -m pip install -r {linuxPath}")
                     print("Setup Complete!")
                 elif os.name == 'nt':
                     path = Path("./requirements.txt").resolve()
-                    os.system(f"pip install -r \"{str(path)}\"")
+                    os.system(f"python -m pip install -r \"{str(path)}\"")
                     print("Setup Complete!")
             case t if t.startswith("testimport") | t.startswith("ti"):
                 testport = command.split(" ")
@@ -684,8 +687,26 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
         elif testingStart == False:
             bot.run(token)
             print("Starting WACA-Guard...")
-if terminalMode:
+
+if terminalMode and not terminalAsk:
     terminal()
+elif terminalAsk:
+    print("Would you like to start WACA-Guard in Terminal mode? [y/n]")
+    picking = True
+    while picking:
+        choice = input("WACA-Guard: ")
+        match choice:
+            case "y":
+                terminal()
+                picking = False
+            case "n":
+                startup(testingMode, False, useAI, verbose)
+                picking = False
+            case _:
+                print("Please answer with \"y\" or \"n\"")
+    
+else:
+    startup(testingMode, False, useAI, verbose)
 
 
 
