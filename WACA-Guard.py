@@ -64,23 +64,19 @@ def terminal():
         import os
         import disnake
         from pathlib import Path
-        import re
     except:
         import os
         from pathlib import Path
-        import re
         print("Attempting First-Time Setup...")
         if os.name != 'nt' and os.getpid() != 0:
             print("First-Time Setup is only able to be completed automatically with sudo permissions. Please run \"sudo pip install -r requirements.txt\" or relaunch with sudo permissions to accomplish first-time setup requirements.")
         elif os.name != 'nt' and os.getpid() == 0:
             path = Path("requirements.txt").resolve()
-            realPath = re.sub(r"\s+", '\ ', str(path))
-            os.system(f"sudo pip install -r {realPath}")
+            os.system(f"sudo pip install -r {path}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         else:
-            path = Path("requirements.txt").resolve()
-            realPath = re.sub(r"\s+", '\ ', str(path))
-            os.system(f"pip install -r {realPath}")
+            path = Path("./requirements.txt").resolve()
+            os.system(f"pip install -r {str(path)}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         
     choosing = True
@@ -112,9 +108,8 @@ def terminal():
                 if os.name != 'nt' and os.getpid() != 0:
                     print("This program is not run as sudo. Please run this program as sudo to ensure all permissions are properly handled.")
                 else:
-                    path = Path("requirements.txt").resolve()
-                    realPath = re.sub(r"\s+", '\ ', str(path))
-                    os.system(f"pip install -r {realPath}")
+                    path = Path("./requirements.txt").resolve()
+                    os.system(f"pip install -r {path}")
                     print("Setup Complete!")
             case t if t.startswith("testimport") | t.startswith("ti"):
                 testport = command.split(" ")
