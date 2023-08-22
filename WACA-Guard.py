@@ -68,10 +68,12 @@ def terminal():
         if os.name != 'nt' and os.getpid() != 0:
             print("First-Time Setup is only able to be completed automatically with sudo permissions. Please run \"sudo pip install -r requirements.txt\" or relaunch with sudo permissions to accomplish first-time setup requirements.")
         elif os.name != 'nt' and os.getpid() == 0:
-            os.system("sudo pip install -r requirements.txt")
+            path = os.path.abspath("requirements.txt")
+            os.system(f"sudo pip install -r {path}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         else:
-            os.system("pip install -r requirements.txt")
+            path = os.path.abspath("requirements.txt")
+            os.system(f"pip install -r {path}")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         
     choosing = True
@@ -103,7 +105,8 @@ def terminal():
                 if os.name != 'nt' and os.getpid() != 0:
                     print("This program is not run as sudo. Please run this program as sudo to ensure all permissions are properly handled.")
                 else:
-                    os.system("pip install -r requirements.txt")
+                    path = os.path.abspath("requirements.txt")
+                    os.system(f"pip install -r {path}")
                     print("Setup Complete!")
             case t if t.startswith("testimport") | t.startswith("ti"):
                 testport = command.split(" ")
