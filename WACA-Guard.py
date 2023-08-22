@@ -78,7 +78,7 @@ def terminal():
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         else:
             path = Path("./requirements.txt").resolve()
-            os.system(f"pip install -r \"{str(path)}\"")
+            os.system(f"python -m pip install -r \"{str(path)}\"")
             print("First-Time Setup Complete! Welcome to WACA-Guard")
         
     choosing = True
