@@ -298,6 +298,50 @@ class MoreOptions(View):
 class Suggestions(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        suggestion = message.content
+        
+        cursor.execute("INSERT INTO suggestions (suggestion, upvotes, downvotes) VALUES (?, 0, 0)", (suggestion,))
+        suggestion_id = cursor.lastrowid
+        conn.commit()
+        
+        embed = disnake.Embed(
+            title=f"Pending Suggestion #{suggestion_id}:",
+            color=3106815,
+            timestamp=datetime.now(),
+            description=suggestion
+        )
+        
+        embed.add_field(name="Likes", value=0, inline=True)
+        embed.add_field(name="Dislikes", value=0, inline=True)
+        embed.set_thumbnail(message.author.display_avatar)
+        embed.set_footer(
+            text=f"Sent by {message.author.name}",
+            icon_url=message.author.display_avatar,
+        )
+        
+        upvote_button = Button(style=disnake.ButtonStyle.green, emoji="👍", custom_id=f"suggUpvote_{suggestion_id}")
+        downvote_button = Button(style=disnake.ButtonStyle.red, emoji="👎", custom_id=f"suggDownvote_{suggestion_id}")
+        more_button = Button(style=disnake.ButtonStyle.gray, emoji="<:menu:1124096544606531635>", custom_id=f"suggMore_{suggestion_id}")
+        channel = None
+        
+        for guild_channel in inter.guild.channels:
+            if guild_channel.name.endswith("suggestions"):
+                channel = guild_channel
+                break
+        
+        
+        if channel:
+            message = await channel.send(embed=embed, components=[[upvote_button, downvote_button, more_button]])
+            suggestion_message_id = message.id
+            
+            cursor.execute("UPDATE suggestions SET message_id = ? WHERE id = ?", (suggestion_message_id, suggestion_id))
+            conn.commit()
+            await message.delete()
+    
     
     # Slash command to suggest something
     @commands.slash_command(
