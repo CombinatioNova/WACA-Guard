@@ -29,6 +29,35 @@ terminalMode = True
 # Should WACA-Guard ask if you would like to use the terminal on startup?
 terminalAsk = True
 
+# --- END CONFIGURATION --- #
+
+def wacaSign():
+    if not testingMode:
+        wacaGuardSign = r'''                                                                                                                
+                                                                                                         ,,                      
+`7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM                             
+  `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM                             
+   VM:   ,VVM:   ,V  ,V^MM.   dM'       `   ,V^MM.        dM'       ``7MM  `7MM   ,6"Yb.  `7Mb,od8  ,M""bMM    
+    MM.  M' MM.  M' ,M  `MM   MM           ,M  `MM        MM           MM    MM  8)   MM    MM' "',AP    MM     
+    `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM
+      MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM      
+      VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.
+      
+                                                                                                            '''
+    else:
+        wacaGuardSign = r'''                                                                                                                                                
+                                                                                                         ,,                                                                    
+`7MMF'     A     `7MF' db       .g8"""bgd     db            .g8"""bgd                                  `7MM     `7MM"""Yp,           mm            
+  `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM       MM    Yb           MM            
+   VM:   ,VVM:   ,V  ,V^MM.   dM'       `   ,V^MM.        dM'       ``7MM  `7MM   ,6"Yb.  `7Mb,od8  ,M""bMM       MM    dP  .gP"Ya mmMMmm  ,6"Yb.  
+    MM.  M' MM.  M' ,M  `MM   MM           ,M  `MM        MM           MM    MM  8)   MM    MM' "',AP    MM       MM"""bg. ,M'   Yb  MM   8)   MM  
+    `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM       MM    `Y 8M""""""  MM    ,pm9MM  
+     :MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM       MM    ,9 YM.    ,  MM   8M   MM  
+      VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.   .JMMmmmd9   `Mbmmd'  `Mbmo`Moo9^Yo.
+      
+                                                                                                             '''
+    return wacaGuardSign                                                                                                         
+
 if not testingMode:
     wacaGuardSign = r'''                                                                                                                
                                                                                                          ,,                      
@@ -85,7 +114,7 @@ def terminal():
     while choosing:
         command = input("WACA-Guard: ")
         match command.lower():
-            case "lc" | "listcommand" | "listc" | "commands":
+            case "lc" | "listcommand" | "listc" | "commands" | "cmds":
                 print("""---COMMANDS---
 start
 qping
@@ -95,6 +124,14 @@ exit | quit
 setup
 testimport | ti
 testsystem | ts
+backup | bk
+delete | del
+move | mv
+run | r
+find | f
+help | h
+cls
+date
 """)
             case s if s.startswith("start"):
                 args = command.split(" ")
@@ -180,7 +217,7 @@ ARGUMENTS:
 [address] - Domain or IP address to ping""")
 
             case "about":
-                print(wacaGuardSign)
+                print(wacaSign())
                 print("WACA-Guard Ver. 4.0 | Created by CombinatioNova for NETWACA")
             case c if c.startswith("clear"):
                 args = command.split(" ")
@@ -928,10 +965,10 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
 if terminalMode and not terminalAsk:
     terminal()
 elif terminalAsk:
-    print("Would you like to start WACA-Guard in Terminal mode? [y/n]")
+    
     picking = True
     while picking:
-        choice = input("WACA-Guard: ")
+        choice = input("Would you like to start WACA-Guard in Terminal mode? [y/n]: ")
         match choice:
             case "y":
                 terminal()
