@@ -84,6 +84,20 @@ else:
                                                                                                              '''
 #Setting Global Variables
 global pingOn, veriOn, owoOn, logOn, supportOn, reminderOn, notifyOn, acceptOn, insanityOn, mitoOn, MDSOn, hostOn, botVer, DMListen, blessOn, banSync, closeSystem , statusSystem, serverSetup, bumpReminder, ticketsSystem
+def setup():
+    import os
+    from pathlib import Path
+    import datetime
+    import re
+    if os.name != 'nt':
+        path = Path("requirements.txt").resolve()
+        linuxPath = re.sub(" ","\ ", path)
+        os.system(f"sudo pip install -r {linuxPath}")
+        print("LINUX Setup Complete! Welcome to WACA-Guard...")
+    else:
+        path = Path("./requirements.txt").resolve()
+        os.system(f"python -m pip install -r \"{str(path)}\"")
+        print("Setup Complete! Welcome to WACA-Guard...")
 
 def terminal():
     try:
@@ -92,28 +106,84 @@ def terminal():
         from pathlib import Path
         import datetime
         import re
+        import webbrowser
+        import requests
+        import json
     except:
-        import os
-        from pathlib import Path
-        import datetime
-        import re
-        print("Attempting First-Time Setup...")
-        if os.name != 'nt' and os.getpid() != 0:
-            print("First-Time Setup is only able to be completed automatically with sudo permissions. Please run \"sudo pip install -r requirements.txt\" or relaunch with sudo permissions to accomplish first-time setup requirements.")
-        elif os.name != 'nt' and os.getpid() == 0:
-            path = Path("requirements.txt").resolve()
-            linuxPath = re.sub(" ","\ ", path)
-            os.system(f"sudo pip install -r {linuxPath}")
-            print("First-Time Setup Complete! Welcome to WACA-Guard")
-        else:
-            path = Path("./requirements.txt").resolve()
-            os.system(f"python -m pip install -r \"{str(path)}\"")
-            print("First-Time Setup Complete! Welcome to WACA-Guard")
+        
+        setup()
+        import webbrowser
+        import requests
+        import json
         
     choosing = True
     while choosing:
         command = input("WACA-Guard: ")
         match command.lower():
+            case "": pass
+            case " " : pass
+            case f if f.startswith("whatis"):
+                args = command.split(" ")
+                query = " ".join(args[1: ])
+
+                url = "https://www.googleapis.com/customsearch/v1/search?key=AIzaSyBqoXqD51lRSh_V_5spz1cwrsreL_NK5cs&cx=f578d2388baaa4ec8&q=" + query
+                response = requests.get(url)
+                data = json.loads(response.content)
+
+                if data["items"]:
+                    answer = data["items"][0]["snippet"]
+                    return answer
+                else:
+                    return "Sorry, I couldn't find an answer to your question."
+            case g if g.startswith("google"):
+                args = command.split(" ")
+                try:
+                    webbrowser.open(f"https://www.google.com/search?q={' '.join(args[1:])}")
+                except IndexError:
+                    print("""---GOOGLE HELP---
+ABOUT:
+Searches Google for a query.
+                          
+USAGE:
+* - Required Argument
+google [query*]
+                          
+ARGUMENTS:
+[query] - Query to search""")
+            case y if y.startswith("youtube"):
+                args = command.split(" ")
+                try:
+                    webbrowser.open(f"https://www.youtube.com/results?search_query={' '.join(args[1:])}")
+                except IndexError:
+                    print("""---YOUTUBE HELP---
+ABOUT:
+Searches YouTube for a query.
+                          
+USAGE:
+* - Required Argument
+youtube [query*]
+                          
+ARGUMENTS:
+[query] - Query to search""")
+            
+            case o if o.startswith("open"):
+                args = command.split(" ")
+                try:
+                    webbrowser.open(args[1])
+                except IndexError:
+                    print("""---OPEN HELP---
+ABOUT:
+Opens a URL in your default browser.
+                          
+USAGE:
+* - Required Argument
+open [url*]
+                          
+ARGUMENTS:
+[url] - URL to open""")
+                except webbrowser.Error:
+                    print("Invalid URL")
+                
             case "lc" | "listcommand" | "listc" | "commands" | "cmds":
                 print("""---COMMANDS---
 start
@@ -192,17 +262,62 @@ ARGUMENTS:
                 count = 5
                 try:
                     args = command.split(" ")
+                    address = "NONE"
                     for arg in args:
-                        if arg == "-c":
-                            count = args[args.index(arg)+1]
-                    if os.name != 'nt':
-                        response = os.system(f"ping -c {count} " + args[1])
+                        if not arg.startswith("-") and arg == args[1]:
+                            address = arg
+                        elif arg.startswith("-") and arg == args[1] and arg == "-h" or arg == "--help":
+                            print("""---PING HELP---
+                                      
+ABOUT:
+Pings an IP or Domain with one packet of data to quickly determine uptime.
+                                      
+USAGE:
+* - Required Argument
+ping [address*] [options]
+                                      
+ARGUMENTS:
+[address] - Domain or IP address to ping
+                                      
+OPTIONS:
+-c | --count - Number of times to ping""")
+                            break
+
+                          
+                        match arg:
+                            case "-c" | "--count":
+                                count = arg[arg.index("=")+1:]
+                            case "-h" | "--help":
+                                print("""---PING HELP---
+                                      
+ABOUT:
+Pings an IP or Domain with one packet of data to quickly determine uptime.
+                                      
+USAGE:
+* - Required Argument
+ping [address*] [options]
+                                      
+ARGUMENTS:
+[address] - Domain or IP address to ping
+                                      
+OPTIONS:
+-c | --count - Number of times to ping""")
+                            
+                                
+
+                                    
+                                
+                    if address == "NONE":
+                        print("Please provide an address to ping.")
                     else:
-                        response = os.system(f"ping /n {count} " + args[1])
-                    if response == 0:
-                      print(f"{args[1]} is UP, Pinged {count} times")
-                    else:
-                      print(f"{args[1]} is DOWN, Pinged {count} times")
+                        if os.name != 'nt':
+                            response = os.system(f"ping -c {count} " + args[1])
+                        else:
+                            response = os.system(f"ping /n {count} " + args[1])
+                        if response == 0:
+                            print(f"{args[1]} is UP, Pinged {count} times")
+                        else:
+                            print(f"{args[1]} is DOWN, Pinged {count} times")
                 except IndexError:
                     print("""---PING HELP---
                           
@@ -263,6 +378,7 @@ ARGUMENTS:
                       Follow any command with -h or --help to get help on that command.""")
             case "cls":
                 os.system("cls")
+
             case "date":
                 print(datetime.datetime.now().strftime("Current Date: %m/%d/%Y"))
             
@@ -294,35 +410,25 @@ ARGUMENTS:
                 choosing = False
             
             case s if s.startswith("setup"):
-                forced = False
+                
                 args = s.split(" ")
                 for arg in args:
-                    match arg:
-                        case "--force":
-                            forced = True
-                        case "-h" | "--help":
-                            print("""---SETUP HELP---
+                   match arg:
+                          case "-h" | "--help":
+                                print("""---SETUP HELP---
 ABOUT:
-Sets up WACA-Guard for first-time use.
-                                  
+Sets up WACA-Guard.
+                                      
 USAGE:
 * - Required Argument
-setup [--force]
-                                  
+setup [options]
+                                      
 ARGUMENTS:
-[--force] - Forces setup to run, even if requirements are already installed""")
-                if os.name != 'nt' and os.getpid() != 0 and not forced:
-                    print("This program is not run as sudo. Please run this program as sudo to ensure all permissions are properly handled.")
-                elif os.name != 'nt' and os.getpid() == 0 or forced:
-                    path = Path("requirements.txt").resolve()
-                    linuxPath = re.sub(" ","\ ", path)
-                    os.system(f"sudo pip install -r {linuxPath}")
-                    print("Setup Complete!")
-                elif os.name == 'nt':
-                    path = Path("./requirements.txt").resolve()
-                    os.system(f"pip install -r \"{str(path)}\"")
-                    print("Setup Complete!")
-
+-h - Displays this help menu
+""")
+                if len(args) == 1:
+                    setup()
+                
             case b if b.startswith("backup") or b.startswith("bk"):
                 args = command.split(" ")
                 if os.name != 'nt':
@@ -386,10 +492,23 @@ ARGUMENTS:
 [destination] - Destination to move file to""")
             case r if r.startswith("run") or r.startswith("r"):
                 args = command.split(" ")
-                if os.name != 'nt':
-                    os.system(f"python3 {args[1]}")
-                else:
-                    os.system(f"python {args[1]}")
+                try:
+                    if os.name != 'nt':
+                        os.system(f"python3 {args[1]}")
+                    else:
+                        os.system(f"python {args[1]}")
+                except IndexError:
+                    print("""---RUN HELP---
+ABOUT:
+Runs a python file.
+                          
+USAGE:
+* - Required Argument
+run [file*]
+                          
+ARGUMENTS:
+[file] - File to run""")
+                    
                 for arg in args:
                     match arg:
                         case "-h" | "--help":
@@ -405,7 +524,41 @@ ARGUMENTS:
 [file] - File to run""")
                         
             
-             
+            case p if p.startswith("pshell") or p.startswith("ps"):
+                args = command.split(" ")
+                if len(args) == 1:
+
+                    try:
+                        if os.name != 'nt':
+                            os.system(f"python3")
+                        else:
+                            os.system(f"python")
+                    except IndexError:
+                        print("""---PSHELL HELP---
+    ABOUT:
+    Opens a python shell.
+                            
+    USAGE:
+    * - Required Argument
+    pshell
+                            
+    ARGUMENTS:
+    None""")
+                else:
+                    match args:
+                        case "-h" | "--help":
+                            print("""---PSHELL HELP---
+    ABOUT:
+    Opens a python shell.
+                                  
+    USAGE:
+    * - Required Argument
+    pshell
+                                  
+    ARGUMENTS:
+    None""")
+                    
+
 
             case t if t.startswith("testimport") | t.startswith("ti"):
                 args = command.split(" ")
