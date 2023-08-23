@@ -112,6 +112,20 @@ testsystem | ts
                             testingMode = True
                         case "-v":
                             verbose = True
+                        case "-h" | "--help":
+                            print("""---START HELP---
+ABOUT:
+Starts WACA-Guard.
+                                  
+USAGE:
+* - Required Argument
+start [options]
+                                  
+ARGUMENTS:
+    -n: No AI
+    -t: Use Testing Bot Token
+    -v: Verbose
+""")
                         
                 startup(testingMode, testStart, useAI, verbose)
             case p if p.startswith("qping"):
@@ -137,14 +151,111 @@ qping [address*]
 
 ARGUMENTS:
 [address] - Domain or IP address to ping""")
+            case p if p.startswith("ping"):
+                count = 5
+                try:
+                    args = command.split(" ")
+                    for arg in args:
+                        if arg == "-c":
+                            count = args[args.index(arg)+1]
+                    if os.name != 'nt':
+                        response = os.system(f"ping -c {count} " + args[1])
+                    else:
+                        response = os.system(f"ping /n {count} " + args[1])
+                    if response == 0:
+                      print(f"{args[1]} is UP, Pinged {count} times")
+                    else:
+                      print(f"{args[1]} is DOWN, Pinged {count} times")
+                except IndexError:
+                    print("""---PING HELP---
+                          
+ABOUT:
+Pings an IP or Domain with one packet of data to quickly determine uptime.
+
+USAGE:
+* - Required Argument
+qping [address*]
+
+ARGUMENTS:
+[address] - Domain or IP address to ping""")
+
             case "about":
                 print(wacaGuardSign)
                 print("WACA-Guard Ver. 4.0 | Created by CombinatioNova for NETWACA")
-            case "time":
-                print(datetime.datetime.now().strftime("Current Time: %H:%M:%S"))
+            case c if c.startswith("clear"):
+                args = command.split(" ")
+                if len(args) == 1:
+                    os.system("clear")
+                else:
+                    match args:
+                        case "-h" | "--help":
+                            print("""---CLEAR HELP---
+ABOUT:
+Clears the terminal.
+                                  
+USAGE:
+* - Required Argument
+clear [options]
+                                  
+ARGUMENTS:
+-h - Displays this help menu""")
+
+            case f if f.startswith("find") or f.startswith("f"):
+                args = command.split(" ")
+                for arg in args:
+                    match arg:
+                        case "-h" | "--help":
+                            print("""---FIND HELP---
+ABOUT:
+Finds a file.
+                                  
+USAGE:
+* - Required Argument
+find [file*]
+                                  
+ARGUMENTS:
+[file] - File to find""")
+                        case _:                        
+                            if os.name != 'nt':
+                                os.system(f"find {args[1]}")
+                            else:
+                                os.system(f"dir {args[1]}")  
+                
+            case "help":
+                print("""---HELP---
+                      Follow any command with -h or --help to get help on that command.""")
+            case "cls":
+                os.system("cls")
+            case "date":
+                print(datetime.datetime.now().strftime("Current Date: %m/%d/%Y"))
+            
+            case t if t.startswith("time"):
+                args = command.split(" ")
+                if len(args) == 1:
+                    print(datetime.datetime.now().strftime("Current Time: %H:%M:%S"))
+                else:
+                    match args:
+                        
+                        case "-h" | "--help":
+                            print("""---TIME HELP---
+ABOUT:
+Gets the current time.
+                                  
+USAGE:
+* - Required Argument
+time [options]
+                                  
+ARGUMENTS:
+-h - Displays this help menu
+""")
+                        
+
+
+
             case "exit" | "quit":
                 print("Quitting WACA-Guard...")
                 choosing = False
+            
             case s if s.startswith("setup"):
                 forced = False
                 args = s.split(" ")
@@ -152,6 +263,17 @@ ARGUMENTS:
                     match arg:
                         case "--force":
                             forced = True
+                        case "-h" | "--help":
+                            print("""---SETUP HELP---
+ABOUT:
+Sets up WACA-Guard for first-time use.
+                                  
+USAGE:
+* - Required Argument
+setup [--force]
+                                  
+ARGUMENTS:
+[--force] - Forces setup to run, even if requirements are already installed""")
                 if os.name != 'nt' and os.getpid() != 0 and not forced:
                     print("This program is not run as sudo. Please run this program as sudo to ensure all permissions are properly handled.")
                 elif os.name != 'nt' and os.getpid() == 0 or forced:
@@ -163,13 +285,111 @@ ARGUMENTS:
                     path = Path("./requirements.txt").resolve()
                     os.system(f"pip install -r \"{str(path)}\"")
                     print("Setup Complete!")
+
+            case b if b.startswith("backup") or b.startswith("bk"):
+                args = command.split(" ")
+                if os.name != 'nt':
+                    os.system(f"cp {args[1]} {args[2]}")
+                else:
+                    os.system(f"copy {args[1]} {args[2]}")
+                for arg in args:
+                    match arg:
+                        case "-h" | "--help":
+                            print("""---BACKUP HELP---
+ABOUT:                            
+Backs up a file.
+                                  
+USAGE:
+* - Required Argument
+backup [file*] [backup_as*]
+
+ARGUMENTS:
+[file] - File to backup
+[backup_as] - Name of backup""")
+                               
+                                  
+            case d if d.startswith("delete") or d.startswith("del"):
+                args = command.split(" ")
+                if os.name != 'nt':
+                    os.system(f"rm {args[1]}")
+                else:
+                    os.system(f"del {args[1]}")
+                for arg in args:
+                    match arg:
+                        case "-h" | "--help":
+                            print("""---DELETE HELP---
+ABOUT:
+Deletes a file.
+                                  
+USAGE:
+* - Required Argument
+delete [file*]
+                                  
+ARGUMENTS:
+[file] - File to delete""")
+            case m if m.startswith("move") or m.startswith("mv"):
+                args = command.split(" ")
+                if os.name != 'nt':
+                    os.system(f"mv {args[1]} {args[2]}")
+                else:
+                    os.system(f"move {args[1]} {args[2]}")
+                for arg in args:
+                    match arg:
+                        case "-h" | "--help":
+                            print("""---MOVE HELP---
+ABOUT:
+Moves a file.
+                                  
+USAGE:
+* - Required Argument
+move [file*] [destination*]
+                                  
+ARGUMENTS:
+[file] - File to move
+[destination] - Destination to move file to""")
+            case r if r.startswith("run") or r.startswith("r"):
+                args = command.split(" ")
+                if os.name != 'nt':
+                    os.system(f"python3 {args[1]}")
+                else:
+                    os.system(f"python {args[1]}")
+                for arg in args:
+                    match arg:
+                        case "-h" | "--help":
+                            print("""---RUN HELP---
+ABOUT:
+Runs a python file.
+                                  
+USAGE:
+* - Required Argument
+run [file*]
+                                  
+ARGUMENTS:
+[file] - File to run""")
+                        
+            
+             
+
             case t if t.startswith("testimport") | t.startswith("ti"):
-                testport = command.split(" ")
+                args = command.split(" ")
                 try:
-                    module = __import__(testport[1])
+                    module = __import__(args[1])
                     print("Import Succesful!")
                 except Exception as e:
                     print(f"Import Unsucessful:\n\n {e}")
+                for arg in args:
+                    match arg:
+                        case "-h" | "--help":
+                            print("""---TEST IMPORT HELP---
+ABOUT:
+Tests an import to ensure it is working properly.
+                                  
+USAGE:
+* - Required Argument
+testimport [module*]
+                                  
+ARGUMENTS:
+[module] - Module to test""")
             case t if t.startswith("testsystem") or t.startswith("ts"):
                 args = command.split(" ")
                 # -n: No AI
@@ -182,7 +402,7 @@ ARGUMENTS:
                 verbose = False
                 for arg in args:
                     match arg:
-                        case h if h.startswith("-h"):
+                        case "-h" | "--help":
                             print("""---TEST SYSTEM HELP---
 ABOUT:
 Test System tests all components of WACA-Guard's imports by running the startup command without providing a token.
@@ -191,7 +411,7 @@ USAGE:
 * - Required Argument
 testsystem [options]
 
-OPTIONS:
+ARGUMENTS:
  -n: No AI
  -l: Login to Discord
  -t: Use Testing Bot Token
