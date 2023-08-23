@@ -635,10 +635,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
             bot.add_cog(AISupport.Support(bot))
         except:
             supportOn = "Offline :red_circle:"
-        try:
-            bot.add_cog(Reminder.Reminder(bot))
-        except:
-            reminderOn="Offline :red_circle:"
+        
         try:
             bot.add_cog(notify.notify(bot))
         except:
@@ -659,10 +656,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
             bot.add_cog(Mitochondria.Mitochondria(bot))
         except:
             mitoOn = "Offline :red_circle:"
-        try:  
-            bot.add_cog(hostinfo.hoster(bot))
-        except:
-            hostOn = "Offline :red_circle:"
+        
 
         
 
@@ -880,10 +874,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
             bot.add_cog(AISupport.Support(bot))
         except:
             supportOn = "Offline :red_circle:"
-        try:
-            bot.add_cog(Reminder.Reminder(bot))
-        except:
-            reminderOn="Offline :red_circle:"
+        
         try:
             bot.add_cog(notify.notify(bot))
         except:
@@ -904,10 +895,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
             bot.add_cog(Mitochondria.Mitochondria(bot))
         except:
             mitoOn = "Offline :red_circle:"
-        try:  
-            bot.add_cog(hostinfo.hoster(bot))
-        except:
-            hostOn = "Offline :red_circle:"
+        
 
         
 
