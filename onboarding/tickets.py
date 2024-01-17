@@ -400,7 +400,7 @@ We understand that getting griefed can be really frustrating. We're here to make
         """
                     user = await self.bot.fetch_user(1032680296396636191)
                     embed.add_field(name=f":link: Send the Code to:", value = user.mention)
-                    embed.add_field(name=f":computer: Server Version:", value = "1.19.3")
+                    embed.add_field(name=f":computer: Server Version:", value = "1.20.1")
                     embed.add_field(name=f":closed_lock_with_key: Registration Command:", value = "/register (Password)")
                     
 ############################################################################################################################################################################################################

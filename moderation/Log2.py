@@ -216,7 +216,7 @@ class Log(commands.Cog):
             logmsg.add_field(name="<:ReasonRed:1124124959158054912> Reason: ", value=reason, inline=True)
             logmsg.add_field(name="<:NoteRed:1124125152666456134>Moderator Notes: ", value=notes, inline = False)
             logmsg.add_field(name="<:StaffRed:1124124861271392346> Your Moderator: ", value=inter.author.name, inline=True)
-            appeal = Button(label='Appeal Ban', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
+            appeal = Button(label='Appeal Decision', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             message = await channel.send(embed=logmsg, components = [appeal, close])
             print(message.id)
@@ -357,7 +357,7 @@ class Log(commands.Cog):
             logmsg.add_field(name="<:ReasonRed:1124124959158054912> Reason: ", value=reason, inline=True)
             logmsg.add_field(name="<:NoteRed:1124125152666456134>Moderator Notes: ", value=notes, inline = False)
             logmsg.add_field(name="<:StaffRed:1124124861271392346> Your Moderator: ", value=inter.author.name, inline=True)
-            appeal = Button(label='Appeal Ban', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
+            appeal = Button(label='Appeal Decision', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
             close = Button(label="Close Ticket", custom_id=f"close: {user_id}",style=disnake.ButtonStyle.danger)
             message = await channel.send(embed=logmsg, components = [appeal, close])
             print(message.id)
@@ -1002,7 +1002,7 @@ Your case has been updated by a staff member! Please review the changes to your 
                 embed.set_field_at(1, name="<:Punishment:1124125689772257310> Action Taken",value=punish, inline=True)
                 embed.set_field_at(2, name="<:ReasonRed:1124124959158054912> Reason",value=reason, inline=True)
                 embed.set_field_at(3, name="<:NoteRed:1124125152666456134> Notes",value=log[5], inline=False)
-                appeal = Button(label='Appeal Ban', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
+                appeal = Button(label='Appeal Decision', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
 
                 try:
                     # Fetch Messagte and Send to Ticket
