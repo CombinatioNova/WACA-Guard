@@ -303,6 +303,13 @@ class Suggestions(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         suggestion = message.content
+        try:
+            if(message.author.bot) or message.channel.name != "💡│suggestions":
+                return
+        except Exception as e:
+            print(e)
+            return
+        
         
         cursor.execute("INSERT INTO suggestions (suggestion, upvotes, downvotes) VALUES (?, 0, 0)", (suggestion,))
         suggestion_id = cursor.lastrowid
@@ -328,19 +335,20 @@ class Suggestions(commands.Cog):
         more_button = Button(style=disnake.ButtonStyle.gray, emoji="<:menu:1124096544606531635>", custom_id=f"suggMore_{suggestion_id}")
         channel = None
         
-        for guild_channel in inter.guild.channels:
+        for guild_channel in message.guild.channels:
             if guild_channel.name.endswith("suggestions"):
                 channel = guild_channel
                 break
         
         
         if channel:
+            await message.delete()
             message = await channel.send(embed=embed, components=[[upvote_button, downvote_button, more_button]])
             suggestion_message_id = message.id
             
             cursor.execute("UPDATE suggestions SET message_id = ? WHERE id = ?", (suggestion_message_id, suggestion_id))
             conn.commit()
-            await message.delete()
+            
     
     
     # Slash command to suggest something
