@@ -27,8 +27,11 @@ class SupportCog(commands.Cog):
                     unresolved_tickets += 1
                     print(f"Found {unresolved_tickets}!")
             try:
-                channel = disnake.utils.get(guild.channels, name="💬│staff-chat")
-                await channel.send(f"Total unresolved tickets in {guild.name}: {unresolved_tickets}")
+                if unresolved_tickets != 0:
+                    channel = disnake.utils.get(guild.channels, name="💬│staff-chat")
+                    await channel.send(f"Total unresolved tickets in {guild.name}: {unresolved_tickets}")
+                else: 
+                    print("stopped mods' fury")
             except Exception as e:   
                 print(e)                 
                 continue
@@ -45,8 +48,11 @@ class SupportCog(commands.Cog):
                     unresolved_tickets += 1
                     print(f"Found {unresolved_tickets}!")
             try:
-                channel = disnake.utils.get(guild.channels, name="💬│staff-chat")
-                await channel.send(f"Total unresolved tickets in {guild.name}: {unresolved_tickets}")
+                if unresolved_tickets != 0:
+                    channel = disnake.utils.get(guild.channels, name="💬│staff-chat")
+                    await channel.send(f"Total unresolved tickets in {guild.name}: {unresolved_tickets}")
+                else: 
+                    print("stopped mods' fury")
             except Exception as e:   
                 print(e)                 
                 continue

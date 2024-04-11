@@ -334,6 +334,7 @@ ARGUMENTS:
             case "about":
                 print(wacaSign())
                 print("WACA-Guard Ver. 4.0 | Created by CombinatioNova for NETWACA")
+
             case c if c.startswith("clear"):
                 args = command.split(" ")
                 if len(args) == 1:
@@ -648,6 +649,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
 
         from moderation.Log2 import Log
         print("Completed!")
+        from moderation import supportcog
         print("Importing DM Listener, BanSync, Close, and Protect")
 
         from moderation import DMListener, BanSync, Protect, Close
@@ -666,6 +668,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
         from ServerStats import Status
         from onboarding import ServerSetup, BumpReminder, tickets,JoinsAndLeaves
         import os
+        
 
         print("Setting variables as global...")
        
@@ -736,6 +739,8 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True)
         bot.add_cog(deny.deny(bot))
         bot.add_cog(JoinsAndLeaves.JoinAndLeave(bot))
         bot.add_cog(suggestions.Suggestions(bot))
+        bot.add_cog(supportcog.SupportCog(bot))
+
         try:
             bot.add_cog(tickets.Ticket(bot))
         except:
