@@ -13,6 +13,7 @@ class SetupCommand(Cog):
         if ctx.guild.id != 1010578625814335588:
             await ctx.send("Sorry, this command can only be used in the specified server.")
             return
+        
 
         for category in ctx.guild.categories:
             await category.delete()

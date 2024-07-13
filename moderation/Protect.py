@@ -350,7 +350,7 @@ class SecurityCheckView(View):
                     try:
                         role2 = get(guild.roles, name=role_name[1])
                         if not role and not role2:
-                            missRoleVio.append(f"<:SecurityWarn:1126200371572908153>│Role missing: {str(role_nameq[0])}")
+                            missRoleVio.append(f"<:SecurityWarn:1126200371572908153>│Role missing: {str(role_name[0])}")
                     except:
                         if not role:
                             missRoleVio.append(f"<:SecurityWarn:1126200371572908153>│Role missing: {str(role_name[0])}")

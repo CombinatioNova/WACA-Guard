@@ -20,12 +20,12 @@ class SupportCog(commands.Cog):
         guilds = self.bot.guilds
         for guild in guilds:
             support_channel = disnake.utils.get(guild.categories, name="📬 | Support tickets")
-            print(support_channel.channels)
+            
             if support_channel:
                 unresolved_tickets = 0
                 for channel in support_channel.channels:
                     unresolved_tickets += 1
-                    print(f"Found {unresolved_tickets}!")
+                    
             try:
                 if unresolved_tickets != 0:
                     channel = disnake.utils.get(guild.channels, name="💬│staff-chat")
@@ -41,12 +41,11 @@ class SupportCog(commands.Cog):
         guilds = self.bot.guilds
         for guild in guilds:
             support_channel = disnake.utils.get(guild.categories, name="📬 | Support tickets")
-            print(support_channel.channels)
+            
             if support_channel:
                 unresolved_tickets = 0
                 for channel in support_channel.channels:
                     unresolved_tickets += 1
-                    print(f"Found {unresolved_tickets}!")
             try:
                 if unresolved_tickets != 0:
                     channel = disnake.utils.get(guild.channels, name="💬│staff-chat")

@@ -8,6 +8,8 @@ import io
 import aiofiles
 import aiohttp
 from datetime import datetime
+from disnake.ext import commands, tasks
+import asyncio
 suppVer = 2.2
 dashVer = 1.2
 designVer = 1.2
@@ -824,6 +826,58 @@ As you wait for our friendly staff to assist you, please give us as much informa
                     print(f"Edited channel {channel.name} in guild {guild.name} at position {positions[channel]}.")
                 except disnake.HTTPException as e:
                     print(f"Failed to edit channel {channel.name} in guild {guild.name}: {e}")
-            
+##################################################################################################################################
+
+                
+    @tasks.loop(hours=24)
+    async def daily_ticket_check(self):
+        """
+        This function checks for unresolved tickets in every guild and performs actions based on their age.
+        """
+        for guild in self.bot.guilds:
+            category = disnake.utils.get(self.bot.guild.categories, name = "📬 | Support tickets")
+            if not category:
+                continue  # Skip guilds without the designated category
+
+        for channel in category.channels:
+            try:
+            # Get the last message in the channel (excluding pins)
+                last_message = await channel.history(limit=1, oldest_first=True).first()
+                if not last_message:
+                    continue  # Skip channels with no messages
+
+            # Calculate the time since the last message
+                last_message_age = (disnake.utils.utcnow() - last_message.created_at).days
+            except disnake.HTTPException:
+            # Ignore errors if unable to access message history
+                continue
+
+            staff_responded = any(role.name == "Staff" for role in channel.topic.split() if role)
+
+            if last_message_age >= 7:
+            # Delete the ticket after 7 days of inactivity
+                await channel.delete()
+                print(f"Deleted ticket channel {channel.name} in guild {guild.name} due to inactivity.")
+            elif last_message_age >= 4:
+            # Ping user after 3 days with warning
+                try:
+                    await last_message.author.send(f"Your support ticket ({channel.name}) in {guild.name} will be deleted in 3 days if there is no activity.")
+                except disnake.HTTPException:
+                    pass  # Ignore errors if user has DMs disabled
+            elif last_message_age >= 6:
+            # Ping user after 1 day with warning
+                try:
+                    await last_message.author.send(f"Your support ticket ({channel.name}) in {guild.name} will be deleted in 24 hours if there is no activity.")
+                except disnake.HTTPException:
+                    pass  # Ignore errors if user has DMs disabled
+
+
+    
+    
+
+
+
+
+##############################################################################################################################################
 def setup(bot: Bot) -> None:
     bot.add_cog(Ticket(bot)) 
