@@ -1,20 +1,18 @@
 ### THIS IS A BETA BUILD. NOT FOR PUBLIC RELEASE. ###
 
+import os
 
 global testingMode
 global testingToken
 # CONFIGURATION GUIDE:
 #
-# If you want to test WACA-Guard, please supply it with a "Testing Token" or the token of the bot you want to use to test WACA-Guard.
+# If you want to test WACA-Guard, please supply it with a "Testing Token" in the tokens.env file.
 # Then, set testingMode to True.
 #
 # WACA-Guard will automatically deal with the rest of the logic.
 testingMode = True
 
 # --- BEGIN CONFIGURATION --- #
-
-# WACA-Guard's Token
-global token
 
 # Should WACA-Guard use AI? Defaults to TRUE (NOTE: USES HEAVY CPU ON STARTUP, MAY TAKE A FEW MINUTES TO LOAD.)
 global useAI
@@ -34,6 +32,43 @@ betaMode = False
 # --- END CONFIGURATION --- #
 
 def wacaSign(testing):
+    wacaGuardLogo = r"""
+                                                                   
+                                                               
+                          ...........                          
+                     .....................                     
+                ...............................                
+            .......................................            
+          .................... ......................          
+        .................      ........................        
+        ...........            ........................        
+        ........               ........................        
+        ........               ........................        
+        ........               ........................        
+        ........               ........................        
+        ........               ........................        
+        ........               ........................        
+        ........               ........................        
+        ........               ........................        
+        ........................               ........        
+        ........................              .........        
+         .......................              ........         
+         .......................             .........         
+          ......................            .........          
+           .....................            ........           
+            ....................          .........            
+            ....................         ..........            
+              ..................       ..........              
+               .................     ...........               
+                :...............  .............                
+                  ...........................                  
+                    .......................                    
+                       .................                       
+                           .........                           
+                                                               
+                                                               
+    
+    """
     if not testing:
         wacaGuardSign = r'''                                                                                                                
                                                                                                          ,,                      
@@ -41,7 +76,7 @@ def wacaSign(testing):
   `MA     ,MA     ,V  ;MM:    .dP'     `M    ;MM:         .dP'     `M                                    MM                             
    VM:   ,VVM:   ,V  ,V^MM.   dM'       `   ,V^MM.        dM'       ``7MM  `7MM   ,6"Yb.  `7Mb,od8  ,M""bMM    
     MM.  M' MM.  M' ,M  `MM   MM           ,M  `MM        MM           MM    MM  8)   MM    MM' "',AP    MM     
-    `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM
+    `MM A'  `MM A'  AbmmmqMA  MM.          AbmmmqMA mmmmm MM.    `7MMF'MM    MM   ,pm9MM    MM    8MI    MM      
       MM;    :MM;  A'     VML `Mb.     ,' A'     VML      `Mb.     MM  MM    MM  8M   MM    MM    `Mb    MM      
       VF      VF .AMA.   .AMMA. `"bmmmd'.AMA.   .AMMA.      `"bmmmdPY  `Mbod"YML.`Moo9^Yo..JMML.   `Wbmd"MML.
       
@@ -64,7 +99,7 @@ def wacaSign(testing):
                                                                                                              
 #Setting Global Variables
 
-global pingOn, veriOn, owoOn, logOn, supportOn, reminderOn, notifyOn, acceptOn, insanityOn, mitoOn, MDSOn, hostOn, botVer, DMListen, blessOn, banSync, closeSystem , statusSystem, serverSetup, bumpReminder, ticketsSystem
+global pingOn, veriOn, owoOn, logOn, supportOn, reminderOn, notifyOn, acceptOn, insanityOn, mitoOn, MDSOn, hostOn, botVer, DMListen, blessOn, banSync, closeSystem , statusSystem, serverSetup, bumpReminder, ticketsSystem, levelsOn
 def setup():
     import subprocess
     from pathlib import Path
@@ -93,7 +128,14 @@ def setup():
     # Install dependencies from requirements.txt
     install_dependencies()
 
+    # Check if dotenv is loadable, if not run setup again
+    
+
+    # Load environment variables from tokens.env file
+    
+
 def terminal():
+    
     try:
         import os
         import disnake
@@ -103,13 +145,24 @@ def terminal():
         import webbrowser
         import requests
         import json
+        from dotenv import load_dotenv
+        load_dotenv('tokens.env')
+
+    
     except:
         
         setup()
         import webbrowser
         import requests
         import json
-        
+        from dotenv import load_dotenv
+        load_dotenv('tokens.env')
+    global testingToken
+    testingToken = os.getenv('TESTING_TOKEN')
+
+    # WACA-Guard's Token
+    global token
+    token = os.getenv('WACA_GUARD_TOKEN')    
     choosing = True
     while choosing:
         command = input("WACA-Guard: ")
@@ -660,7 +713,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
     vprint("Completed!")
     vprint("Importing Moderation Logs")
 
-    from moderation.Log2 import Log
+    from moderation.Log import Log
     vprint("Completed!")
     from moderation import supportcog
     vprint("Importing DM Listener, BanSync, Close, and Protect")
@@ -681,8 +734,12 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         from eastereggs import bless
     
         from ServerStats import Status
-        from onboarding import ServerSetup,JoinsAndLeaves
+        from onboarding import ServerSetup,JoinsAndLeaves, vouching
+        vprint("Addicting Children to Gambling...")
+        from Fun import Gambling
+        vprint("Completed!")
     from onboarding import tickets
+    from Fun import levels
     import os
     
 
@@ -718,6 +775,8 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
     blessOn = "Online :green_circle:"
     mitoOn = "Online :green_circle:"
     whoisSys = "Online :green_circle:"
+    gamblingOn = "Online :green_circle"
+    levelsOn = "Online :green_circle"
     command_sync_flags = commands.CommandSyncFlags.default()
     command_sync_flags.sync_commands_debug = True
     activity = disnake.Activity(name='over NETWACA', type=disnake.ActivityType.watching)
@@ -891,7 +950,19 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         bot.add_cog(Intel.WHOIS(bot))
     except:
         whoisSys = "Offline :red_circle:"
-    
+    try:
+        bot.add_cog(Gambling.Roulette(bot))
+    except:
+        gamblingOn = "Offline :red_circle:"
+    try:
+        bot.add_cog(levels.LevelCog(bot))
+    except:
+        levelsOn = "Offline :red_circle:"
+    try:
+        bot.add_cog(vouching.Vouching(bot))
+        vouchingOn = "Online :green_circle:"
+    except:
+        vouchingOn = "Offline :red_circle:"
 
     
 
@@ -940,12 +1011,15 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         embed.add_field(name="Tickets", value=f"{ticketsSystem}")
         embed.add_field(name="Status", value=f"{statusSystem}")
         embed.add_field(name="Close", value=f"{closeSystem}")
-        embed.add_field(name="WHOIS", value=f"{whoisSys}")
+        
         
         e = disnake.Embed(title=f"About WACA-Guard v. {botVer} - Continued", color = disnake.Colour.brand_green())
         e.add_field(name="Ban Sync", value=f"{banSync}")
         e.add_field(name="Verification", value=f"{veriOn}")
-        
+        e.add_field(name="WHOIS", value=f"{whoisSys}")
+        e.add_field(name="Gambling", value=f"{gamblingOn}")
+        e.add_field(name="Levels", value=f"{levelsOn}")
+        e.add_field(name="Vouching", value=f"{vouchingOn}")
         appeal = Button(label='Appeals Link', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
         
         await inter.response.send_message(embeds=[embed, e], components = [appeal])

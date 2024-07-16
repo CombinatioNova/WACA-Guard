@@ -32,32 +32,32 @@ class BanUser(Cog):
         
 
         embed = disnake.Embed(
-            title=f"NETWORK BAN NOTICE",
-            description=f"""
-
-User {user.name} has been banned network-wide.
-
-**Below is a breakdown of their user information:**
-""",
-            color=0x00ff00 if banned_servers else 0xff0000,
+            title="🚫 NETWORK BAN NOTICE 🚫",
+            description=(
+                f"**User {user.mention} has been banned network-wide.**\n\n"
+                "🔍 **User Information:**"
+            ),
+            color=0xff0000,
             timestamp=datetime.now()
         )
         embed.set_thumbnail(url=user.display_avatar)
-    #User Information
-        embed.add_field(name="Name: ", value=user.name, inline=True)
-        embed.add_field(name="ID: ", value=user.id, inline=True)
-        embed.add_field(name="Created On: ", value=f"<t:{user.created_at.timestamp()}:F>", inline=True)
         
-    #Reason
-        embed.add_field(name="Reason: ", value=reason, inline=False)
-        embed.set_author( # Narcissism
+        # User Information
+        embed.add_field(name="👤 Name:", value=user.name, inline=True)
+        embed.add_field(name="🆔 ID:", value=user.id, inline=True)
+        embed.add_field(name="📅 Created On:", value=f"<t:{int(user.created_at.timestamp())}:F>", inline=True)
+        
+        # Reason
+        embed.add_field(name="❗ Reason:", value=reason, inline=False)
+        
+        embed.set_author(
             name="NETWACA Moderation",
-            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
         )
         embed.set_footer(
-                text=f"Sent by {ctx.user.display_name}",
-                icon_url=ctx.user.display_avatar
-                )
+            text=f"Sent by {ctx.user.display_name}",
+            icon_url=ctx.user.display_avatar
+        )
         # Ban the user outside the loop to ensure it happens after processing all servers
         if not banned_servers:
             try:
@@ -95,26 +95,29 @@ User {user.name} has been banned network-wide.
                 continue
            
         embed = disnake.Embed(
-            title=f"Ban of {user.name} Synchronized!",
-            description=f"",
+            title=f"🔨 Ban of {user.name} Synchronized!",
+            description=f"**User Information**",
             color=0x00ff00 if banned_servers else 0xff0000,
             timestamp=datetime.now()
         )
         embed.set_thumbnail(url=user.display_avatar)
-        #User Information
-        embed.add_field(name="Name: ", value=user.name, inline=True)
-        embed.add_field(name="ID: ", value=user.id, inline=True)
-        embed.add_field(name="Created On: ", value=f"<t:{user.created_at.timestamp()}:F>", inline=False)
-    #Reason
-        embed.add_field(name="Reason: ", value=reason, inline=False)
-        embed.set_author( # Narcissism
+        
+        # User Information
+        embed.add_field(name="👤 Name:", value=user.name, inline=True)
+        embed.add_field(name="🆔 ID:", value=user.id, inline=True)
+        embed.add_field(name="📅 Created On:", value=f"<t:{user.created_at.timestamp()}:F>", inline=False)
+        
+        # Reason
+        embed.add_field(name="❗ Reason:", value=reason, inline=False)
+        
+        embed.set_author(
             name="NETWACA Moderation",
             icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
         )
         embed.set_footer(
-                text=f"Sent by {ctx.user.display_name}",
-                icon_url=ctx.user.display_avatar
-                )
+            text=f"Sent by {ctx.user.display_name}",
+            icon_url=ctx.user.display_avatar
+        )
         banned_servers = []
         unbanned_servers = []
 
@@ -133,9 +136,11 @@ User {user.name} has been banned network-wide.
             except:
                 continue
         if banned_servers:
-            embed.add_field(name="Banned Servers", value="\n".join(banned_servers), inline=False)
+            banned_servers_list = "\n".join([f"🔴 {server}" for server in banned_servers])
+            embed.add_field(name="🚫 Banned Servers", value=banned_servers_list, inline=False)
         if unbanned_servers:
-            embed.add_field(name="Unbanned Servers", value="\n".join(unbanned_servers), inline=False)
+            unbanned_servers_list = "\n".join([f"🟢 {server}" for server in unbanned_servers])
+            embed.add_field(name="✅ Unbanned Servers", value=unbanned_servers_list, inline=False)
 
         moderation_channel = self.bot.get_channel(1117508642351091763)
         if moderation_channel:
@@ -170,15 +175,27 @@ User {user.name} has been banned network-wide.
                 continue
 
         embed = disnake.Embed(
-            title="Ban Status",
-            description=f"User ID: {user.id}\n\nUser Name: {user.name}\n\nAccount Creation Date: <t:{user.created_at.timestamp()}:f>",
+            title="🔨 Ban Status",
+            description=f"**User ID:** {user.id}\n**User Name:** {user.name}\n**Account Creation Date:** <t:{user.created_at.timestamp()}:f>",
             color=0xff0000 if banned_servers else 0x00ff00
         )
 
+        embed.set_author(
+            name="WACA-Guard",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
+        )
+
+        embed.set_thumbnail(url=user.avatar.url)
+
         if banned_servers:
-            embed.add_field(name="Banned Servers", value="\n".join(banned_servers), inline=False)
+            embed.add_field(name="🚫 Banned Servers", value="\n".join(banned_servers), inline=False)
         if unbanned_servers:
-            embed.add_field(name="Unbanned Servers", value="\n".join(unbanned_servers), inline=False)
+            embed.add_field(name="✅ Unbanned Servers", value="\n".join(unbanned_servers), inline=False)
+
+        embed.set_footer(
+            text="WACA-Guard Ban Status",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1037813968502259833/Information_Type1.png"
+        )
 
         await ctx.send(embed=embed)
 

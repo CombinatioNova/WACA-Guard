@@ -4,9 +4,10 @@ from disnake.ext import commands
 from disnake.ui import View, Button, Select
 import sqlite3
 from datetime import datetime
+import os
 
 # Create a database connection
-conn = sqlite3.connect('suggestions.db')
+conn = sqlite3.connect(os.path.join('databases', 'suggestions.db'))
 cursor = conn.cursor()
 
 # Create the table if it doesn't exist

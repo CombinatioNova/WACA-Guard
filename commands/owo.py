@@ -10,16 +10,50 @@ class OWO(Cog):
     owoPlayers = []
     @slash_command(description="Fuck you.") #The actual command
     async def owoify(self,inter, text: str):
-        owoified_text = text.replace("r", "w").replace("l", "w")
-        owoified_text = owoified_text.replace("Ove", "Uv")
-        owoified_text = re.sub(r"N([aeiouAEIOU])", r"Ny\1", owoified_text)
+        
+        
+        replacements = {
+            "ove": "uv",
+            "oing": "owing",
+            "you": "yow",
+            "the": "da",
+            "this": "dis",
+            "that": "dat",
+            "with": "wif",
+            "have": "hav",
+            "has": "haz",
+            "is": "iz",
+            "was": "waz",
+            "were": "werez",
+            "hello": "hewwo",
+            "hi": "hai",
+            "hey": "hewwo",
+            "good": "gud",
+            "night": "nite",
+            "okay": "okie",
+            "please": "pwease",
+            "stop": "stawp",
+            "sorry": "sowwy",
+            "no": "nu",
+            "yes": "yus",
+            "love": "wuv"
+        }
+
+        owoified_text = text
+        for key, value in replacements.items():
+            owoified_text = re.sub(re.compile(re.escape(key), re.IGNORECASE), lambda match: value.capitalize() if match.group().istitle() else value, owoified_text)
+        owoified_text = owoified_text.replace("r", "w").replace("l", "w")
         owoified_text = owoified_text.replace("R", "W").replace("L", "W")
-        owoified_text = owoified_text.replace("OVE", "UV")
-        owoified_text = re.sub(r"N([AEIOU])", r"NY\1", owoified_text)
-        owoified_text = owoified_text.replace("oing", "owing")
-        owoified_text = owoified_text.replace("you", "yow")
-        owoified_text = owoified_text.replace("the", "da")
+        
         owoified_text = re.sub(r"([a-zA-Z])s\b", r"\1z", owoified_text)
+        owoified_text = re.sub(r"N([aeiouAEIOU])", r"Ny\1", owoified_text)
+        owoified_text = re.sub(r"N([AEIOU])", r"NY\1", owoified_text)
+        
+        # Add OwO, UwU, or ÒwÓ randomly to the end of the message
+        import random
+        suffixes = [" OwO", " UwU", " ÒwÓ"]
+        owoified_text += random.choice(suffixes)
+        
         await inter.response.send_message(owoified_text)
     
     @slash_command(description="Why did I make this.") #The actual command

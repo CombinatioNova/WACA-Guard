@@ -9,6 +9,7 @@ import aiofiles
 import aiohttp
 from datetime import datetime
 from disnake.ext import commands, tasks
+from core import statbed
 import asyncio
 suppVer = 2.2
 dashVer = 1.2
@@ -68,6 +69,7 @@ class Ticket(Cog):
         av="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
         yes1 = Button(label="Contact Support",custom_id=f"open: {inter.author.id}",style=disnake.ButtonStyle.success, emoji = "<:Support:1124143632589520906>")
         appeal_url = 'https://smpwa.ca/appeal'
+        bug_button = Button(style=disnake.ButtonStyle.danger, label="Report Bug", custom_id=f"bugReport", emoji = "<:bugReport:1128679024256893092>")
         appeal = Button(label='Appeal Ban', url=appeal_url, style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
         embed = disnake.Embed(title='Need help?', description=f'''
 If you're having trouble in any way, shape, or form, feel free to reach out to us!
@@ -80,8 +82,14 @@ Click **Contact Support** below to get help dealing with join issues, griefing, 
             icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
         )
         # Send the embed to the channel
-        await inter.channel.send(embed=embed, components = [yes1, appeal])
-        await inter.response.send_message(f"<:wacayes:1109510617401917540> | Done!", ephemeral = True)
+        await inter.channel.send(embed=embed, components = [yes1,bug_button,appeal])
+
+        success = await statbed.create_success_embed(
+            title=f"Button Created in: {inter.channel.name}",
+            description="",
+            footer="WACA-Guard"
+        )
+        await inter.response.send_message(embed=success, ephemeral=True)
         
     @Cog.listener()
     async def on_button_click(self, inter):
@@ -187,7 +195,7 @@ Please select a category from the buttons below:
                 report = Button(label="Report Violation", custom_id=f"reportDisc: {user_id}",style=disnake.ButtonStyle.primary, emoji = "<:Report:1124146580442857502>")
                 partner = Button(label="Partnerships", custom_id=f"partner: {user_id}",style=disnake.ButtonStyle.primary, emoji = "<:partner:1128679022793064458> ")
                 await message.edit(embed=welcome_embed,components=[menu,partner,report,other,close])
-            await inter.edit_original_response(f"<:wacayes:1109510617401917540> **TICKET CREATED:** Head on over to {channel.mention} to get some help!")
+            await inter.edit_original_response(embed=await statbed.alert(title="Ticket Created", description=f"Head on over to {channel.mention} to get some help!"))
 ############################################ -- REPORT THING -- #####################################################
         elif inter.component.custom_id.startswith("partner"):
             user_id = int(inter.component.custom_id.split(": ")[1])
@@ -521,7 +529,7 @@ We'll make sure to have your password reset ASAP! Please be ready to join the Mi
             # Reason input field
             reason_input = disnake.ui.TextInput(
                 label="Reason:",
-                placeholder="Enter the new reason...",
+                placeholder="What's up?",
                 min_length=1,
                 max_length=256,
                 custom_id=f"bug_reason"
@@ -602,13 +610,16 @@ As you wait for our friendly staff to assist you, please give us as much informa
 
                 if transcript is None:
                     return
-
+                transcript_bytes = transcript.encode()
                 transcript_file = disnake.File(
                     io.BytesIO(transcript.encode()),
                     filename=f"transcript-{inter.channel.name}-{datetime.now()}.html",
                 )
 
-                
+                transcript_file_user = disnake.File(
+                    io.BytesIO(transcript_bytes),
+                    filename=f"transcript-{inter.channel.name}-{datetime.now()}.html",
+                )
                 channel = disnake.utils.get(inter.guild.channels, name="📂transcripts")
                 
                 
@@ -658,10 +669,10 @@ As you wait for our friendly staff to assist you, please give us as much informa
                 
                 if user_id == inter.author.id:
                     await inter.author.send(embed=toSend, components = [veryHappy,happy,neutral,unhappy,veryUnhappy])
-                    await inter.author.send(file=transcript_file)
+                    await inter.author.send(file=transcript_file_user)
                 else:
                     await user.send(embed=toSend,components = [veryHappy,happy,neutral,unhappy,veryUnhappy])
-                    await user.send(file=transcript_file)
+                    await user.send(file=transcript_file_user)
                 await inter.channel.delete()
                 await inter.edit_original_response("Sent to Transcripts!")
                 
@@ -744,7 +755,69 @@ As you wait for our friendly staff to assist you, please give us as much informa
             happy = Button(custom_id=f"happy",style=disnake.ButtonStyle.secondary, emoji = "<:Satisfied:1123679081423196260>",disabled=True)
             veryHappy = Button(custom_id=f"veryHappy",style=disnake.ButtonStyle.success, emoji = "<:VerySatisfied:1123679086737358889>",disabled=True)
             await inter.response.edit_message(embed=ogEmbed, components = [veryHappy,happy,neutral,unhappy,veryUnhappy])
-            
+####################################### BUG REPORT THINGS ##########################
+        elif inter.component.custom_id.startswith("bugFixed"):
+            if disnake.utils.get(inter.author.roles, name="Server Owner") or disnake.utils.get(inter.author.roles, name="Staff"):
+                message = await inter.channel.fetch_message(inter.message.id)
+                original_embed = message.embeds[0]  # Assuming there's only one embed
+                field_0_value = original_embed.fields[0].value  # Get the value of the first field
+                print(field_0_value)
+                
+                embed = original_embed
+                embed = disnake.Embed(title = "Bug Fixed/Addressed!",
+                                    color = disnake.Colour.green(), #Reg: 4143049
+                                    timestamp=datetime.now())
+                footer_text = original_embed.footer.text if original_embed.footer else ""
+                footer_icon_url = original_embed.footer.icon_url if original_embed.footer else ""
+                if footer_text or footer_icon_url:
+                    embed.set_footer(text=footer_text, icon_url=footer_icon_url)
+                embed.set_author(
+                name="Bug Report",
+                icon_url="https://cdn.discordapp.com/attachments/1126547281081016482/1261811776480350238/bug_report_24dp_FFFFFF_FILL0_wght700_GRAD200_opsz40.png?ex=6694514a&is=6692ffca&hm=147c14dcb5aef77715707b5a45aa9a833649095850a7dd4079ef4520afbe1978&")
+                embed.add_field(name="",value = field_0_value, inline=True)
+                bugUnFixed = Button(custom_id=f"bugUnFixed:{inter.message.id}",style=disnake.ButtonStyle.danger, emoji = "<:Undo:1261798143612162239>",disabled=False)
+                await inter.response.edit_message(embed=embed,components = [bugUnFixed])
+            else:
+                embed = disnake.Embed(
+                    title=f"Staff Role Required!",
+                    color=0xffa500,
+                    description = "You do **not** have the permissions to perform this action!",
+                    timestamp=datetime.now())
+                embed.set_author(
+                name="WACA-Guard Alert",
+                icon_url="https://cdn.discordapp.com/attachments/1125481298367094836/1261748715689873548/Warning4x.png?ex=6694168f&is=6692c50f&hm=c42b3a33842363358b8a96f7a7676e0cddbcbca236e45ed877d1dccade84b665&"
+                )
+                await inter.response.send_message(embed=embed, ephemeral=True)
+        elif inter.component.custom_id.startswith("bugUnFixed"):
+            if disnake.utils.get(inter.author.roles, name="Server Owner") or disnake.utils.get(inter.author.roles, name="Staff"):
+                message = await inter.channel.fetch_message(inter.message.id)
+                original_embed = inter.message.embeds[0]  # Assuming there's only one embed
+                field_0_value = original_embed.fields[0].value  # Get the value of the first field
+                embed = inter.message.embeds[0]
+                embed = disnake.Embed(title = "Waiting on Fix...",
+                                    color = disnake.Colour.red(), #Reg: 4143049
+                                    timestamp=datetime.now())
+                footer_text = original_embed.footer.text if original_embed.footer else ""
+                footer_icon_url = original_embed.footer.icon_url if original_embed.footer else ""
+                if footer_text or footer_icon_url:
+                    embed.set_footer(text=footer_text, icon_url=footer_icon_url)
+                embed.set_author(
+                name="Bug Report",
+                icon_url="https://cdn.discordapp.com/attachments/1126547281081016482/1261811776480350238/bug_report_24dp_FFFFFF_FILL0_wght700_GRAD200_opsz40.png?ex=6694514a&is=6692ffca&hm=147c14dcb5aef77715707b5a45aa9a833649095850a7dd4079ef4520afbe1978&")
+                embed.add_field(name = "" ,value = field_0_value, inline=True)
+                bugFixed = Button(custom_id=f"bugFixed",style=disnake.ButtonStyle.success, emoji = "<:CheckCircle:1261797767135629394>",disabled=False)
+                await inter.response.edit_message(embed=embed,components = [bugFixed])
+            else:
+                embed = disnake.Embed(
+                    title=f"Staff Role Required!",
+                    color=0xffa500,
+                    description = "You do **not** have the permissions to perform this action!",
+                    timestamp=datetime.now())
+                embed.set_author(
+                name="WACA-Guard Alert",
+                icon_url="https://cdn.discordapp.com/attachments/1125481298367094836/1261748715689873548/Warning4x.png?ex=6694168f&is=6692c50f&hm=c42b3a33842363358b8a96f7a7676e0cddbcbca236e45ed877d1dccade84b665&"
+                )
+                await inter.response.send_message(embed=embed, ephemeral=True)
     @Cog.listener()
     async def on_modal_submit(self, inter: disnake.ModalInteraction):
 
@@ -752,14 +825,22 @@ As you wait for our friendly staff to assist you, please give us as much informa
             dic=inter.text_values
             reason=dic[f"bug_reason"]
             
-            embed = disnake.Embed(title = "Bug Reported!",
-                                  color = 4143049,
+            embed = disnake.Embed(title = "Waiting on Fix...",
+                                  color = disnake.Colour.red(), #Reg: 4143049
                                   timestamp=datetime.now())
             
-            embed.add_field(name="<:Note:1124096605944037438> Bug Reported:",value=reason, inline = True)
-            embed.add_field(name="<:Staff:1124124862487732255> Reported By:",value=inter.author.display_name, inline = True)
+            embed.set_footer(
+            text=f"Sent by {inter.author.display_name}",
+            icon_url=inter.author.display_avatar
+            )
+            embed.add_field(name="",value=reason, inline = True)
+            embed.set_author(
+                name="Bug Report",
+                icon_url="https://cdn.discordapp.com/attachments/1126547281081016482/1261811776480350238/bug_report_24dp_FFFFFF_FILL0_wght700_GRAD200_opsz40.png?ex=6694514a&is=6692ffca&hm=147c14dcb5aef77715707b5a45aa9a833649095850a7dd4079ef4520afbe1978&")
             channel = disnake.utils.get(inter.guild.channels, name="🐛│bug-reports")
-            await channel.send(embed=embed)
+            #Set some approval, denial, and reopen buttons
+            bugFixed = Button(custom_id=f"bugFixed",style=disnake.ButtonStyle.success, emoji = "<:CheckCircle:1261797767135629394>",disabled=False)
+            await channel.send(embed=embed, components=[bugFixed])
             await inter.response.send_message("Bug reported! Thank you!", ephemeral = True)
 
 

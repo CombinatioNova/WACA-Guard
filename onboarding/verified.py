@@ -1,17 +1,21 @@
 import disnake
-from disnake.ext.commands import Bot, Cog,Param,slash_command
+from disnake.ext.commands import Bot, Cog, Param, slash_command
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 from disnake.utils import get
 from datetime import datetime
 import unicodedata
+from core import statbed
+
 class on_verification(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
+
     @Cog.listener()
-    async def on_member_join(self,member):
+    async def on_member_join(self, member):
         role = disnake.utils.get(member.guild.roles, name="Unverified")
         await member.add_roles(role)
+
     @Cog.listener()
     async def on_member_update(self, before, after):
         bot = self.bot
@@ -31,9 +35,10 @@ Check out {joinChan.mention} for information on how to join the minecraft server
     
             role = disnake.utils.get(after.guild.roles, name="Unverified")
             await after.remove_roles(role)
+
     @slash_command(description="Assign Unverified to normal users")
     async def vericheck(self, inter: disnake.ApplicationCommandInteraction) -> None:
-        await inter.response.defer(with_message = True,ephemeral=False)
+        await inter.response.defer(with_message=True, ephemeral=True)
         unverified_role = disnake.utils.get(inter.guild.roles, name="Unverified")
         wick_verified_role = disnake.utils.get(inter.guild.roles, name="Wick Verified")
         verified_role = disnake.utils.get(inter.guild.roles, name="Verified")
@@ -50,30 +55,39 @@ Check out {joinChan.mention} for information on how to join the minecraft server
             if checked_members % 10 == 0:
                 print("Still alive")
 
-        embed = disnake.Embed(
+        embed = await statbed.create_alert_embed(
             title="Checked for Unverified Members!",
-            color=4143049,
-            timestamp=datetime.now(),
+            description=f"Members checked: {checked_members}\nMembers changed: {changed_members}",
+            footer=f"Run by {inter.author.name}"
         )
+        embed.timestamp = datetime.now()
         embed.set_author(
             name="WACA-Guard Audit",
             icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
         )
-
         embed.set_footer(
             text=f"Run by {inter.author.name}",
             icon_url=inter.author.display_avatar,
         )
-        embed.add_field(name="Members checked: ", value=checked_members, inline=False)
-        embed.add_field(name="Members changed: ", value=changed_members, inline=False)
         
-        channel = disnake.utils.get(inter.guild.channels, name = "waca-guard-audit")
+        channel = disnake.utils.get(inter.guild.channels, name="waca-guard-audit")
+
+        success_embed = await statbed.create_success_embed(
+            title=f"Verified {checked_members} members!",
+            footer="WACA-Guard"
+        )
+        success_embed.timestamp = datetime.now()
+        
+        success_embed.set_footer(
+            text="WACA-Guard",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+        )
         await channel.send(embed=embed)
-        await inter.edit_original_response(f"Done! Verified {checked_members} members.")
+        await inter.edit_original_response(embed=success_embed)
 
     @slash_command(name="verify", description="Verify a user in NETWACA", guild_ids=[1117508209884799026])
     async def verify(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, server: str = Param(choices=["Character SMP", "Tortopia", "Parabellum", "SMPWACA"]), position: str = Param(choices=["Network Oversight Council", "Network Director", "Network Advisor", "Server Owner", "Server Management", "Server Staff"])):
-        await inter.response.defer(with_message = True,ephemeral=False)
+        await inter.response.defer(with_message=True, ephemeral=False)
         unverified_role = disnake.utils.get(inter.guild.roles, name="Unverified")
         wick_verified_role = disnake.utils.get(inter.guild.roles, name="Wick Verified")
         verified_role = disnake.utils.get(inter.guild.roles, name="Verified")
@@ -83,16 +97,29 @@ Check out {joinChan.mention} for information on how to join the minecraft server
             position_role = disnake.utils.get(inter.guild.roles, name=position)
             await user.add_roles(server_role)
             await user.add_roles(position_role)
-            await inter.edit_original_response(f"Done! Verified {user}.")
-    def sanitize_username(self,username):
+            success_embed = await statbed.create_success_embed(
+                title="User Verified",
+                description=f"Successfully verified {user.mention}.",
+                footer="WACA-Guard"
+            )
+            await inter.edit_original_response(embed=success_embed)
+
+    def sanitize_username(self, username):
         normalized = unicodedata.normalize('NFKD', username)
         sanitized = ''.join(c for c in normalized if not unicodedata.combining(c))
         return sanitized
+
     @slash_command(description="Normalize a username")
     async def sanitize(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User):
-        await inter.response.defer(with_message = True,ephemeral=False)
+        await inter.response.defer(with_message=True, ephemeral=False)
         sanitized_username = self.sanitize_username(user.display_name)
         await user.edit(nick=sanitized_username)
-        await inter.edit_original_response(f"Done! Sanitized {user}.")
+        success_embed = await statbed.create_success_embed(
+            title="Username Sanitized",
+            description=f"Successfully sanitized {user.mention}'s username.",
+            footer="WACA-Guard"
+        )
+        await inter.edit_original_response(embed=success_embed)
+
 def setup(bot: Bot) -> None:
-    bot.add_cog(Ping(bot))
+    bot.add_cog(on_verification(bot))

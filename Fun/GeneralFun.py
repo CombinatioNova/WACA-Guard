@@ -21,9 +21,20 @@ class FunCog(commands.Cog):
             setup = joke_data['setup']
             punchline = joke_data['punchline']
             joke = f"{setup}\n\n{punchline}"
-            await inter.response.send_message(joke)
+            embed = disnake.Embed(title="Random Joke", description=joke, color=disnake.Color.blue())
+            await inter.response.send_message(embed=embed)
         else:
-            await inter.response.send_message("Oops! Failed to fetch a joke.")
+            error_embed = disnake.Embed(
+                title="Error",
+                color=0xffa500,
+                description="Oops! Failed to fetch a joke.",
+                timestamp=datetime.now()
+            )
+            error_embed.set_author(
+                name="Request Failed",
+                icon_url="https://cdn.discordapp.com/attachments/1125481298367094836/1261748715689873548/Warning4x.png?ex=6694168f&is=6692c50f&hm=c42b3a33842363358b8a96f7a7676e0cddbcbca236e45ed877d1dccade84b665&"
+            )
+            await inter.response.send_message(embed=embed)
 
     @commands.slash_command(
         name='cat',
@@ -99,7 +110,12 @@ class FunCog(commands.Cog):
         
             await inter.response.send_message(embed=embed)
         else:
-            await inter.response.send_message("Oops! Failed to fetch a cat image.")
+            embed = disnake.Embed(
+                title="Error",
+                description="Oops! Failed to fetch a cat image.",
+                color=disnake.Color.red()
+            )
+            await inter.response.send_message(embed=embed)
 
     @commands.slash_command(
         name='dog',
@@ -179,61 +195,7 @@ class FunCog(commands.Cog):
 
     
 
-    @commands.slash_command(
-        name='rps',
-        description='Play Rock-Paper-Scissors',
-        options=[
-            disnake.Option(
-                name='choice',
-                description='Your choice (rock, paper, or scissors)',
-                type=disnake.OptionType.string,
-                required=True,
-                choices=[
-                    disnake.OptionChoice(name='Rock', value='rock'),
-                    disnake.OptionChoice(name='Paper', value='paper'),
-                    disnake.OptionChoice(name='Scissors', value='scissors')
-                ]
-            )
-        ]
-    )
-    async def rock_paper_scissors(self, inter: disnake.ApplicationCommandInteraction, choice: str):
-        """
-        Play Rock-Paper-Scissors
-        """
-        choices = ['rock', 'paper', 'scissors']
-        bot_choice = random.choice(choices)
-
-        result = ""
-        if choice == bot_choice:
-            result = "It's a tie!"
-        elif (
-            (choice == 'rock' and bot_choice == 'scissors') or
-            (choice == 'paper' and bot_choice == 'rock') or
-            (choice == 'scissors' and bot_choice == 'paper')
-        ):
-            result = "You win!"
-        else:
-            result = "You lose!"
-
-            
-        if result == "You win!":
-            embed = disnake.Embed(title=result, color = disnake.Color.green())
-            
-        elif result == "You lose!":
-            embed = disnake.Embed(title=result, color = disnake.Color.red())
-            
-        else:
-            embed = disnake.Embed(title=result, color = disnake.Color.blue())
-            
-        embed.set_author( # Narcissism
-            name="Rock, Paper, Scissors"
-        )
-        embed.description=f"""
-**Your choice:** {choice}
-
-**My choice:** {bot_choice}
-"""
-        await inter.response.send_message(embed=embed)
+   
 
     @commands.Cog.listener()
     async def on_button_click(self, inter):

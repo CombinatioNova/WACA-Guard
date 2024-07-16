@@ -4,11 +4,13 @@ from disnake import ApplicationCommandInteraction
 import sqlite3
 from datetime import datetime
 import re
+import os
+
 
 class QuotesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db_connection = sqlite3.connect('reacted_messages.db')
+        self.db_connection = sqlite3.connect(os.path.join('databases', 'reacted_messages.db'))
         self.create_table()
 
     def create_table(self):

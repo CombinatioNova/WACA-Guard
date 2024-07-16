@@ -10,26 +10,27 @@ class DMListener(Cog):
 
     def __init__(self, bot: Bot):
         self.bot = bot
+
     @Cog.listener()
     async def on_message(self, message):
         bot = self.bot
-        if message.channel.type == disnake.ChannelType.private:
+        if message.channel.type == disnake.ChannelType.private and not message.author.bot:
             try:
                 log = disnake.Embed(
-                title=f"{message.author} has sent a dm!", # Smart or smoothbrain?????
-                color=5639085, # I KNOW ITS A MAGIC NUMBER SHUT THE FUCK UP
-                timestamp=datetime.now(), #Get the datetime... now...
-            )
+                    title=f"{message.author} has sent a dm!",
+                    color=5639085,
+                    timestamp=datetime.now(),
+                )
             
-                log.set_author( # Narcissism
-                name="SMPWACA Moderation",
-                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
-            )
+                log.set_author(
+                    name="SMPWACA Moderation",
+                    icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+                )
 
-                log.set_footer( # Show the moderator
-                text=f"Sent by {message.author.name}",
-                icon_url=message.author.display_avatar,
-            )
+                log.set_footer(
+                    text=f"Sent by {message.author.name}",
+                    icon_url=message.author.display_avatar,
+                )
 
                 log.set_thumbnail(message.author.display_avatar)
 
@@ -51,5 +52,6 @@ class DMListener(Cog):
                 print(f"Error getting DM from {message.author}! {e}")
             else:
                 return
+
 def setup(bot: Bot) -> None:
     bot.add_cog(DMListener(bot))  

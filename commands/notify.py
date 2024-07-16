@@ -6,6 +6,28 @@ from datetime import datetime
 class notify(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
+
+    @slash_command(description="Post a notification in this channel")
+    async def alert(self, inter: disnake.ApplicationCommandInteraction, title: str, content: str):
+        await inter.response.defer(with_message = True,ephemeral=True)
+## STANDARD SUCCESS TEMPLATE ##
+        success = await statbed.success(f"Alert sent to: {inter.channel.name}")
+        
+        embed = disnake.Embed(
+            title=title,
+            color=0xffa500,
+            description = content,
+            timestamp=datetime.now())
+        embed.set_author(
+            name="WACA-Guard Alert",
+            icon_url="https://cdn.discordapp.com/emojis/1109510616206557254.webp?size=128&quality=lossless"
+            )
+        embed.set_footer(
+            text = f"Sent by {inter.author.display_name}",
+            icon_url=inter.author.display_avatar
+        )
+        await inter.channel.send(embed=embed)
+        await inter.edit_original_response(embed=success)
     @slash_command(description="Notify someone")
     async def notify(self, inter: disnake.ApplicationCommandInteraction, user: disnake.User, notification: str):
         
@@ -122,4 +144,4 @@ class notify(Cog):
                     await channel.send(embed=embed)
             await inter.send("Notification has been sent to the staff team. Thank you for notifying us that you've recieved this message.")
 def setup(bot: Bot) -> None:
-    bot.add_cog(Ping(bot))            
+    bot.add_cog(notify(bot))            

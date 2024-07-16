@@ -67,10 +67,34 @@ We appreciate your time and effort in the application process and wish you the b
           
             await inter.response.send_message(embed=log, ephemeral = True)
             pass
-        await inter.edit_original_response(f"Sent an acceptance message to {user}!")
+        success = disnake.Embed(
+            title=f"Denial message sent to {user}!",
+            color=disnake.Colour.green(),
+            timestamp=datetime.now())
+        success.set_author(
+            name="Operation Completed Successfully",
+            icon_url="https://cdn.discordapp.com/attachments/1126547281081016482/1261812933642686565/check_circle_24dp_FFFFFF_FILL0_wght700_GRAD200_opsz48.png?ex=6694525e&is=669300de&hm=f3360b2b77301a628ec46b20bb1a4a58359becc04afa512e3f49f3386a2ae7ce&"
+            )
+        success.set_footer(
+            text = f"WACA-Guard",
+            icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+        )
+        await inter.edit_original_response(embed = success)
         channel = disnake.utils.get(user.guild.channels, name = "training-resources")
         if inter.channel.id != channel:
-            await channel.send(f"Sent an acceptance message to {user}")
+            success = disnake.Embed(
+                title=f"Denial message sent to {user}!",
+                color=disnake.Colour.red(),
+                timestamp=datetime.now())
+            success.set_author(
+                name="Operation Completed Successfully!",
+                icon_url="https://cdn.discordapp.com/attachments/1126547281081016482/1261812933642686565/check_circle_24dp_FFFFFF_FILL0_wght700_GRAD200_opsz48.png?ex=6694525e&is=669300de&hm=f3360b2b77301a628ec46b20bb1a4a58359becc04afa512e3f49f3386a2ae7ce&"
+                )
+            success.set_footer(
+                text = f"WACA-Guard",
+                icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png",
+            )
+            await channel.send(embed = success)
         else:
             pass
     
