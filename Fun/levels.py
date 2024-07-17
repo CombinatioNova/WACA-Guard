@@ -2,6 +2,7 @@ import disnake
 from disnake.ext import commands
 import sqlite3
 import asyncio
+import math
 
 class LevelCog(commands.Cog):
     def __init__(self, bot):
@@ -67,11 +68,14 @@ class LevelCog(commands.Cog):
 
         if result:
             xp, level = result
+            next_level_xp = (level + 1) ** 4
+            xp_until_next_level = next_level_xp - xp
             embed = disnake.Embed(
                 title="Your Level and XP",
                 description=f"{inter.author.mention}, you are currently level {level} with {xp} XP.",
                 color=disnake.Color.blue()
             )
+            embed.add_field(name="XP Until Next Level", value=f"{xp_until_next_level} XP", inline=False)
         else:
             embed = disnake.Embed(
                 title="No XP Yet",
@@ -80,6 +84,4 @@ class LevelCog(commands.Cog):
             )
 
         await inter.response.send_message(embed=embed)
-
-
 

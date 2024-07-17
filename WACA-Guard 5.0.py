@@ -736,7 +736,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         from ServerStats import Status
         from onboarding import ServerSetup,JoinsAndLeaves, vouching
         vprint("Addicting Children to Gambling...")
-        from Fun import Gambling
+        from Fun import Gambling, private_casino, sweatshop,transfer
         vprint("Completed!")
     from onboarding import tickets
     from Fun import levels
@@ -963,8 +963,21 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         vouchingOn = "Online :green_circle:"
     except:
         vouchingOn = "Offline :red_circle:"
-
-    
+    try:
+        bot.add_cog(private_casino.PrivateCasino(bot))
+        privateCasino = "Online :green_circle:"
+    except:
+        privateCasino = "Offline :red_circle:"
+    try:
+        bot.add_cog(sweatshop.Sweatshop(bot))
+        sweatshopOn = "Online :green_circle:"
+    except:
+        sweatshopOn = "Offline :red_circle:"
+    try:
+        bot.add_cog(transfer.Transfer(bot))
+        transferOn = "Online :green_circle:"
+    except:
+        transferOn = "Offline :red_circle:"
 
 
     @bot.slash_command(description="WACA-Guard Information")
@@ -1020,6 +1033,9 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         e.add_field(name="Gambling", value=f"{gamblingOn}")
         e.add_field(name="Levels", value=f"{levelsOn}")
         e.add_field(name="Vouching", value=f"{vouchingOn}")
+        e.add_field(name="Private Casino", value=f"{privateCasino}")
+        e.add_field(name="Sweatshop", value=f"{sweatshopOn}")
+        e.add_field(name="Transfer", value=f"{transferOn}")
         appeal = Button(label='Appeals Link', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
         
         await inter.response.send_message(embeds=[embed, e], components = [appeal])

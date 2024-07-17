@@ -19,7 +19,7 @@ async def create_alert_embed(title: str, description: str = "", footer: Optional
         text=footer if footer else "WACA-Guard",
         icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
     )
-    embed.set_author(name="Alert!", icon_url="https://cdn.discordapp.com/emojis/1109510616206557254.webp?size=128&quality=lossless")
+    embed.set_author(name="Notice!", icon_url="https://cdn.discordapp.com/emojis/1109510616206557254.webp?size=128&quality=lossless")
     return embed
 
 alert = create_alert_embed

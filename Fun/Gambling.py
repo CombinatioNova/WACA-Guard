@@ -65,8 +65,7 @@ class Roulette(commands.Cog):
 
         embed = disnake.Embed(title="<:Cards:1262085399938076762> Roulette", color=disnake.Color.blue())
         embed.add_field(name="WACA-Bucks", value=f"{money}", inline=True)
-        embed.add_field(name="Loan", value=f"{loan}", inline=True)
-        embed.add_field(name="Interest", value=f"{loan_interest:.2f}", inline=True)
+        embed.add_field(name="Debt", value=f"{loan + loan_interest:.2f}", inline=True)
         embed.set_footer(text=f"{inter.author.display_name}'s Game", icon_url=inter.author.display_avatar.url)
         components = [
             disnake.ui.Button(emoji="⚫", custom_id="black"),
@@ -85,7 +84,7 @@ class Roulette(commands.Cog):
         await self.ensure_user_exists(user_id, guild_id)
 
         # Connect to the levels database
-        levels_conn = sqlite3.connect('databases/levels.db')
+        levels_conn = sqlite3.connect(os.path.join('databases', 'levels.db'))
         levels_cursor = levels_conn.cursor()
 
         # Fetch user XP and level from levels database
@@ -96,15 +95,15 @@ class Roulette(commands.Cog):
             user_xp, user_level = result
             embed = disnake.Embed(
                 title="Exchange XP for WACA-Bucks",
-                description=f"You currently have {user_xp} XP. The exchange rate is 10 XP for 1 WACA-Buck.",
+                description="The exchange rate is 10 XP for 1 WACA-Buck.",
                 color=disnake.Color.blue()
             )
             embed.set_author(name="WACA-Bank Currency Exchange", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262126386060198079/CExchange.png?ex=6695764b&is=669424cb&hm=bc2167697ad828f04fe0265c93fb5fa1c20f5f390eac7a53712d02e4f16d7f63&")
             embed.add_field(name="Current XP", value=f"{user_xp}", inline=True)
             embed.add_field(name="Exchange Rate", value="10 XP = 1 WACA-Buck", inline=True)
             components = [
-                disnake.ui.Button(label="Exchange", custom_id="exchange_xp_confirm", style=disnake.ButtonStyle.success),
-                disnake.ui.Button(label="Cancel", custom_id="exchange_xp_cancel", style=disnake.ButtonStyle.danger)
+                disnake.ui.Button(emoji="<:CurrencyExchange:1262116791539335311>",label="Exchange", custom_id="exchange_xp_confirm", style=disnake.ButtonStyle.success),
+                disnake.ui.Button(emoji="<:whitex:1263028345721851924>",label="Cancel", custom_id="exchange_xp_cancel", style=disnake.ButtonStyle.danger)
             ]
             await inter.response.send_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
         else:
@@ -185,7 +184,93 @@ class Roulette(commands.Cog):
                 )
                 await inter.response.edit_message(embed=embed, components=[])
                 levels_conn.close()
+        elif inter.custom_id == "pay_loan_modal":
+            user_id = inter.author.id
+            guild_id = inter.guild.id
+            cursor.execute('SELECT money, loan, loan_interest, wins, losses FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+            user = cursor.fetchone()
+            if user is None:
+                return await inter.send("You need to run the /roulette command first.", ephemeral=True)
 
+            money, loan, loan_interest, wins, losses = user
+            try:
+                payment_amount = float(inter.text_values["payment_amount"])
+            except ValueError:
+                return await inter.response.send_message("Please enter a valid number for the payment amount.", ephemeral=True)
+
+            
+
+            cursor.execute('SELECT money, loan, loan_interest FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+            user = cursor.fetchone()
+            if user is None:
+                return await inter.response.send_message("You don't have any loans.", ephemeral=True)
+
+            money, loan, loan_interest = user
+            total_debt = loan + loan_interest
+
+            if payment_amount > money:
+                return await inter.response.send_message("You don't have enough WACA-Bucks to make this payment.", ephemeral=True)
+
+            if payment_amount > total_debt:
+                payment_amount = total_debt
+
+            # Pay off the loan
+            money -= payment_amount
+            if payment_amount > loan_interest:
+                loan -= (payment_amount - loan_interest)
+                loan_interest = 0
+            else:
+                loan_interest -= payment_amount
+
+            cursor.execute('UPDATE gambling SET money = ?, loan = ?, loan_interest = ? WHERE user_id = ? AND guild_id = ?', 
+                           (money, loan, loan_interest, user_id, guild_id))
+            conn.commit()
+
+            embed = disnake.Embed(
+                title="Loan Payment Successful",
+                description=f"You have successfully paid {payment_amount:.2f} WACA-Bucks towards your loan.",
+                color=disnake.Color.green()
+            )
+            embed.add_field(name="Remaining Loan", value=f"{loan:.2f}", inline=True)
+            embed.add_field(name="Remaining Interest", value=f"{loan_interest:.2f}", inline=True)
+            embed.add_field(name="Current WACA-Bucks", value=f"{money:.2f}", inline=True)
+            await inter.response.edit_message(embed=embed, components=[])
+        # Handle the custom loan modal submission
+        elif inter.custom_id == "custom_loan_modal":
+            user_id = inter.author.id
+            guild_id = inter.guild.id
+
+            # Fetch current user data
+            cursor.execute('SELECT money, loan FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+            user_data = cursor.fetchone()
+            if user_data is None:
+                return await inter.response.send_message("You need to play some games first before taking a loan.", ephemeral=True)
+
+            current_money, current_loan = user_data
+
+            loan_amount = inter.text_values["loan_amount"]
+            try:
+                loan_amount = int(loan_amount)
+                if loan_amount <= 0 or loan_amount > 1000:
+                    raise ValueError
+            except ValueError:
+                await inter.response.send_message("Please enter a valid loan amount between 1 and 1000.", ephemeral=True)
+                return
+
+            # Process the custom loan
+            new_loan = current_loan + loan_amount
+            new_money = current_money + loan_amount
+            cursor.execute('UPDATE gambling SET loan = ?, money = ? WHERE user_id = ? AND guild_id = ?', (new_loan, new_money, user_id, guild_id))
+            conn.commit()
+
+            embed = disnake.Embed(
+                title="Custom Loan Approved",
+                description=f"You have been granted a loan of {loan_amount} WACA-Bucks.",
+                color=disnake.Color.green()
+            )
+            embed.add_field(name="New Balance", value=f"{new_money:.2f} WACA-Bucks", inline=True)
+            embed.add_field(name="Total Loan", value=f"{new_loan:.2f} WACA-Bucks", inline=True)
+            await inter.response.edit_message(embed=embed, components=[])
     @commands.slash_command()
     async def loan(self, inter: disnake.ApplicationCommandInteraction):
         user_id = inter.author.id
@@ -193,24 +278,43 @@ class Roulette(commands.Cog):
 
         await self.ensure_user_exists(user_id, guild_id)
 
+        # Connect to the levels database
+        levels_conn = sqlite3.connect(os.path.join('databases', 'levels.db'))
+        levels_cursor = levels_conn.cursor()
+
+        # Fetch user XP and level from levels database
+        levels_cursor.execute('SELECT xp, level FROM levels WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+        result = levels_cursor.fetchone()
+
+        if result:
+            user_xp, user_level = result
+            max_loan = user_level * 100  # Max loan is 100 times the user's level
+        else:
+            user_level = 1
+            max_loan = 100
+
+        levels_conn.close()
+
         # Create the loan confirmation embed
-        embed = disnake.Embed(title="Loan Confirmation", description="Are you sure you would like a loan?",color=0xffa500)
+        embed = disnake.Embed(title="Loan Options", description="Choose a loan amount or enter a custom amount.", color=0xffa500)
         embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
         
-        embed.add_field(name="Loan Amount", value="100 WACA-Bucks", inline=False)
+        embed.add_field(name="Default Loan Amount", value="100 WACA-Bucks", inline=False)
+        embed.add_field(name="Maximum Loan Amount", value=f"{max_loan} WACA-Bucks", inline=False)
         embed.add_field(name="Interest Rate", value="20%", inline=False)
-        embed.set_footer(text=f"{inter.author.display_name}'s Session", icon_url=inter.author.display_avatar.url)
+        embed.set_footer(text=f"{inter.author.display_name}'s Session | Level: {user_level}", icon_url=inter.author.display_avatar.url)
 
         components = [
-            disnake.ui.Button(label="Yes", custom_id="loan_yes",style=disnake.ButtonStyle.success),
-            disnake.ui.Button(label="No", custom_id="loan_no",style=disnake.ButtonStyle.danger)
+            disnake.ui.Button(emoji="<:Credit:1263027887372636210>",label="100 WACA-Bucks", custom_id="loan_100", style=disnake.ButtonStyle.primary),
+            disnake.ui.Button(emoji="<:CreditGear:1263029129696251947>",label="Custom Amount", custom_id="loan_custom", style=disnake.ButtonStyle.success),
+            disnake.ui.Button(emoji="<:whitex:1263028345721851924>",label="Cancel", custom_id="loan_cancel", style=disnake.ButtonStyle.danger)
         ]
 
         await inter.response.send_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
 
     @commands.Cog.listener()
     async def on_button_click(self, inter: disnake.MessageInteraction):
-        if inter.component.custom_id not in ['loan_yes', 'loan_no', 'black', 'red', 'bet_10', 'bet_20', 'bet_50', 'bet_100', 'rps_wager_10', 'rps_wager_20', 'rps_wager_50', 'rps_wager_100', 'rps_rock', 'rps_paper', 'rps_scissors']:
+        if inter.component.custom_id not in ['confirm_all_in','cancel_all_in','bet_all','pay_loan_modal', 'loan_yes', 'loan_no', 'black', 'red', 'bet_10', 'bet_20', 'bet_50', 'bet_100', 'rps_wager_10', 'rps_wager_20', 'rps_wager_50', 'rps_wager_100', 'rps_rock', 'rps_paper', 'rps_scissors', 'exchange_xp_confirm', 'exchange_xp_cancel', 'bank_loan', 'bank_exchange', 'bank_back', 'loan_100', 'loan_custom', 'loan_cancel']:
             return
 
         user_id = inter.author.id
@@ -224,8 +328,168 @@ class Roulette(commands.Cog):
             return await inter.send("You need to run the /roulette command first.", ephemeral=True)
 
         money, loan, loan_interest, wins, losses = user
+        if inter.component.custom_id == 'loan_cancel':
+            embed = disnake.Embed(title="Loan Cancelled", description="You have cancelled the loan request.", color=0xff0000)
+            embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
+            embed.set_footer(text=f"{inter.author.display_name}'s Session", icon_url=inter.author.display_avatar.url)
+            await inter.response.edit_message(embed=embed, components=[])
+            return
+        if inter.component.custom_id == 'loan_100':
+            loan_amount = 100
+            new_loan = loan + loan_amount
+            new_money = money + loan_amount
+            new_loan_interest = loan_interest + int(loan_amount * 0.2)  # 20% interest
 
-        if inter.component.custom_id == 'loan_yes':
+            cursor.execute('UPDATE gambling SET money = ?, loan = ?, loan_interest = ? WHERE user_id = ? AND guild_id = ?',
+                           (new_money, new_loan, new_loan_interest, user_id, guild_id))
+            conn.commit()
+
+            embed = disnake.Embed(title="Loan Approved", color=0x00ff00)
+            embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
+            embed.add_field(name="Loan Amount", value=f"{loan_amount} WACA-Bucks", inline=False)
+            embed.add_field(name="New Balance", value=f"{new_money} WACA-Bucks", inline=False)
+            embed.add_field(name="Total Loan", value=f"{new_loan} WACA-Bucks", inline=False)
+            embed.add_field(name="Interest to Pay", value=f"{new_loan_interest} WACA-Bucks", inline=False)
+            embed.set_footer(text=f"{inter.author.display_name}'s Loan | Remember to repay!", icon_url=inter.author.display_avatar.url)
+
+            await inter.response.edit_message(embed=embed, components=[])
+            return
+        if inter.component.custom_id == 'loan_custom':
+            # Create a modal for custom loan amount
+            modal = disnake.ui.Modal(
+                title="Custom Loan Amount",
+                custom_id="custom_loan_modal",
+                components=[
+                    disnake.ui.TextInput(
+                        label="Enter loan amount",
+                        custom_id="loan_amount",
+                        style=disnake.TextInputStyle.short,
+                        placeholder="Enter amount",
+                        max_length=4
+                    )
+                ]
+            )
+            await inter.response.send_modal(modal)
+            return
+
+        
+
+        if inter.component.custom_id == 'bank_loan':
+            user_id = inter.author.id
+            guild_id = inter.guild.id
+
+            await self.ensure_user_exists(user_id, guild_id)
+
+            # Connect to the levels database
+            levels_conn = sqlite3.connect(os.path.join('databases', 'levels.db'))
+            levels_cursor = levels_conn.cursor()
+            # Fetch user XP and level from levels database
+            levels_cursor.execute('SELECT xp, level FROM levels WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+            result = levels_cursor.fetchone()
+
+            if result:
+                user_xp, user_level = result
+                max_loan = user_level * 100  # Max loan is 100 times the user's level
+            else:
+                user_level = 1
+                max_loan = 100
+
+            levels_conn.close()
+            # Create the loan confirmation embed
+            embed = disnake.Embed(title="Loan Options", description="Choose a loan amount or enter a custom amount.", color=0xffa500)
+            embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
+            
+            embed.add_field(name="Default Loan Amount", value="100 WACA-Bucks", inline=False)
+            embed.add_field(name="Maximum Loan Amount", value=f"{max_loan} WACA-Bucks", inline=False)
+            embed.add_field(name="Interest Rate", value="20%", inline=False)
+            embed.set_footer(text=f"{inter.author.display_name}'s Session | Level: {user_level}", icon_url=inter.author.display_avatar.url)
+
+            components = [
+                disnake.ui.Button(emoji="<:Credit:1263027887372636210>",label="100 WACA-Bucks", custom_id="loan_100", style=disnake.ButtonStyle.primary),
+                disnake.ui.Button(emoji="<:CreditGear:1263029129696251947> ",label="Custom Amount", custom_id="loan_custom", style=disnake.ButtonStyle.success),
+                disnake.ui.Button(emoji="<:whitex:1263028345721851924>",label="Cancel", custom_id="loan_cancel", style=disnake.ButtonStyle.danger)
+            ]
+
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
+
+        elif inter.component.custom_id == 'bank_exchange':
+            try:
+                user_id = inter.author.id
+                guild_id = inter.guild.id
+
+                await self.ensure_user_exists(user_id, guild_id)
+
+                # Connect to the levels database
+                levels_conn = sqlite3.connect(os.path.join('databases', 'levels.db'))
+                levels_cursor = levels_conn.cursor()
+
+                try:
+                    # Fetch user XP and level from levels database
+                    levels_cursor.execute('SELECT xp, level FROM levels WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+                    result = levels_cursor.fetchone()
+
+                    if result:
+                        user_xp, user_level = result
+                        embed = disnake.Embed(
+                            title="XP Exchange",
+                            description="Would you like to exchange your XP for WACA-Bucks?",
+                            color=disnake.Color.blue()
+                        )
+                        embed.set_author(name="WACA-Bank Currency Exchange", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262126386060198079/CExchange.png?ex=6695764b&is=669424cb&hm=bc2167697ad828f04fe0265c93fb5fa1c20f5f390eac7a53712d02e4f16d7f63&")
+                        embed.add_field(name="Current XP", value=f"{user_xp}", inline=True)
+                        embed.add_field(name="Exchange Rate", value="10 XP = 1 WACA-Buck", inline=True)
+                        components = [
+                            disnake.ui.Button(emoji="<:check:1263028346938458142>",label="Confirm", custom_id="exchange_xp_confirm", style=disnake.ButtonStyle.success),
+                            disnake.ui.Button(emoji="<:whitex:1263028345721851924>",label="Cancel", custom_id="exchange_xp_cancel", style=disnake.ButtonStyle.danger),
+                            disnake.ui.Button(emoji="<:BackArrow:1261797643487805440>",label="Back", custom_id="bank_back", style=disnake.ButtonStyle.secondary)
+                        ]
+
+                        await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
+                    else:
+                        await inter.response.send_message("You don't have any XP to exchange.", ephemeral=True)
+                except sqlite3.Error as e:
+                    await inter.response.send_message(f"An error occurred while fetching your XP: {str(e)}", ephemeral=True)
+                finally:
+                    levels_conn.close()
+            except Exception as e:
+                await inter.response.send_message(f"An unexpected error occurred: {str(e)}", ephemeral=True)
+        elif inter.component.custom_id == 'pay_loan_modal':
+            try:
+                modal = disnake.ui.Modal(
+                    title="Pay Loan",
+                    custom_id="pay_loan_modal",
+                    components=[
+                        disnake.ui.TextInput(
+                            label="Payment Amount",
+                            custom_id="payment_amount",
+                            style=disnake.TextInputStyle.short,
+                            placeholder="Enter the amount to pay towards your loan",
+                            required=True
+                        )
+                    ]
+                )
+                await inter.response.send_modal(modal)
+            except Exception as e:
+                error_embed = disnake.Embed(
+                    title="Error",
+                    description=f"An error occurred while processing your request: {str(e)}",
+                    color=disnake.Color.red()
+                )
+                await inter.response.send_message(embed=error_embed, ephemeral=True)
+
+        elif inter.component.custom_id == 'bank_back':
+            embed = disnake.Embed(title="WACA-Bank", description="Welcome to WACA-Bank. What would you like to do?", color=disnake.Color.blue())
+            embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
+            
+            components = [
+                disnake.ui.Button(emoji="<:Credit:1263027887372636210>", label="Get a Loan", custom_id="bank_loan", style=disnake.ButtonStyle.primary),
+                disnake.ui.Button(emoji="<:CurrencyExchange:1262116791539335311>", label="Exchange XP", custom_id="bank_exchange", style=disnake.ButtonStyle.primary),
+                disnake.ui.Button(emoji="<:CreditCheck:1263027888186196050>", label="Pay Loan", custom_id="pay_loan_modal", style=disnake.ButtonStyle.success)
+            ]
+
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
+
+        elif inter.component.custom_id == 'loan_yes':
             # Give a loan of 100 WACA-Bucks
             cursor.execute('UPDATE gambling SET money = money + 100, loan = loan + 100 WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
             conn.commit()
@@ -237,30 +501,133 @@ class Roulette(commands.Cog):
             embed = disnake.Embed(title="Loan Granted", description="You have received a loan.", color = disnake.Colour.green())
             embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
         
-            embed.add_field(name="New WACA-Bucks Amount", value=f"{money}", inline=False)
-            embed.add_field(name="Loan", value=f"{loan}", inline=True)
-            embed.add_field(name="Interest", value=f"{loan_interest:.2f}", inline=True)
-            await inter.response.edit_message(embed=embed, components=[])
+            embed.add_field(name="WACA-Bucks", value=f"{money}", inline=True)
+            embed.add_field(name="Debt", value=f"{loan + loan_interest:.2f}", inline=True)
+            
+            components = [
+                disnake.ui.Button(emoji="<:BackArrow:1261797643487805440>",label="Back", custom_id="bank_back", style=disnake.ButtonStyle.secondary)
+            ]
+            
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
 
         elif inter.component.custom_id == 'loan_no':
             embed = disnake.Embed(title="Loan Canceled", description="You have canceled the loan request.", color = disnake.Colour.red())
             embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
         
-            await inter.response.edit_message(embed=embed, components=[])
+            components = [
+                disnake.ui.Button(emoji="<:BackArrow:1261797643487805440>",label="Back", custom_id="bank_back", style=disnake.ButtonStyle.secondary)
+            ]
+            
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
+
+        elif inter.component.custom_id == "exchange_xp_confirm":
+            print("triggered")
+            modal = disnake.ui.Modal(
+                title="Exchange XP",
+                custom_id="exchange_xp_modal",
+                components=[
+                    disnake.ui.TextInput(
+                        label="XP Amount",
+                        custom_id="xp_amount",
+                        style=disnake.TextInputStyle.short,
+                        placeholder="Enter the amount of XP to exchange",
+                        required=True
+                    )
+                ]
+            )
+            await inter.response.send_modal(modal)
+        elif inter.component.custom_id == "exchange_xp_cancel":
+            embed = disnake.Embed(
+                title="XP Exchange Cancelled",
+                description="You have cancelled the XP exchange.",
+                color=disnake.Color.red()
+            )
+            components = [
+                disnake.ui.Button(emoji="<:BackArrow:1261797643487805440>",label="Back", custom_id="bank_back", style=disnake.ButtonStyle.secondary)
+            ]
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
 
         elif inter.component.custom_id in ['black', 'red']:
             # Store the user's color choice
             self.user_choices[user_id] = inter.component.custom_id
-            embed = disnake.Embed(title="Choose your bet", description=f"You have {money} WACA-Bucks.", color=disnake.Color.blue())
+            embed = disnake.Embed(title="Choose your bet", color=disnake.Color.blue())
+            embed.add_field(name="WACA-Bucks", value=f"{money}", inline=True)
             embed.set_author(name="WACA-Casino", icon_url="https://cdn.discordapp.com/emojis/1262085399938076762.webp?size=128&quality=lossless")
             components = [
                 disnake.ui.Button(label="10 WACA-Bucks", custom_id="bet_10",style=disnake.ButtonStyle.primary, emoji="💵"),
                 disnake.ui.Button(label="20 WACA-Bucks", custom_id="bet_20",style=disnake.ButtonStyle.primary, emoji="💸"),
                 disnake.ui.Button(label="50 WACA-Bucks", custom_id="bet_50",style=disnake.ButtonStyle.primary, emoji="💰"),
-                disnake.ui.Button(label="100 WACA-Bucks", custom_id="bet_100",style=disnake.ButtonStyle.primary, emoji="🏦")
+                disnake.ui.Button(label="100 WACA-Bucks", custom_id="bet_100",style=disnake.ButtonStyle.primary, emoji="🏦"),
+                disnake.ui.Button(label="All-In", custom_id="bet_all",style=disnake.ButtonStyle.danger, emoji="🎰")
             ]
             await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
 
+            
+
+        elif inter.component.custom_id == "bet_all":
+            embed = disnake.Embed(
+                title="⚠️ ALL-IN CONFIRMATION",
+                description=f"Are you sure you want to bet all your {money} WACA-Bucks?",
+                color=disnake.Color.gold()
+            )
+            embed.set_footer(text="This action cannot be undone!")
+            components = [
+                disnake.ui.Button(emoji="<:check:1263028346938458142>",label="Confirm", custom_id="confirm_all_in", style=disnake.ButtonStyle.danger),
+                disnake.ui.Button(emoji="<:whitex:1263028345721851924>",label="Cancel", custom_id="cancel_all_in", style=disnake.ButtonStyle.secondary)
+            ]
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
+        elif inter.component.custom_id == "confirm_all_in":
+            bet_amount = money
+            chosen_color = self.user_choices.get(user_id)
+            if not chosen_color:
+                return await inter.response.edit_message(content="An error occurred. Please start the game again.")
+
+            random_color = random.choice(['black', 'red'])
+            if chosen_color == random_color:
+                winnings = bet_amount
+                wins += 1
+                if loan > 0:
+                    repayment = min(int(winnings * 0.20), loan + loan_interest)
+                    winnings -= repayment
+                    if repayment >= loan:
+                        loan_interest -= (repayment - loan)
+                        loan = 0
+                    else:
+                        loan -= repayment
+                money += winnings
+                title = "🎉 ALL-IN WIN!"
+                description = f"Congratulations! You've doubled your money to {money} WACA-Bucks!"
+                if loan:
+                    description += f"\n{repayment} WACA-Bucks were used to repay your loan and interest."
+                color = disnake.Colour.green()
+            else:
+                losses += 1
+                money = 0
+                title = "💔 ALL-IN LOSS"
+                description = "Oh no! You've lost all your WACA-Bucks."
+                color = disnake.Colour.red()
+
+            cursor.execute('''
+                UPDATE gambling
+                SET money = ?, loan = ?, loan_interest = ?, times_played = times_played + 1, wins = ?, losses = ?
+                WHERE user_id = ? AND guild_id = ?
+            ''', (money, loan, loan_interest, wins, losses, user_id, guild_id))
+            conn.commit()
+
+            embed = disnake.Embed(title=title, description=description, color=color)
+            embed.set_author(name="WACA-Casino", icon_url="https://cdn.discordapp.com/emojis/1262085399938076762.webp?size=128&quality=lossless")
+            embed.add_field(name="WACA-Bucks", value=f"{money}", inline=True)
+            await inter.response.edit_message(embed=embed, components=[])
+
+        elif inter.component.custom_id == "cancel_all_in":
+            embed = disnake.Embed(title="All-In Cancelled", description="You've decided not to go all-in. Wise choice!", color=disnake.Color.blue())
+            embed.set_author(name="WACA-Casino", icon_url="https://cdn.discordapp.com/emojis/1262085399938076762.webp?size=128&quality=lossless")
+            embed.add_field(name="WACA-Bucks", value=f"{money}", inline=True)
+            components = [
+                disnake.ui.Button(emoji="<:Replay:1263030090917216276>",label="Play Again", custom_id="play_again", style=disnake.ButtonStyle.primary),
+                disnake.ui.Button(emoji="<:whitex:1263028345721851924>",label="Quit", custom_id="quit_game", style=disnake.ButtonStyle.secondary)
+            ]
+            await inter.response.edit_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
         elif "bet_" in inter.component.custom_id:
             bet_amount = int(inter.component.custom_id.split('_')[1])
             if bet_amount > money:
@@ -337,7 +704,39 @@ class Roulette(commands.Cog):
                 color=disnake.Color.red()
             )
             await inter.response.edit_message(embed=embed, components=[])
+        elif inter.component.custom_id == "pay_loan_modal":
+            modal = disnake.ui.Modal(
+                title="Pay Loan",
+                custom_id="pay_loan_modal",
+                components=[
+                    disnake.ui.TextInput(
+                        label="Payment Amount",
+                        custom_id="payment_amount",
+                        style=disnake.TextInputStyle.short,
+                        placeholder="Enter the amount to pay towards your loan",
+                        required=True
+                    )
+                ]
+            )
+            await inter.response.send_modal(modal)
 
+    @commands.slash_command()
+    async def bank(self, inter: disnake.ApplicationCommandInteraction):
+        user_id = inter.author.id
+        guild_id = inter.guild.id
+
+        await self.ensure_user_exists(user_id, guild_id)
+
+        embed = disnake.Embed(title="WACA-Bank", description="Welcome to WACA-Bank. What would you like to do?", color=disnake.Color.blue())
+        embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
+        
+        components = [
+            disnake.ui.Button(emoji="<:Credit:1263027887372636210>",label="Get a Loan", custom_id="bank_loan", style=disnake.ButtonStyle.primary),
+            disnake.ui.Button(emoji="<:CurrencyExchange:1262116791539335311>",label="Exchange XP", custom_id="bank_exchange", style=disnake.ButtonStyle.primary),
+            disnake.ui.Button(emoji="<:CreditCheck:1263027888186196050>",label="Pay Loan", custom_id="pay_loan_modal", style=disnake.ButtonStyle.success)
+        ]
+
+        await inter.response.send_message(embed=embed, components=[disnake.ui.ActionRow(*components)])
     @commands.slash_command()
     async def balance(self, inter: disnake.ApplicationCommandInteraction):
         user_id = inter.author.id
@@ -369,19 +768,21 @@ class Roulette(commands.Cog):
     async def leaderboard(self, inter: disnake.ApplicationCommandInteraction, category: str = Param(
             choices=[
                 "WACA-Bucks",
-                "XP"
+                "XP",
+                "Debt"
             ]
         )):
         guild_id = inter.guild.id
         if category == "WACA-Bucks":
-            cursor.execute('SELECT user_id, money FROM gambling WHERE guild_id = ? ORDER BY money DESC LIMIT 5', (guild_id,))
+            cursor.execute('SELECT user_id, money, loan FROM gambling WHERE guild_id = ? ORDER BY (money - loan) DESC LIMIT 5', (guild_id,))
             top_users = cursor.fetchall()
 
-            embed = disnake.Embed(title="Top 5 Players", description="Here are the top 5 players with the most WACA-Bucks:", color=disnake.Color.gold())
+            embed = disnake.Embed(title="Top 5 Players", description="Here are the top 5 players with the highest net worth (WACA-Bucks - Debt):", color=disnake.Color.gold())
             embed.set_author(name="WACA-Casino", icon_url="https://cdn.discordapp.com/emojis/1262085399938076762.webp?size=128&quality=lossless")
-            for i, (user_id, money) in enumerate(top_users, 1):
+            for i, (user_id, money, loan) in enumerate(top_users, 1):
                 user = await self.bot.fetch_user(user_id)
-                embed.add_field(name=f"{i}. {user.name}", value=f"{money} WACA-Bucks", inline=False)
+                net_worth = money - loan
+                embed.add_field(name=f"{i}. {user.name}", value=f"Net Worth: {net_worth} WACA-Bucks", inline=False)
 
         elif category == "XP":
             levels_conn = sqlite3.connect('databases/levels.db')
@@ -396,8 +797,19 @@ class Roulette(commands.Cog):
                 user = await self.bot.fetch_user(user_id)
                 embed.add_field(name=f"{i}. {user.name}", value=f"{xp} XP", inline=False)
 
+        elif category == "Debt":
+            cursor.execute('SELECT user_id, loan, loan_interest FROM gambling WHERE guild_id = ? ORDER BY (loan + loan_interest) DESC LIMIT 5', (guild_id,))
+            top_debtors = cursor.fetchall()
+
+            embed = disnake.Embed(title="Top 5 Debtors", description="Here are the top 5 players with the highest debt (Loan + Interest):", color=disnake.Color.red())
+            embed.set_author(name="WACA-Casino Debt Leaderboard", icon_url="https://cdn.discordapp.com/emojis/1262085400978128937.webp?size=128&quality=lossless")
+            for i, (user_id, loan, loan_interest) in enumerate(top_debtors, 1):
+                user = await self.bot.fetch_user(user_id)
+                total_debt = loan + loan_interest
+                embed.add_field(name=f"{i}. {user.name}", value=f"Total Debt: {total_debt:.2f} WACA-Bucks", inline=False)
+
         else:
-            embed = disnake.Embed(title="Invalid Category", description="Please choose a valid category: 'WACA-Bucks' or 'XP'.", color=disnake.Color.red())
+            embed = disnake.Embed(title="Invalid Category", description="Please choose a valid category: 'WACA-Bucks', 'XP', or 'Debt'.", color=disnake.Color.red())
 
         await inter.response.send_message(embed=embed, ephemeral=False)
 

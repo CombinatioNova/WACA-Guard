@@ -89,6 +89,7 @@ class Vouching(commands.Cog):
         conn.close()
 
         embed = disnake.Embed(title=f"Vouches for {member.display_name}", color=disnake.Color.blue())
+        embed.set_thumbnail(url=member.display_avatar.url)  # Add the vouched user's pfp as the thumbnail
         embed.add_field(name="Vetted Member Vouches", value=str(vetted_vouch_count), inline=True)
         embed.add_field(name="Regular Member Vouches", value=str(regular_vouch_count), inline=True)
         
