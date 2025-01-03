@@ -9,7 +9,7 @@ class accept(Cog):
     @slash_command(description="Accept an Application")
     async def accept(self,inter: disnake.ApplicationCommandInteraction, user: disnake.User):
         bot = self.bot
-        await inter.response.defer(with_message = True,ephemeral=True)
+        await inter.response.defer(with_message = True,ephemeral=False)
         embed = disnake.Embed(
             title=f"Your application has been accepted!",
             description = f"""

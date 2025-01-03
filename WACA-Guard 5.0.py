@@ -715,6 +715,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
 
     from moderation.Log import Log
     vprint("Completed!")
+    from eastereggs import ttp
     from moderation import supportcog
     vprint("Importing DM Listener, BanSync, Close, and Protect")
     if not barebones:
@@ -739,7 +740,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         from Fun import Gambling, private_casino, sweatshop,transfer
         vprint("Completed!")
     from onboarding import tickets
-    from Fun import levels
+    from Fun import levels, privatevc  # Add privatevc to this import
     import os
     
 
@@ -775,8 +776,8 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
     blessOn = "Online :green_circle:"
     mitoOn = "Online :green_circle:"
     whoisSys = "Online :green_circle:"
-    gamblingOn = "Online :green_circle"
-    levelsOn = "Online :green_circle"
+    gamblingOn = "Online :green_circle:"
+    levelsOn = "Online :green_circle:"
     command_sync_flags = commands.CommandSyncFlags.default()
     command_sync_flags.sync_commands_debug = True
     activity = disnake.Activity(name='over NETWACA', type=disnake.ActivityType.watching)
@@ -978,12 +979,22 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         transferOn = "Online :green_circle:"
     except:
         transferOn = "Offline :red_circle:"
+    try:
+        bot.add_cog(ttp.RichestPoorEasterEgg(bot))
+        ttpOn = "Online :green_circle:"
+    except:
+        ttpOn = "Offline :red_circle:"
+    try:
+        bot.add_cog(privatevc.PrivateVC(bot))
+        privateVCOn = "Online :green_circle:"
+    except:
+        privateVCOn = "Offline :red_circle:"
 
 
     @bot.slash_command(description="WACA-Guard Information")
     async def about(inter):
-        botVer = "BETA 5.0.0"
-        depDate = "April 14th, 2024"
+        botVer = "BETA 5.1.0"
+        depDate = "July 20th, 2024"
         embed = disnake.Embed(title=f"About WACA-Guard v. {botVer}", description=f"""
 
     Deployed on: **{depDate}**
@@ -1036,6 +1047,7 @@ def startup(testingMode: False, testingStart: False, useAI: True, verbose: True,
         e.add_field(name="Private Casino", value=f"{privateCasino}")
         e.add_field(name="Sweatshop", value=f"{sweatshopOn}")
         e.add_field(name="Transfer", value=f"{transferOn}")
+        e.add_field(name="Private VC", value=f"{privateVCOn}")
         appeal = Button(label='Appeals Link', url="https://smpwa.ca/appeal", style=disnake.ButtonStyle.link, emoji = "<:Appeal:1124143624783941632> ")
         
         await inter.response.send_message(embeds=[embed, e], components = [appeal])

@@ -3,7 +3,7 @@ from disnake.ext import commands
 import sqlite3
 import os
 import asyncio
-import random
+import secrets
 
 class Sweatshop(commands.Cog):
     def __init__(self, bot):
@@ -52,15 +52,18 @@ class Sweatshop(commands.Cog):
         user_level = result[0] if result else 1
         levels_conn.close()
 
-        tokens_per_click = max(1, user_level // 5)  # 1 token per 5 levels, minimum 1
+        tokens_per_click = max(1, (user_level + 5) // 5)  # 2 tokens at level 5, 3 at level 10, etc.
         current_tokens = self.get_work_tokens(user_id)
 
-        embed = disnake.Embed(title="Sweatshop Work", color=disnake.Color.blue())
+        # Check high stakes status
+        is_high_stakes = self.high_stakes.get(user_id, False)
+        high_stakes_style = disnake.ButtonStyle.secondary if is_high_stakes else disnake.ButtonStyle.danger
+
+        embed = disnake.Embed(title="Sweatshop Work", color=disnake.Color.red() if is_high_stakes else disnake.Color.blue())
         embed.add_field(name="Work Tokens", value=str(current_tokens), inline=False)
-        embed.add_field(name="Tokens per Click", value=str(tokens_per_click), inline=False)
+        embed.add_field(name="Tokens per Click", value=f"{tokens_per_click} (High Stakes Mode)" if is_high_stakes else str(tokens_per_click), inline=False)
         embed.set_footer(text=f"User Level: {user_level}")
 
-        high_stakes_style = disnake.ButtonStyle.secondary if self.high_stakes.get(user_id, False) else disnake.ButtonStyle.danger
         components = [
             disnake.ui.Button(emoji="<:Construction:1263030921930477659>",style=disnake.ButtonStyle.primary, label="Work", custom_id="work_button"),
             disnake.ui.Button(emoji="<:CurrencyExchange:1262116791539335311>",style=disnake.ButtonStyle.success, label="Exchange all work tokens", custom_id="exchange_button"),

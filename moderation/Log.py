@@ -254,25 +254,36 @@ class Log(commands.Cog):
 
 
             query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
-            self.cursor.execute(query, (user.id,inter.guild.id,))
+            self.cursor.execute(query, (user.id, inter.guild.id))
             count = self.cursor.fetchone()[0]
             queryNet = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
             self.cursor.execute(queryNet, (user.id,))
             countNet = self.cursor.fetchone()[0]
 
-            await inter.edit_original_response(
-                f"{user.display_name} has been logged. They currently have {count} offence(s) in {inter.guild.name} and {countNet} offence(s) network-wide."
+            embed = await statbed.create_success_embed(
+                title="User Logged Successfully",
+                description=f"{user.display_name} has been logged."
             )
+            embed.add_field(name="Server Offences", value=f"{count} in {inter.guild.name}", inline=True)
+            embed.add_field(name="Network-wide Offences", value=f"{countNet}", inline=True)
+
+            await inter.edit_original_response(embed=embed)
         else:
             query = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0 AND guild_id = ?"
-            self.cursor.execute(query, (user.id,inter.guild.id,))
+            self.cursor.execute(query, (user.id, inter.guild.id))
             count = self.cursor.fetchone()[0]
             queryNet = "SELECT COUNT(*) FROM logs WHERE user_id = ? AND removed = 0"
             self.cursor.execute(queryNet, (user.id,))
             countNet = self.cursor.fetchone()[0]
-            await inter.edit_original_response(
-                f"{user.display_name} has been logged. They currently have {count} offence(s) in {inter.guild.name} and {countNet} offence(s) network-wide. Please wait for a Moderator+ to accept or deny your log..."
+
+            embed = await statbed.create_info_embed(
+                title="User Logged - Awaiting Approval",
+                description=f"{user.display_name} has been logged. Please wait for a Moderator+ to accept or deny your log..."
             )
+            embed.add_field(name="Server Offences", value=f"{count} in {inter.guild.name}", inline=True)
+            embed.add_field(name="Network-wide Offences", value=f"{countNet}", inline=True)
+
+            await inter.edit_original_response(embed=embed)
 
     @commands.Cog.listener()
     async def on_button_click(self, inter: disnake.MessageInteraction):
@@ -280,7 +291,7 @@ class Log(commands.Cog):
         try:
             log_id = int(custom_id.split(":")[1])
         except:
-            print("No LogID Found for Logging System!")
+            pass
 
         if custom_id.startswith("edit_log"):
             await self.handle_edit_button(inter, log_id)

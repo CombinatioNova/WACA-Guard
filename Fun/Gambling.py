@@ -1,9 +1,11 @@
 import disnake
 from disnake.ext import commands, tasks
 import sqlite3
-import random
+import secrets
 import os
+import json
 from disnake.ext.commands import Param
+from core import statbed
 
 # Connect to (or create) the SQLite database in the databases folder
 conn = sqlite3.connect(os.path.join('databases', 'gambling.db'))
@@ -15,15 +17,27 @@ CREATE TABLE IF NOT EXISTS gambling (
     user_id INTEGER,
     guild_id INTEGER,
     money INTEGER NOT NULL DEFAULT 100,
-    xp INTEGER NOT NULL DEFAULT 0,
-    times_played INTEGER NOT NULL DEFAULT 0,
-    loan INTEGER NOT NULL DEFAULT 0,
-    loan_interest REAL NOT NULL DEFAULT 0,
-    wins INTEGER NOT NULL DEFAULT 0,
-    losses INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, guild_id)
 )
 ''')
+
+# Add columns if they don't exist
+columns_to_add = [
+    ('xp', 'INTEGER NOT NULL DEFAULT 0'),
+    ('times_played', 'INTEGER NOT NULL DEFAULT 0'),
+    ('loan', 'INTEGER NOT NULL DEFAULT 0'),
+    ('loan_interest', 'REAL NOT NULL DEFAULT 0'),
+    ('wins', 'INTEGER NOT NULL DEFAULT 0'),
+    ('losses', 'INTEGER NOT NULL DEFAULT 0'),
+    ('payment_history', 'TEXT DEFAULT \'[]\'')
+]
+
+for column_name, column_type in columns_to_add:
+    cursor.execute(f"PRAGMA table_info(gambling)")
+    existing_columns = [column[1] for column in cursor.fetchall()]
+    if column_name not in existing_columns:
+        cursor.execute(f"ALTER TABLE gambling ADD COLUMN {column_name} {column_type}")
+
 conn.commit()
 
 class Roulette(commands.Cog):
@@ -200,12 +214,13 @@ class Roulette(commands.Cog):
 
             
 
-            cursor.execute('SELECT money, loan, loan_interest FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+            cursor.execute('SELECT money, loan, loan_interest, payment_history FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
             user = cursor.fetchone()
             if user is None:
                 return await inter.response.send_message("You don't have any loans.", ephemeral=True)
 
-            money, loan, loan_interest = user
+            money, loan, loan_interest, payment_history = user
+            payment_history = json.loads(payment_history)
             total_debt = loan + loan_interest
 
             if payment_amount > money:
@@ -216,15 +231,20 @@ class Roulette(commands.Cog):
 
             # Pay off the loan
             money -= payment_amount
+            on_time = payment_amount >= (total_debt * 0.1)  # Consider payment on time if it's at least 10% of total debt
+            payment_history.append([payment_amount, on_time])
+
             if payment_amount > loan_interest:
                 loan -= (payment_amount - loan_interest)
                 loan_interest = 0
             else:
                 loan_interest -= payment_amount
 
-            cursor.execute('UPDATE gambling SET money = ?, loan = ?, loan_interest = ? WHERE user_id = ? AND guild_id = ?', 
-                           (money, loan, loan_interest, user_id, guild_id))
+            cursor.execute('UPDATE gambling SET money = ?, loan = ?, loan_interest = ?, payment_history = ? WHERE user_id = ? AND guild_id = ?', 
+                           (money, loan, loan_interest, json.dumps(payment_history), user_id, guild_id))
             conn.commit()
+
+            credit_score = await self.calculate_credit_score(user_id, guild_id)
 
             embed = disnake.Embed(
                 title="Loan Payment Successful",
@@ -234,6 +254,7 @@ class Roulette(commands.Cog):
             embed.add_field(name="Remaining Loan", value=f"{loan:.2f}", inline=True)
             embed.add_field(name="Remaining Interest", value=f"{loan_interest:.2f}", inline=True)
             embed.add_field(name="Current WACA-Bucks", value=f"{money:.2f}", inline=True)
+            embed.add_field(name="Credit Score", value=f"{credit_score}", inline=True)
             await inter.response.edit_message(embed=embed, components=[])
         # Handle the custom loan modal submission
         elif inter.custom_id == "custom_loan_modal":
@@ -244,17 +265,37 @@ class Roulette(commands.Cog):
             cursor.execute('SELECT money, loan FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
             user_data = cursor.fetchone()
             if user_data is None:
-                return await inter.response.send_message("You need to play some games first before taking a loan.", ephemeral=True)
+                embed = await statbed.create_error_embed(
+                    title="No Gambling Data",
+                    description="You need to play some games first before taking a loan.",
+                    footer="WACA-Bank Error"
+                )
+                return await inter.response.send_message(embed=embed, ephemeral=True)
 
             current_money, current_loan = user_data
+
+            # Fetch user level from levels database
+            levels_conn = sqlite3.connect(os.path.join('databases', 'levels.db'))
+            levels_cursor = levels_conn.cursor()
+            levels_cursor.execute('SELECT level FROM levels WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+            level_result = levels_cursor.fetchone()
+            levels_conn.close()
+
+            user_level = level_result[0] if level_result else 1
+            max_loan = user_level * 100  # Max loan is 100 times the user's level
 
             loan_amount = inter.text_values["loan_amount"]
             try:
                 loan_amount = int(loan_amount)
-                if loan_amount <= 0 or loan_amount > 1000:
+                if loan_amount <= 0 or loan_amount > max_loan:
                     raise ValueError
             except ValueError:
-                await inter.response.send_message("Please enter a valid loan amount between 1 and 1000.", ephemeral=True)
+                embed = await statbed.create_error_embed(
+                    title="Invalid Loan Amount",
+                    description=f"Please enter a valid loan amount between 1 and {max_loan}.",
+                    footer="WACA-Bank Error"
+                )
+                await inter.response.send_message(embed=embed, ephemeral=True)
                 return
 
             # Process the custom loan
@@ -314,9 +355,18 @@ class Roulette(commands.Cog):
 
     @commands.Cog.listener()
     async def on_button_click(self, inter: disnake.MessageInteraction):
+        
+
         if inter.component.custom_id not in ['confirm_all_in','cancel_all_in','bet_all','pay_loan_modal', 'loan_yes', 'loan_no', 'black', 'red', 'bet_10', 'bet_20', 'bet_50', 'bet_100', 'rps_wager_10', 'rps_wager_20', 'rps_wager_50', 'rps_wager_100', 'rps_rock', 'rps_paper', 'rps_scissors', 'exchange_xp_confirm', 'exchange_xp_cancel', 'bank_loan', 'bank_exchange', 'bank_back', 'loan_100', 'loan_custom', 'loan_cancel']:
             return
-
+            # Check if the user who clicked the button is the same as the one who initiated the command
+        elif inter.message.interaction and inter.message.interaction.user.id != inter.author.id:
+            embed = await statbed.create_alert_embed(
+                title="Unauthorized Interaction",
+                description="You cannot interact with someone else's game.",
+                footer="Access denied"
+            )
+            return await inter.response.send_message(embed=embed, ephemeral=True)
         user_id = inter.author.id
         guild_id = inter.guild.id
 
@@ -582,7 +632,7 @@ class Roulette(commands.Cog):
             if not chosen_color:
                 return await inter.response.edit_message(content="An error occurred. Please start the game again.")
 
-            random_color = random.choice(['black', 'red'])
+            random_color = secrets.choice(['black', 'red'])
             if chosen_color == random_color:
                 winnings = bet_amount
                 wins += 1
@@ -638,7 +688,7 @@ class Roulette(commands.Cog):
             if not chosen_color:
                 return await inter.response.edit_message(content="An error occurred. Please start the game again.")
 
-            random_color = random.choice(['black', 'red'])
+            random_color = secrets.choice(['black', 'red'])
             title = "<:Report:1124146580442857502> ERROR"
             description = f"An unknown error has occured!"
             color = disnake.Colour.red()
@@ -727,8 +777,24 @@ class Roulette(commands.Cog):
 
         await self.ensure_user_exists(user_id, guild_id)
 
+        cursor.execute('SELECT money, loan, loan_interest FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+        user_data = cursor.fetchone()
+        if user_data:
+            money, loan, loan_interest = user_data
+            total_debt = loan + loan_interest
+            credit_score = await self.calculate_credit_score(user_id, guild_id)
+        else:
+            money, total_debt, credit_score = 0, 0, 0
+
+        # Check if the user is eligible to pay
+        is_eligible = await self.is_eligible_to_pay(user_id, user_id, guild_id, 1)  # We use 1 as a dummy amount
+
         embed = disnake.Embed(title="WACA-Bank", description="Welcome to WACA-Bank. What would you like to do?", color=disnake.Color.blue())
         embed.set_author(name="WACA-Bank", icon_url="https://cdn.discordapp.com/attachments/1262100698204471408/1262128295865221170/AccountBalance.png?ex=66957812&is=66942692&hm=717439a90dd6f7275332146a19e2b119a1299a1cf090aba7c58254275036d060&")
+        embed.add_field(name="Current WACA-Bucks", value=f"{money:,}", inline=True)
+        embed.add_field(name="Current Debt", value=f"{total_debt:,.2f}", inline=True)
+        embed.add_field(name="Credit Score", value=f"{credit_score}", inline=True)
+        embed.add_field(name="Eligible to Pay?", value="**Yes**" if is_eligible else "**No**", inline=True)
         
         components = [
             disnake.ui.Button(emoji="<:Credit:1263027887372636210>",label="Get a Loan", custom_id="bank_loan", style=disnake.ButtonStyle.primary),
@@ -957,7 +1023,7 @@ class Roulette(commands.Cog):
             await inter.edit_original_message(content="❌ You didn't make a choice. The game has been cancelled.", embed=None, view=None)
             return
 
-        bot_choice = random.choice(["rock", "paper", "scissors"])
+        bot_choice = secrets.choice(["rock", "paper", "scissors"])
         user_choice = view.value
 
         result_embed = disnake.Embed(title="<:Payment:1262085400978128937> Rock Paper Scissors Result", color=disnake.Color.blue())
@@ -1001,3 +1067,121 @@ class Roulette(commands.Cog):
             return "📄"
         else:
             return "✂️"
+
+    async def calculate_credit_score(self, user_id: int, guild_id: int):
+        cursor.execute('SELECT loan, loan_interest, payment_history FROM gambling WHERE user_id = ? AND guild_id = ?', (user_id, guild_id))
+        result = cursor.fetchone()
+        if not result:
+            return 0
+
+        loan, loan_interest, payment_history = result
+        payment_history = json.loads(payment_history)
+
+        if not payment_history:
+            return 500  # Base score for new users
+
+        total_payments = sum(payment for payment, _ in payment_history)
+        on_time_payments = sum(1 for _, on_time in payment_history if on_time)
+        payment_ratio = on_time_payments / len(payment_history)
+
+        current_debt = loan + loan_interest
+        debt_ratio = current_debt / (total_payments + 1)  # Add 1 to avoid division by zero
+
+        credit_score = int(700 * payment_ratio - 100 * debt_ratio)
+        return max(300, min(850, credit_score))  # Clamp score between 300 and 850
+
+    async def is_eligible_to_pay(self, payer_id: int, recipient_id: int, guild_id: int, amount: int) -> bool:
+        payer_score = await self.calculate_credit_score(payer_id, guild_id)
+        
+        cursor.execute('SELECT money, loan, loan_interest FROM gambling WHERE user_id = ? AND guild_id = ?', (payer_id, guild_id))
+        payer_data = cursor.fetchone()
+        
+        if not payer_data:
+            return False
+        
+        payer_money, payer_loan, payer_loan_interest = payer_data
+        payer_debt = payer_loan + payer_loan_interest
+        
+        # Check if payer has enough money
+        if payer_money < amount:
+            return False
+        
+        # If payer has no debt, they're always eligible
+        if payer_debt == 0:
+            return True
+        
+        # Calculate debt-to-income ratio
+        debt_to_income = payer_debt / (payer_money + 1)  # Add 1 to avoid division by zero
+        
+        # Define more forgiving eligibility criteria
+        if payer_score >= 700 and debt_to_income <= 0.8:
+            return True
+        elif payer_score >= 600 and debt_to_income <= 0.6:
+            return True
+        elif payer_score >= 500 and debt_to_income <= 0.4:
+            return True
+        elif payer_score >= 400 and debt_to_income <= 0.2:
+            return True
+        else:
+            return False
+
+    @commands.slash_command(name="pay", description="Pay another user")
+    async def pay_user(self, inter: disnake.ApplicationCommandInteraction, recipient: disnake.User, amount: int):
+        payer_id = inter.author.id
+        recipient_id = recipient.id
+        guild_id = inter.guild.id
+
+        if amount <= 0:
+            embed = await statbed.create_error_embed(
+                title="Invalid Amount",
+                description="The amount must be positive.",
+                footer="Payment Error"
+            )
+            return await inter.response.send_message(embed=embed, ephemeral=True)
+
+        if payer_id == recipient_id:
+            embed = await statbed.create_error_embed(
+                title="Invalid Recipient",
+                description="You can't pay yourself.",
+                footer="Payment Error"
+            )
+            return await inter.response.send_message(embed=embed, ephemeral=True)
+
+        await self.ensure_user_exists(payer_id, guild_id)
+        await self.ensure_user_exists(recipient_id, guild_id)
+
+        if await self.is_eligible_to_pay(payer_id, recipient_id, guild_id, amount):
+            cursor.execute('UPDATE gambling SET money = money - ? WHERE user_id = ? AND guild_id = ?', (amount, payer_id, guild_id))
+            cursor.execute('UPDATE gambling SET money = money + ? WHERE user_id = ? AND guild_id = ?', (amount, recipient_id, guild_id))
+            conn.commit()
+
+            embed = disnake.Embed(
+                title="Payment Successful",
+                description=f"You have successfully paid {amount} WACA-Bucks to {recipient.display_name}.",
+                color=disnake.Color.green()
+            )
+            await inter.response.send_message(embed=embed)
+        else:
+            embed = disnake.Embed(
+                title="Payment Failed",
+                description="You are not eligible to make this payment. This could be due to insufficient funds, a low credit score, or a high debt-to-income ratio.",
+                color=disnake.Color.red()
+            )
+            await inter.response.send_message(embed=embed, ephemeral=True)
+
+    @commands.slash_command(name="credit_score", description="Check your credit score")
+    async def credit_score(self, inter: disnake.ApplicationCommandInteraction):
+        user_id = inter.author.id
+        guild_id = inter.guild.id
+
+        await self.ensure_user_exists(user_id, guild_id)
+
+        credit_score = await self.calculate_credit_score(user_id, guild_id)
+
+        embed = disnake.Embed(
+            title="Credit Score",
+            description=f"Your current credit score is: **{credit_score}**",
+            color=disnake.Color.blue()
+        )
+        embed.set_footer(text="Credit scores range from 300 to 850. Higher is better!")
+        await inter.response.send_message(embed=embed)

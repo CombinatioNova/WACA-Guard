@@ -65,5 +65,23 @@ async def create_critical_failure_embed(title: str, description: str = "", foote
     )
     embed.set_author(name="Critical Failure!", icon_url="https://cdn.discordapp.com/emojis/1109510619687817426.webp?size=128&quality=lossless")
     return embed
-
+async def create_error_embed(title: str, description: str = "", footer: Optional[str] = None) -> disnake.Embed:
+    """
+    Creates a error embed message with a red color.
+    
+    Args:
+        title (str): The title of the embed.
+        description (str, optional): The main content of the embed. Defaults to "".
+        footer (Optional[str]): The footer text of the embed, if any.
+    
+    Returns:
+        disnake.Embed: The created embed object.
+    """
+    embed = disnake.Embed(title=title, description=description, color=0xFF0000, timestamp=datetime.now())  # Red color
+    embed.set_footer(
+        text=footer if footer else "WACA-Guard",
+        icon_url="https://cdn.discordapp.com/attachments/1003324050950586488/1036996275985453067/Protection_Color.png"
+    )
+    embed.set_author(name="Error", icon_url="https://cdn.discordapp.com/emojis/1109510619687817426.webp?size=128&quality=lossless")
+    return embed
 error = create_critical_failure_embed

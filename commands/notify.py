@@ -3,6 +3,7 @@ from disnake.ext.commands import Bot, Cog, slash_command
 from disnake.utils import get
 from disnake.ui import Button
 from datetime import datetime
+from core import statbed
 class notify(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
@@ -11,7 +12,7 @@ class notify(Cog):
     async def alert(self, inter: disnake.ApplicationCommandInteraction, title: str, content: str):
         await inter.response.defer(with_message = True,ephemeral=True)
 ## STANDARD SUCCESS TEMPLATE ##
-        success = await statbed.success(f"Alert sent to: {inter.channel.name}")
+        success = await statbed.create_success_embed(f"Alert sent to: {inter.channel.name}")
         
         embed = disnake.Embed(
             title=title,

@@ -51,9 +51,9 @@ class PrivateCasino(commands.Cog):
         await inter.response.defer(ephemeral=True)
         
         # Check if the category exists, if not create it
-        category = disnake.utils.get(inter.guild.categories, name="Cova's Casino")
+        category = disnake.utils.get(inter.guild.categories, name="private")
         if not category:
-            category = await inter.guild.create_category("Cova's Casino")
+            category = await inter.guild.create_category("private")
 
         # Create the private channel
         channel_name = f"🎰│private-{inter.author.name}"

@@ -303,14 +303,14 @@ class Suggestions(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        suggestion = message.content
         try:
-            if(message.author.bot) or message.channel.name != "💡│suggestions":
+            if message.author.bot or message.channel.name != "💡│suggestions" or isinstance(message.channel, disnake.Thread):
                 return
         except Exception as e:
             print(e)
             return
-        
+
+        suggestion = message.content
         
         cursor.execute("INSERT INTO suggestions (suggestion, upvotes, downvotes) VALUES (?, 0, 0)", (suggestion,))
         suggestion_id = cursor.lastrowid

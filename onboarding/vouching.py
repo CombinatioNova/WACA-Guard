@@ -26,7 +26,7 @@ class Vouching(commands.Cog):
         conn.close()
 
     @commands.slash_command()
-    async def vouch(self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, comment: str = None):
+    async def vouch(self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member, comment: str):
         """Vouch for a member to become a Vetted SMP Member"""
         await inter.response.defer(ephemeral=True)
 
@@ -144,7 +144,7 @@ class Vouching(commands.Cog):
 
                 # Send approval embed to the user
                 approval_embed = disnake.Embed(
-                    title="Vouch Approved!",
+                    title="Access Approved!",
                     description="You have been approved as a Vetted SMP Member. This gives you access to our SMP server.",
                     color=disnake.Color.green()
                 )
@@ -234,8 +234,8 @@ class Vouching(commands.Cog):
 
                 # Send denial embed to the user
                 denial_embed = disnake.Embed(
-                    title="Vouch Denied",
-                    description="We're sorry, but your vouch request has been denied at this time.",
+                    title="Access Denied",
+                    description="We're sorry, but you will not be granted access to the SMP at this time.",
                     color=disnake.Color.red()
                 )
                 denial_embed.add_field(name="Server", value=inter.guild.name)
