@@ -1,4 +1,4 @@
-# WACA-Guard-4.0
+# WACA-Guard-5.0
 
 WACA-Guard is NETWACA's in-house bot which focuses on assisting staff in their duties.
 
